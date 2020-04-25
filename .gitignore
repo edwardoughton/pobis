@@ -107,8 +107,8 @@ venv.bak/
 /data
 /vis/figures/*
 /results/*
-/spectrum/figures/*
-/backhaul/figures/*
-/clustering/figures/*
-/subscriptions/data_inputs/*
-/smartphones/figures/*
+/vis/spectrum/*
+/vis/backhaul/*
+/vis/clustering/*
+/vis/subscriptions/*
+/vis/smartphones/*
