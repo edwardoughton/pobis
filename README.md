@@ -1,9 +1,6 @@
 ictp4d
 ====
 
-[![Build Status](https://travis-ci.com/edwardoughton/pytal.svg?branch=master)](https://travis-ci.com/edwardoughton/pytal)
-[![Coverage Status](https://coveralls.io/repos/github/edwardoughton/pytal/badge.svg?branch=master)](https://coveralls.io/github/edwardoughton/pytal?branch=master)
-
 ICT Policies for Development
 
 **ictp4d** allows transparent and reproducible analysis of policies which improve ICT access
@@ -16,19 +13,19 @@ The recommended installation method is to use conda, which handles packages and 
 environments, along with the conda-forge channel which has a host of pre-built libraries and
 packages.
 
-Create a conda environment called pytal:
+Create a conda environment called ictp4d:
 
     conda create --name ictp4d python=3.7 gdal
 
 Activate it (run this each time you switch projects):
 
-    conda activate pytal
+    conda activate ictp4d
 
 First, install optional packages:
 
-    conda install fiona shapely rtree pyproj
+    conda install geopandas rasterio rasterstats
 
-Then install pytal:
+Then install ictp4d:
 
     python setup.py install
 
