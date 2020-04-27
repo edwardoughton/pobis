@@ -239,6 +239,9 @@ def calculate_benefit_cost_ratio(region, country_parameters):
 
     revenue = region['total_revenue']
 
-    bcr = revenue / cost
+    if revenue > 0 and cost > 0:
+        bcr = revenue / cost
+    else:
+        bcr = 0
 
     return bcr
