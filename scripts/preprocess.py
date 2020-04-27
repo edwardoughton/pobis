@@ -22,7 +22,6 @@ from rasterstats import zonal_stats
 import networkx as nx
 from rtree import index
 import numpy as np
-# from sklearn.linear_model import LinearRegression
 import random
 import math
 
