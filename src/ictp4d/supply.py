@@ -10,7 +10,7 @@ import math
 from itertools import tee
 from operator import itemgetter
 
-from pytal.costs import find_single_network_cost
+from ictp4d.costs import find_single_network_cost
 
 
 def estimate_supply(country, regions, lookup, option, global_parameters,

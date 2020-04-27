@@ -104,6 +104,10 @@ venv.bak/
 .mypy_cache/
 
 # specific folders
-/data
-/vis/
-/tests/
+/data/*
+/vis/*
+/tests/*
+/results/*
+/clustering/data_inputs/*
+/clustering/figures/*
+/clustering/results/*

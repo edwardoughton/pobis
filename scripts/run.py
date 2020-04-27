@@ -11,13 +11,12 @@ import csv
 import configparser
 import pandas as pd
 import geopandas
-from tqdm import tqdm
 from collections import OrderedDict
 
 from options import OPTIONS, COUNTRY_PARAMETERS
-from pytal.demand import estimate_demand
-from pytal.supply import estimate_supply
-from pytal.assess import assess
+from ictp4d.demand import estimate_demand
+from ictp4d.supply import estimate_supply
+from ictp4d.assess import assess
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__), 'script_config.ini'))
@@ -309,12 +308,12 @@ def load_backhaul_lut(path):
 
 def define_deciles(regions):
 
-    regions = regions.sort_values(by='population_km2', ascending=True)
+    regions = regions.sort_values(by='total_cost', ascending=True)
 
     regions['decile'] = regions.groupby([
-        'GID_0', 'scenario', 'strategy', 'confidence'], as_index=True).population_km2.apply( #cost_per_sp_user
+        'GID_0', 'scenario', 'strategy', 'confidence'], as_index=True).total_cost.apply( #cost_per_sp_user
             pd.qcut, q=11, precision=0,
-            labels=[100,90,80,70,60,50,40,30,20,10,0], duplicates='drop') # [0,10,20,30,40,50,60,70,80,90,100]
+            labels=[0,10,20,30,40,50,60,70,80,90,100], duplicates='drop') # [100,90,80,70,60,50,40,30,20,10,0]
 
     return regions
 
@@ -362,7 +361,7 @@ def write_results(regional_results, folder, metric):
     decile_cost_results = decile_cost_results[[
         'GID_0', 'scenario', 'strategy', 'decile', 'confidence', 'population', 'population_km2',
         'phones_on_network',
-        'total_revenue', 'ran', 'backhaul_fronthaul', 'civils', 'core_network',
+        'total_revenue', 'ran', 'backhaul_fronthaul', 'civils', 'core_network', 'admin_and_ops',
         'spectrum_cost', 'tax', 'profit_margin', 'total_cost',
         'available_cross_subsidy', 'deficit', 'used_cross_subsidy',
         'required_state_subsidy',
@@ -459,6 +458,8 @@ if __name__ == '__main__':
         'regional_node_lower_epc': 5000,
         'regional_node_lower_nsa': 5000,
         'regional_node_lower_sa': 10000,
+        'per_site_spectrum_acquisition_cost': 2000,
+        'per_site_administration_cost': 2000,
     }
 
     GLOBAL_PARAMETERS = {
@@ -479,6 +480,7 @@ if __name__ == '__main__':
         'cloud_power_supply_converter_split': 7,
         'software_split': 7,
         'cloud_backhaul_split': 7,
+        'regional_integration_factor': 50,
         }
 
     path = os.path.join(DATA_RAW, 'pysim5g', 'capacity_lut_by_frequency.csv')
@@ -487,19 +489,17 @@ if __name__ == '__main__':
     # countries, country_regional_levels = find_country_list(['Africa', 'South America'])
 
     countries = [
-        {'iso3': 'UGA', 'iso2': 'UG', 'regional_level': 2, 'regional_nodes_level': 2},
-        {'iso3': 'MWI', 'iso2': 'MW', 'regional_level': 2, 'regional_nodes_level': 2},
-        {'iso3': 'KEN', 'iso2': 'KE', 'regional_level': 2, 'regional_nodes_level': 1},
+        {'iso3': 'CIV', 'iso2': 'CI', 'regional_level': 2, 'regional_nodes_level': 1},
+        {'iso3': 'KEN', 'iso2': 'KE', 'regional_level': 3, 'regional_nodes_level': 2},
+        {'iso3': 'MLI', 'iso2': 'ML', 'regional_level': 2, 'regional_nodes_level': 2},
         {'iso3': 'SEN', 'iso2': 'SN', 'regional_level': 2, 'regional_nodes_level': 2},
-        {'iso3': 'PAK', 'iso2': 'PK', 'regional_level': 3, 'regional_nodes_level': 2},
-        {'iso3': 'ALB', 'iso2': 'AL', 'regional_level': 2, 'regional_nodes_level': 1},
-        {'iso3': 'PER', 'iso2': 'PE', 'regional_level': 2, 'regional_nodes_level': 1},
-        {'iso3': 'MEX', 'iso2': 'MX', 'regional_level': 2, 'regional_nodes_level': 1},
+        {'iso3': 'TZA', 'iso2': 'TZ', 'regional_level': 2, 'regional_nodes_level': 1},
+        {'iso3': 'UGA', 'iso2': 'UG', 'regional_level': 2, 'regional_nodes_level': 2},
         ]
 
     decision_options = [
-        'technology_options',
-        'business_model_options',
+        # 'technology_options',
+        # 'business_model_options',
         'policy_options'
     ]
 
