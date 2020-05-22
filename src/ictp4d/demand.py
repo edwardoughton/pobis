@@ -38,15 +38,26 @@ def estimate_demand(regions, option, global_parameters,
     """
     output = []
 
+    # # generation_core_backhaul_sharing_networks_spectrum_tax_integration
+    # network_strategy = option['strategy'].split('_')[4]
+
     for region in regions:
 
         if not region['area_km2'] > 0:
             continue
 
         geotype = region['geotype'].split(' ')[0]
+        # net_handle = network_strategy + '_' + geotype
+        # networks = country_parameters['networks'][net_handle]
+        networks = country_parameters['networks']['baseline' + '_' + geotype]
+
         if geotype == 'suburban':
-            geotype = 'urban'
-        smartphones = smartphone_lut[geotype]
+            #smartphone lut only has urban-rural split, hence no suburban
+            geotype_sps = 'urban'
+        else:
+            geotype_sps = geotype
+        iso3 = region['GID_0']
+        smartphones = smartphone_lut[iso3][geotype_sps]
 
         revenue = []
         demand_mbps_km2 = []
@@ -72,8 +83,7 @@ def estimate_demand(regions, option, global_parameters,
             #phones : int
             #Total number of phones on the network being modeled.
             region['phones_on_network'] = (
-                region['population_with_phones'] /
-                country_parameters['networks'])
+                region['population_with_phones'] / networks)
 
             #phones : int
             #Total number of smartphones on the network being modeled.
