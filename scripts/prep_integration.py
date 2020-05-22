@@ -98,9 +98,9 @@ def process_country_shapes(country):
     """
     print('----')
 
-    iso3 = country['iso3']
+    iso3_list = country['iso3']
 
-    path = os.path.join(DATA_INTERMEDIATE, iso3)
+    path = os.path.join(DATA_INTERMEDIATE, country['name'])
 
     if os.path.exists(os.path.join(path, 'national_outline.shp')):
         return 'Completed national outline processing'
@@ -114,8 +114,8 @@ def process_country_shapes(country):
     path = os.path.join(DATA_RAW, 'gadm36_levels_shp', 'gadm36_0.shp')
     countries = gpd.read_file(path)
 
-    print('Getting specific country shape for {}'.format(iso3))
-    single_country = countries[countries.GID_0 == iso3]
+    # print('Getting specific country shape for {}'.format(iso3))
+    single_country = countries[countries['GID_0'].isin(iso3_list)]# iso3_list[0] & iso3_list[1] & iso3_list[2]]
 
     print('Excluding small shapes')
     single_country['geometry'] = single_country.apply(
@@ -154,7 +154,8 @@ def process_regions(country):
     """
     regions = []
 
-    iso3 = country['iso3']
+    iso3 = country['name']
+    iso3_list = country['iso3']
     level = country['regional_level']
 
     for regional_level in range(1, level + 1):
@@ -177,7 +178,7 @@ def process_regions(country):
         regions = gpd.read_file(path_regions)
 
         print('Subsetting {} level {}'.format(iso3, regional_level))
-        regions = regions[regions.GID_0 == iso3]
+        regions = regions[regions['GID_0'].isin(iso3_list)]
 
         print('Excluding small shapes')
         regions['geometry'] = regions.apply(exclude_small_shapes, axis=1)
@@ -212,7 +213,8 @@ def process_settlement_layer(country):
         Three digit ISO country code.
 
     """
-    iso3 = country['iso3']
+    iso3 = country['name']
+    # iso3_list = country['iso3']
     regional_level = country['regional_level']
 
     path_settlements = os.path.join(DATA_RAW,'settlement_layer',
@@ -222,7 +224,6 @@ def process_settlement_layer(country):
     settlements.nodata = 255
     settlements.crs = {"init": "epsg:4326"}
 
-    iso3 = country['iso3']
     path_country = os.path.join(DATA_INTERMEDIATE, iso3,
         'national_outline.shp')
 
@@ -239,11 +240,13 @@ def process_settlement_layer(country):
 
     print('----')
     print('Working on {} level {}'.format(iso3, regional_level))
+    print(country)
 
-    bbox = country.envelope
+    minx, miny, maxx, maxy = country.total_bounds
+    geom = Polygon([(minx, miny), (minx, maxy), (maxx, maxy), (maxx, miny)])
+
     geo = gpd.GeoDataFrame()
-
-    geo = gpd.GeoDataFrame({'geometry': bbox})
+    geo = gpd.GeoDataFrame({'geometry': geom}, index=[0], crs=from_epsg('4326'))
 
     coords = [json.loads(geo.to_json())['features'][0]['geometry']]
 
@@ -276,7 +279,8 @@ def process_night_lights(country):
         Three digit ISO country code.
 
     """
-    iso3 = country['iso3']
+    iso3 = country['name']
+    iso3_list = country['iso3']
 
     folder = os.path.join(DATA_INTERMEDIATE, iso3)
     path_output = os.path.join(folder,'night_lights.tif')
@@ -295,10 +299,11 @@ def process_night_lights(country):
     print('----')
     print('working on {}'.format(iso3))
 
-    bbox = country.envelope
+    minx, miny, maxx, maxy = country.total_bounds
+    geom = Polygon([(minx, miny), (minx, maxy), (maxx, maxy), (maxx, miny)])
 
     geo = gpd.GeoDataFrame()
-    geo = gpd.GeoDataFrame({'geometry': bbox}, crs=from_epsg('4326'))
+    geo = gpd.GeoDataFrame({'geometry': geom}, index=[0], crs=from_epsg('4326'))
 
     coords = [json.loads(geo.to_json())['features'][0]['geometry']]
 
@@ -331,8 +336,9 @@ def process_coverage_shapes(country):
         Three digit ISO country code.
 
     """
-    iso3 = country['iso3']
-    iso2 = country['iso2']
+    iso3 = country['name']
+    iso3_list = country['iso3']
+    iso2_list = country['iso2']
 
     technologies = [
         'GSM',
@@ -357,23 +363,60 @@ def process_coverage_shapes(country):
             'Data_MCE')
         inclusions = gpd.read_file(os.path.join(folder, filename))
 
-        if iso2 in inclusions['CNTRY_ISO2']:
+        all_coverage = []
 
-            filename = 'MCE_201812_{}.shp'.format(tech)
-            folder = os.path.join(DATA_RAW, 'mobile_coverage_explorer',
-                'Data_MCE')
-            coverage = gpd.read_file(os.path.join(folder, filename))
+        for iso2 in iso2_list:
+            print(iso2)
+            if iso2 in inclusions['CNTRY_ISO2']:
 
-            coverage = coverage.loc[coverage['CNTRY_ISO3'] == iso3]
+                filename = 'MCE_201812_{}.shp'.format(tech)
+                folder = os.path.join(DATA_RAW, 'mobile_coverage_explorer',
+                    'Data_MCE')
+                coverage = gpd.read_file(os.path.join(folder, filename), crs='epsg:4326')
 
-        else:
+                coverage = coverage.loc[coverage['CNTRY_ISO2'] == iso2]
 
-            filename = 'OCI_201812_{}.shp'.format(tech)
-            folder = os.path.join(DATA_RAW, 'mobile_coverage_explorer',
-                'Data_OCI')
-            coverage = gpd.read_file(os.path.join(folder, filename))
+                coverage = coverage.to_dict('records')
+                print(coverage)
+                for item in coverage:
+                    all_coverage.append({
+                        'geometry': item['geometry'],
+                        'properties': {
+                            'CNTRY_ISO2': item['CNTRY_ISO3'],
+                            'CNTRY_ISO3': item['CNTRY_ISO3'],
+                        }
+                    })
 
-            coverage = coverage.loc[coverage['CNTRY_ISO3'] == iso3]
+            else:
+
+                filename = 'OCI_201812_{}.shp'.format(tech)
+                folder = os.path.join(DATA_RAW, 'mobile_coverage_explorer',
+                    'Data_OCI')
+                coverage = gpd.read_file(os.path.join(folder, filename), crs='epsg:4326')
+
+                coverage = coverage.loc[coverage['CNTRY_ISO2'] == iso2]
+
+                coverage = coverage.to_dict('records')
+
+                for item in coverage:
+                    all_coverage.append({
+                        'geometry': item['geometry'],
+                        'properties': {
+                            'CNTRY_ISO2': item['CNTRY_ISO3'],
+                            'CNTRY_ISO3': item['CNTRY_ISO3'],
+                        }
+                    })
+
+        coverage = gpd.GeoDataFrame.from_features([
+            {
+                'geometry': item['geometry'],
+                'properties': {
+                    'CNTRY_ISO2': item['properties']['CNTRY_ISO2'],
+                    'CNTRY_ISO3':item['properties']['CNTRY_ISO3'],
+                }
+            }
+            for item in all_coverage
+        ], crs='epsg:4326')
 
         if len(coverage) > 0:
 
@@ -426,7 +469,9 @@ def process_regional_coverage(country):
 
     """
     level = country['regional_level']
-    iso3 = country['iso3']
+    iso3 = country['name']
+    # iso3_list = country['iso3']
+    # iso2_list = country['iso2']
     gid_level = 'GID_{}'.format(level)
 
     filename = 'regions_{}_{}.shp'.format(level, iso3)
@@ -476,7 +521,10 @@ def get_regional_data(country):
         Three digit ISO country code.
 
     """
-    iso3 = country['iso3']
+    iso3 = country['name']
+    iso3_list = country['iso3']
+    iso2_list = country['iso2']
+
     level = country['regional_level']
     gid_level = 'GID_{}'.format(level)
 
@@ -577,7 +625,7 @@ def get_regional_data(country):
     backhaul_lut = estimate_backhaul(iso3, country['region'], '2025')
 
     print('Working on estimating sites')
-    results = estimate_sites(results, iso3, backhaul_lut)
+    results = estimate_sites(results, iso3_list, backhaul_lut)
 
     results_df = pd.DataFrame(results)
 
@@ -588,112 +636,120 @@ def get_regional_data(country):
     return print('Completed night lights data querying')
 
 
-def estimate_sites(data, iso3, backhaul_lut):
+def estimate_sites(data, iso3_list, backhaul_lut):
     """
     """
     output = []
 
-    existing_site_data_path = os.path.join(DATA_INTERMEDIATE, iso3, 'sites', 'sites.csv')
+    for iso3 in iso3_list:
+        print(iso3)
+        existing_site_data_path = os.path.join(DATA_INTERMEDIATE, iso3, 'sites', 'sites.csv')
 
-    existing_site_data = {}
-    if os.path.exists(existing_site_data_path):
-        site_data = pd.read_csv(existing_site_data_path)
-        site_data = site_data.to_dict('records')
-        for item in site_data:
-            existing_site_data[item['GID_id']] = item['sites']
+        existing_site_data = {}
+        if os.path.exists(existing_site_data_path):
+            site_data = pd.read_csv(existing_site_data_path)
+            site_data = site_data.to_dict('records')
+            for item in site_data:
+                existing_site_data[item['GID_id']] = item['sites']
 
-    population = 0
+        population = 0
 
-    for region in data:
+        for region in data:
 
-        if region['population'] == None:
-            continue
+            if region['population'] == None:
+                continue
 
-        population += int(region['population'])
+            population += int(region['population'])
 
-    path = os.path.join(DATA_RAW, 'wb_mobile_coverage', 'wb_population_coverage.csv')
-    coverage = pd.read_csv(path)
-    coverage = coverage.loc[coverage['Country ISO3'] == iso3]
-    coverage = coverage['2016'].values[0]
+        path = os.path.join(DATA_RAW, 'wb_mobile_coverage', 'wb_population_coverage.csv')
+        coverage = pd.read_csv(path)
+        coverage = coverage.loc[coverage['Country ISO3'] == iso3]
+        coverage = coverage['2016'].values[0]
 
-    population_covered = population * (coverage / 100)
+        population_covered = population * (coverage / 100)
 
-    path = os.path.join(DATA_RAW, 'real_site_data', 'tower_counts', 'tower_counts.csv')
-    towers = pd.read_csv(path, encoding = "ISO-8859-1")
-    towers = towers.loc[towers['ISO_3digit'] == iso3]
-    towers = towers['count'].values[0]
+        path = os.path.join(DATA_RAW, 'real_site_data', 'tower_counts', 'tower_counts.csv')
+        towers = pd.read_csv(path, encoding = "ISO-8859-1")
+        towers = towers.loc[towers['ISO_3digit'] == iso3]
+        towers = towers['count'].values[0]
 
-    towers_per_pop = towers / population_covered
+        towers_per_pop = towers / population_covered
 
-    tower_backhaul_lut = estimate_backhaul_type(backhaul_lut)
+        tower_backhaul_lut = estimate_backhaul_type(backhaul_lut)
 
-    data = sorted(data, key=lambda k: k['population_km2'], reverse=True)
+        data = sorted(data, key=lambda k: k['population_km2'], reverse=True)
 
-    covered_pop_so_far = 0
+        covered_pop_so_far = 0
 
-    for region in data:
+        for region in data:
 
-        #first try to use actual data
-        if len(existing_site_data) > 0:
-            sites_estimated_total = existing_site_data[region['GID_id']]
-            if region['area_km2'] > 0:
-                sites_estimated_km2 = sites_estimated_total / region['area_km2']
+            if not region['GID_id'].startswith(iso3):
+                continue
+
+            if region['population'] == None:
+                continue
+
+            #first try to use actual data
+            if len(existing_site_data) > 0:
+                sites_estimated_total = existing_site_data[region['GID_id']]
+                if region['area_km2'] > 0:
+                    sites_estimated_km2 = sites_estimated_total / region['area_km2']
+                else:
+                    sites_estimated_km2 = 0
+
+            #or if we don't have data estimate sites per area
             else:
-                sites_estimated_km2 = 0
+                if covered_pop_so_far < population_covered:
+                    sites_estimated_total = region['population'] * towers_per_pop
+                    sites_estimated_km2 = region['population_km2'] * towers_per_pop
 
-        #or if we don't have data estimate sites per area
-        else:
-            if covered_pop_so_far < population_covered:
-                sites_estimated_total = region['population'] * towers_per_pop
-                sites_estimated_km2 = region['population_km2'] * towers_per_pop
+                else:
+                    sites_estimated_total = 0
+                    sites_estimated_km2 = 0
 
-            else:
-                sites_estimated_total = 0
-                sites_estimated_km2 = 0
+            backhaul_fiber = 0
+            backhaul_copper = 0
+            backhaul_microwave = 0
+            backhaul_satellite = 0
 
-        backhaul_fiber = 0
-        backhaul_copper = 0
-        backhaul_microwave = 0
-        backhaul_satellite = 0
+            for i in range(1, int(round(sites_estimated_total)) + 1):
 
-        for i in range(1, int(round(sites_estimated_total)) + 1):
+                num = random.uniform(0, 1)
 
-            num = random.uniform(0, 1)
+                if num <= tower_backhaul_lut['fiber']:
+                    backhaul_fiber += 1
+                elif tower_backhaul_lut['fiber'] < num <= tower_backhaul_lut['copper']:
+                    backhaul_copper += 1
+                elif tower_backhaul_lut['copper'] < num <= tower_backhaul_lut['microwave']:
+                    backhaul_microwave += 1
+                elif tower_backhaul_lut['microwave'] < num:
+                    backhaul_satellite += 1
 
-            if num <= tower_backhaul_lut['fiber']:
-                backhaul_fiber += 1
-            elif tower_backhaul_lut['fiber'] < num <= tower_backhaul_lut['copper']:
-                backhaul_copper += 1
-            elif tower_backhaul_lut['copper'] < num <= tower_backhaul_lut['microwave']:
-                backhaul_microwave += 1
-            elif tower_backhaul_lut['microwave'] < num:
-                backhaul_satellite += 1
+            output.append({
+                    'GID_0': region['GID_0'],
+                    'GID_id': region['GID_id'],
+                    'GID_level': region['GID_level'],
+                    'mean_luminosity_km2': region['mean_luminosity_km2'],
+                    'population': region['population'],
+                    'area_km2': region['area_km2'],
+                    'population_km2': region['population_km2'],
+                    'coverage_GSM_percent': region['coverage_GSM_percent'],
+                    'coverage_3G_percent': region['coverage_3G_percent'],
+                    'coverage_4G_percent': region['coverage_4G_percent'],
+                    'sites_estimated_total': sites_estimated_total,
+                    'sites_estimated_km2': sites_estimated_km2,
+                    'sites_3G': sites_estimated_total * (region['coverage_3G_percent'] /100),
+                    'sites_4G': sites_estimated_total * (region['coverage_4G_percent'] /100),
+                    'backhaul_fiber': backhaul_fiber,
+                    'backhaul_copper': backhaul_copper,
+                    'backhaul_microwave': backhaul_microwave,
+                    'backhaul_satellite': backhaul_satellite,
+                })
 
-        output.append({
-                'GID_0': region['GID_0'],
-                'GID_id': region['GID_id'],
-                'GID_level': region['GID_level'],
-                'mean_luminosity_km2': region['mean_luminosity_km2'],
-                'population': region['population'],
-                'area_km2': region['area_km2'],
-                'population_km2': region['population_km2'],
-                'coverage_GSM_percent': region['coverage_GSM_percent'],
-                'coverage_3G_percent': region['coverage_3G_percent'],
-                'coverage_4G_percent': region['coverage_4G_percent'],
-                'sites_estimated_total': sites_estimated_total,
-                'sites_estimated_km2': sites_estimated_km2,
-                'sites_3G': sites_estimated_total * (region['coverage_3G_percent'] /100),
-                'sites_4G': sites_estimated_total * (region['coverage_4G_percent'] /100),
-                'backhaul_fiber': backhaul_fiber,
-                'backhaul_copper': backhaul_copper,
-                'backhaul_microwave': backhaul_microwave,
-                'backhaul_satellite': backhaul_satellite,
-            })
+            if region['population'] == None:
+                continue
 
-        if region['population'] == None:
-            continue
-
-        covered_pop_so_far += region['population']
+            covered_pop_so_far += region['population']
 
     return output
 
@@ -980,7 +1036,10 @@ def generate_agglomeration_lut(country):
     """
     Generate a lookup table of agglomerations.
     """
-    iso3 = country['iso3']
+    iso3 = country['name']
+    iso3_list = country['iso3']
+    iso2_list = country['iso2']
+
     regional_level = country['regional_level']
     GID_level = 'GID_{}'.format(regional_level)
 
@@ -1109,8 +1168,8 @@ def process_existing_fiber(country):
     """
     Load and process existing fiber data.
     """
-    iso3 = country['iso3']
-    iso2 = country['iso2'].lower()
+    iso3 = country['name']
+    iso2_list = country['iso2']
 
     folder = os.path.join(DATA_INTERMEDIATE, iso3, 'network_existing')
     if not os.path.exists(folder):
@@ -1127,44 +1186,46 @@ def process_existing_fiber(country):
 
     data = []
 
-    for item in shape:
-        if item['properties']['iso2'].lower() == iso2.lower():
+    for iso2 in iso2_list:
+        iso2 = iso2.lower()
+        for item in shape:
+            if item['properties']['iso2'].lower() == iso2.lower():
 
-            if item['geometry']['type'] == 'LineString':
-                if int(item['properties']['live']) == 1:
+                if item['geometry']['type'] == 'LineString':
+                    if int(item['properties']['live']) == 1:
 
-                    data.append({
-                        'type': 'Feature',
-                        'geometry': {
-                            'type': 'LineString',
-                            'coordinates': item['geometry']['coordinates'],
-                        },
-                        'properties': {
-                            'operators': item['properties']['operator'],
-                            'source': 'existing'
-                        }
-                    })
+                        data.append({
+                            'type': 'Feature',
+                            'geometry': {
+                                'type': 'LineString',
+                                'coordinates': item['geometry']['coordinates'],
+                            },
+                            'properties': {
+                                'operators': item['properties']['operator'],
+                                'source': 'existing'
+                            }
+                        })
 
-            if item['geometry']['type'] == 'MultiLineString':
-                if int(item['properties']['live']) == 1:
-                    try:
-                        geom = MultiLineString(item['geometry']['coordinates'])
-                        for line in geom:
-                            data.append({
-                                'type': 'Feature',
-                                'geometry': mapping(line),
-                                'properties': {
-                                    'operators': item['properties']['operator'],
-                                    'source': 'existing'
-                                }
-                            })
-                    except:
-                        # some geometries are incorrect from data source
-                        # exclude to avoid issues
-                        pass
+                if item['geometry']['type'] == 'MultiLineString':
+                    if int(item['properties']['live']) == 1:
+                        try:
+                            geom = MultiLineString(item['geometry']['coordinates'])
+                            for line in geom:
+                                data.append({
+                                    'type': 'Feature',
+                                    'geometry': mapping(line),
+                                    'properties': {
+                                        'operators': item['properties']['operator'],
+                                        'source': 'existing'
+                                    }
+                                })
+                        except:
+                            # some geometries are incorrect from data source
+                            # exclude to avoid issues
+                            pass
 
-    if len(data) == 0:
-        return print('No existing infrastructure')
+        if len(data) == 0:
+            return print('No existing infrastructure')
 
     data = gpd.GeoDataFrame.from_features(data)
     data.to_file(path_output, crs='epsg:4326')
@@ -1177,7 +1238,7 @@ def find_nodes_on_existing_infrastructure(country):
     Find those agglomerations which are within a buffered zone of
     existing fiber links.
     """
-    iso3 = country['iso3']
+    iso3 = country['name']
 
     folder = os.path.join(DATA_INTERMEDIATE, iso3, 'network_existing')
     filename = 'core_nodes_existing.shp'
@@ -1222,7 +1283,10 @@ def find_nodes(country, regions):
     """
     Find key nodes.
     """
-    iso3 = country['iso3']
+    iso3 = country['name']
+    iso3_list = country['iso3']
+    iso2_list = country['iso2']
+
     regional_level = country['regional_level']
     GID_level = 'GID_{}'.format(regional_level)
 
@@ -1305,7 +1369,10 @@ def get_missing_nodes(country, regions, missing_nodes, threshold, settlement_siz
     """
     Find any missing nodes
     """
-    iso3 = country['iso3']
+    iso3 = country['name']
+    iso3_list = country['iso3']
+    iso2_list = country['iso2']
+
     regional_level = country['regional_level']
     GID_level = 'GID_{}'.format(regional_level)
 
@@ -1381,7 +1448,10 @@ def get_missing_nodes(country, regions, missing_nodes, threshold, settlement_siz
 def find_regional_nodes(country):
     """
     """
-    iso3 = country['iso3']
+    iso3 = country['name']
+    iso3_list = country['iso3']
+    iso2_list = country['iso2']
+
     regional_level = country['regional_level']
     GID_level = 'GID_{}'.format(regional_level)
 
@@ -1574,7 +1644,9 @@ def fit_edges(input_path, output_path):
 def prepare_edge_fitting(country):
     """
     """
-    folder = os.path.join(DATA_INTERMEDIATE, country['iso3'])
+    iso3 = country['name']
+
+    folder = os.path.join(DATA_INTERMEDIATE, iso3)
     core_edges_path = os.path.join(folder, 'network_existing', 'core_edges_existing.shp')
 
     if not os.path.exists(core_edges_path):
@@ -1639,7 +1711,8 @@ def prepare_edge_fitting(country):
 def fit_regional_edges(country):
     """
     """
-    iso3 = country['iso3']
+    iso3 = country['name']
+
     regional_level = country['regional_level']
     GID_level = 'GID_{}'.format(regional_level)
 
@@ -1652,14 +1725,14 @@ def fit_regional_edges(country):
     for unique_region in unique_regions:
 
         input_path = os.path.join(folder, 'regional_nodes', unique_region + '.shp')
-        output_path = os.path.join(DATA_INTERMEDIATE, country['iso3'], 'network', 'regional_edges', unique_region + '.shp')
+        output_path = os.path.join(DATA_INTERMEDIATE, iso3, 'network', 'regional_edges', unique_region + '.shp')
         fit_edges(input_path, output_path)
 
     output = []
 
     for unique_region in unique_regions:
 
-        path = os.path.join(DATA_INTERMEDIATE, country['iso3'], 'network', 'regional_edges', unique_region + '.shp')
+        path = os.path.join(DATA_INTERMEDIATE, iso3, 'network', 'regional_edges', unique_region + '.shp')
         if os.path.exists(path):
             regional_edges = gpd.read_file(path, crs='epsg:4326')
 
@@ -1683,7 +1756,8 @@ def generate_core_lut(country):
     """
     Generate core lut.
     """
-    iso3 = country['iso3']
+    iso3 = country['name']
+
     level = country['regional_level']
     regional_level = 'GID_{}'.format(level)
 
@@ -1812,104 +1886,6 @@ def generate_core_lut(country):
     return print('Completed core lut')
 
 
-def generate_backhaul_lut(country):
-    """
-    Simulate backhaul distance given a 100km^2 area.
-      Simulations show that for every 10x increase in node density,
-      there is a 3.2x decrease in backhaul length.
-    node_density_km2	average_distance_km
-    0.000001	606.0	10	 3.2
-    0.00001	189.0	10	 3.8
-    0.0001	50.0	10	 3.1
-    0.001	16.0	10	 3.2
-    0.01	5.0	10	 3.2
-    0.1	1.6	10	 3.2
-    1	0.5
-    """
-    filename = 'backhaul_lut.csv'
-    folder = os.path.join(DATA_INTERMEDIATE)
-    path = os.path.join(folder, filename)
-
-    if os.path.exists(path):
-        return print('Backhaul LUT already generated')
-
-    output = []
-
-    number_of_regional_nodes_range = [1, 10, 100, 1000, 10000]
-
-    area_km2 = 1e6
-
-    for number_of_regional_nodes in number_of_regional_nodes_range:
-
-        sites = []
-
-        for i in range(1, int(round(max(number_of_regional_nodes_range) + 1))):
-            x = random.uniform(0, round(math.sqrt(area_km2)))
-            y = random.uniform(0, round(math.sqrt(area_km2)))
-            sites.append({
-                'geometry': {
-                    'type': 'Point',
-                    'coordinates': (x, y)
-                },
-                'properties': {
-                    'id': i
-                }
-            })
-
-        regional_nodes = []
-
-        for i in range(1, number_of_regional_nodes + 1):
-            x = random.uniform(0, round(math.sqrt(area_km2)))
-            y = random.uniform(0, round(math.sqrt(area_km2)))
-            regional_nodes.append({
-                'geometry': {
-                    'type': 'Point',
-                    'coordinates': (x, y)
-                },
-                'properties': {
-                    'id': i
-                }
-            })
-
-        distances = []
-
-        idx = index.Index()
-
-        for regional_node in regional_nodes:
-            idx.insert(
-                regional_node['properties']['id'],
-                shape(regional_node['geometry']).bounds,
-                regional_node)
-
-        for site in sites:
-
-            geom1 = shape(site['geometry'])
-
-            nearest_regional_node = [i for i in idx.nearest((geom1.bounds))][0]
-
-            for regional_node in regional_nodes:
-                if regional_node['properties']['id'] == nearest_regional_node:
-
-                    x1 = site['geometry']['coordinates'][0]
-                    x2 = regional_node['geometry']['coordinates'][0]
-                    y1 = site['geometry']['coordinates'][1]
-                    y2 = regional_node['geometry']['coordinates'][1]
-
-                    distance = math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
-
-                    distances.append(distance)
-
-        output.append({
-            'node_density_km2': round(number_of_regional_nodes / area_km2, 8),
-            'average_distance_km': int(round(sum(distances) / len(distances))),
-        })
-
-    output = pd.DataFrame(output)
-    output.to_csv(path, index=False)
-
-    return print('Completed backhaul LUT processing')
-
-
 def load_subscription_data(path, iso3):
     """
     Load in itu cell phone subscription data.
@@ -1947,24 +1923,33 @@ def load_subscription_data(path, iso3):
 def forecast_subscriptions(country):
     """
     """
-    iso3 = country['iso3']
+    iso3 = country['name']
+    iso3_list = country['iso3']
 
-    path = os.path.join(DATA_RAW, 'gsma', 'gsma_unique_subscribers.csv')
-    historical_data = load_subscription_data(path, country['iso3'])
+    output = []
 
-    start_point = 2021
-    end_point = 2030
-    horizon = 4
+    for country_iso3 in iso3_list:
 
-    forecast = forecast_linear(
-        country,
-        historical_data,
-        start_point,
-        end_point,
-        horizon
-    )
+        path = os.path.join(DATA_RAW, 'gsma', 'gsma_unique_subscribers.csv')
+        historical_data = load_subscription_data(path, country_iso3)
+        output = output + historical_data
 
-    forecast_df = pd.DataFrame(historical_data + forecast)
+        start_point = 2021
+        end_point = 2030
+        horizon = 4
+
+        forecast = forecast_linear(
+            country_iso3,
+            country['subs_growth'],
+            historical_data,
+            start_point,
+            end_point,
+            horizon
+        )
+
+        output = output + forecast
+
+    forecast_df = pd.DataFrame(output)
 
     path = os.path.join(DATA_INTERMEDIATE, iso3, 'subscriptions')
 
@@ -1979,7 +1964,7 @@ def forecast_subscriptions(country):
     return print('Completed subscription forecast')
 
 
-def forecast_linear(country, historical_data, start_point, end_point, horizon):
+def forecast_linear(country, subs_growth, historical_data, start_point, end_point, horizon):
     """
     Forcasts subscription adoption rate.
     Parameters
@@ -1995,8 +1980,6 @@ def forecast_linear(country, historical_data, start_point, end_point, horizon):
     """
     output = []
 
-    subs_growth = country['subs_growth']
-
     year_0 = sorted(historical_data, key = lambda i: i['year'], reverse=True)[0]
 
     for year in range(start_point, end_point + 1):
@@ -2009,7 +1992,7 @@ def forecast_linear(country, historical_data, start_point, end_point, horizon):
         if year not in [item['year'] for item in output]:
 
             output.append({
-                'country': country['iso3'],
+                'country': country,
                 'year': year,
                 'penetration': round(penetration, 2),
             })
@@ -2022,70 +2005,56 @@ if __name__ == '__main__':
     # countries = find_country_list(['Africa'])
 
     countries = [
-        # {'iso3': 'SEN', 'iso2': 'SN', 'regional_level': 2, 'regional_nodes_level': 2,
-        #     'region': 'SSA', 'pop_density_km2': 100, 'settlement_size': 1000, 'subs_growth': 1.5,
+        # {'name': 'SEN-MLI-CIV', 'iso3': ['SEN', 'MLI', 'CIV'], 'iso2': ['SN', 'ML', 'CI'],
+        #   'regional_level': 2, 'regional_nodes_level': 2, 'region': 'SSA',
+        #   'pop_density_km2': 100, 'settlement_size': 1000, 'subs_growth': 1.5,
         # },
-        # {'iso3': 'MLI', 'iso2': 'ML', 'regional_level': 2, 'regional_nodes_level': 2,
-        #     'region': 'SSA', 'pop_density_km2': 500, 'settlement_size': 1000, 'subs_growth': 1.5,
-        # },
-        # {'iso3': 'CIV', 'iso2': 'CI', 'regional_level': 2, 'regional_nodes_level': 2,
-        #     'region': 'SSA', 'pop_density_km2': 500, 'settlement_size': 1000, 'subs_growth': 1.5,
-        # },
-        # {'iso3': 'UGA', 'iso2': 'UG', 'regional_level': 2, 'regional_nodes_level': 2,
-        #     'region': 'S&SE Asia', 'pop_density_km2': 500, 'settlement_size': 1000, 'subs_growth': 1.5,
-        # },
-        {'iso3': 'KEN', 'iso2': 'KE', 'regional_level': 2, 'regional_nodes_level': 1,
-            'region': 'SSA', 'pop_density_km2': 500, 'settlement_size': 1000, 'subs_growth': 1.5,
+        {'name': 'KEN-TZA-UGA', 'iso3': ['KEN', 'TZA', 'UGA'], 'iso2': ['KE', 'TZ', 'UG'],
+          'regional_level': 2, 'regional_nodes_level': 2, 'region': 'SSA',
+          'pop_density_km2': 100, 'settlement_size': 1000, 'subs_growth': 1.5,
         },
-        {'iso3': 'TZA', 'iso2': 'TZ', 'regional_level': 2, 'regional_nodes_level': 2,
-            'region': 'Europe', 'pop_density_km2': 500, 'settlement_size': 1000, 'subs_growth': 1.5,
-        },
-
     ]
 
     for country in countries:
 
-        # print('Processing country boundary')
-        # process_country_shapes(country)
+        print('Processing country boundary')
+        process_country_shapes(country)
 
-        # print('Processing regions')
-        # process_regions(country)
+        print('Processing regions')
+        process_regions(country)
 
-        # print('Processing settlement layer')
-        # process_settlement_layer(country)
+        print('Processing settlement layer')
+        process_settlement_layer(country)
 
-        # print('Processing night lights')
-        # process_night_lights(country)
+        print('Processing night lights')
+        process_night_lights(country)
 
-        # print('Processing coverage shapes')
-        # process_coverage_shapes(country)
+        print('Processing coverage shapes')
+        process_coverage_shapes(country)
 
-        # print('Getting regional data')
-        # get_regional_data(country)
+        print('Getting regional data')
+        get_regional_data(country)
 
-        # print('Generating agglomeration lookup table')
-        # generate_agglomeration_lut(country)
+        print('Generating agglomeration lookup table')
+        generate_agglomeration_lut(country)
 
-        # print('Load existing fiber infrastructure')
-        # process_existing_fiber(country)
+        print('Load existing fiber infrastructure')
+        process_existing_fiber(country)
 
-        # print('Estimate existing nodes')
-        # find_nodes_on_existing_infrastructure(country)
+        print('Estimate existing nodes')
+        find_nodes_on_existing_infrastructure(country)
 
-        # print('Find regional nodes')
-        # find_regional_nodes(country)
+        print('Find regional nodes')
+        find_regional_nodes(country)
 
-        # print('Fit edges')
-        # prepare_edge_fitting(country)
+        print('Fit edges')
+        prepare_edge_fitting(country)
 
-        # print('Fit regional edges')
-        # fit_regional_edges(country)
+        print('Fit regional edges')
+        fit_regional_edges(country)
 
-        # print('Create core lookup table')
-        # generate_core_lut(country)
-
-        # print('Create backhaul lookup table')
-        # generate_backhaul_lut(country)
+        print('Create core lookup table')
+        generate_core_lut(country)
 
         print('Create subscription forcast')
         forecast_subscriptions(country)

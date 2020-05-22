@@ -14,7 +14,7 @@ from ictp4d.costs import find_single_network_cost
 
 
 def estimate_supply(country, regions, lookup, option, global_parameters,
-    country_parameters, costs, backhaul_lut, core_lut, ci):
+    country_parameters, costs, core_lut, ci):
     """
     For each region, optimize the network design and estimate
     the financial cost.
@@ -36,8 +36,6 @@ def estimate_supply(country, regions, lookup, option, global_parameters,
         All country specific parameters.
     costs : dict
         All equipment costs.
-    backhaul_lut : dict
-        Backhaul distance by region.
     core_lut : ???
         ???
     ci : int
@@ -70,7 +68,6 @@ def estimate_supply(country, regions, lookup, option, global_parameters,
             costs,
             global_parameters,
             country_parameters,
-            backhaul_lut,
             core_lut,
         )
 
@@ -86,8 +83,9 @@ def estimate_supply(country, regions, lookup, option, global_parameters,
 def find_site_density(region, option, country_parameters, lookup, ci):
     """
     For a given region, provide an optmized network.
-
     """
+    geotype = region['geotype'].split(' ')[0]
+
     demand = region['demand_mbps_km2']
     geotype = region['geotype'].split(' ')[0]
     ant_type = 'macro'
@@ -107,7 +105,7 @@ def find_site_density(region, option, country_parameters, lookup, ci):
     for item in frequencies:
 
         frequency = str(item['frequency'])
-        bandwidth = float(item['bandwidth'])
+        bandwidth = str(item['bandwidth'].split('x')[1])
 
         density_capacities = lookup_capacity(
             lookup,
@@ -125,11 +123,13 @@ def find_site_density(region, option, country_parameters, lookup, ci):
     density_lut = []
 
     for density in list(unique_densities):
+
         capacity = 0
+
         for item in frequencies:
 
             frequency = str(item['frequency'])
-            bandwidth = float(item['bandwidth'])
+            bandwidth = float(item['bandwidth'].split('x')[1])
 
             density_capacities = lookup_capacity(
                 lookup,
@@ -248,26 +248,26 @@ def estimate_site_upgrades(region, strategy, total_sites_required, country_param
 
     """
     generation = strategy.split('_')[0]
+    geotype = region['geotype'].split(' ')[0]
 
-    existing_sites = (
-        region['sites_estimated_total'] *
-        (country_parameters['proportion_of_sites'] / 100)
-    )
+    #get the number of networks in the area
+    networks = country_parameters['networks']['baseline' + '_' + geotype]
 
-    existing_4G_sites = math.ceil(
-        region['sites_4G'] *
-        (country_parameters['proportion_of_sites'] / 100)
-    )
+    #get the total number of existing sites that the network has (2G-4G)
+    region['existing_network_sites'] = (region['sites_estimated_total'] / networks)
 
-    if total_sites_required > existing_sites:
+    #get the number of existing 4G sites
+    existing_4G_sites = math.ceil(region['sites_4G'] / networks )
 
-        region['new_sites'] = int(round(total_sites_required - existing_sites))
+    if total_sites_required > region['existing_network_sites']:
 
-        if existing_sites > 0:
+        region['new_sites'] = int(round(total_sites_required - region['existing_network_sites']))
+
+        if region['existing_network_sites'] > 0:
             if generation == '4G' and existing_4G_sites > 0 :
-                region['upgraded_sites'] = existing_sites - existing_4G_sites
+                region['upgraded_sites'] = region['existing_network_sites'] - existing_4G_sites
             else:
-                region['upgraded_sites'] = existing_sites
+                region['upgraded_sites'] = region['existing_network_sites']
         else:
             region['upgraded_sites'] = 0
 
@@ -279,7 +279,7 @@ def estimate_site_upgrades(region, strategy, total_sites_required, country_param
             region['upgraded_sites'] = to_upgrade if to_upgrade >= 0 else 0
         else:
             region['upgraded_sites'] = total_sites_required
-    # print(total_sites_required, existing_sites, existing_4G_sites, region['upgraded_sites'], region['new_sites'])
+
     return region
 
 
