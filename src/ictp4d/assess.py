@@ -94,9 +94,9 @@ def get_subscriber_aquisition_cost(region, country_parameters):
     There is an acquistion cost to obtaining and retaining subscribers
     which includes marketing and retail sales.
     """
-    region['ops_and_acquisition'] = (
+    region['acquisition_per_subscriber'] = (
         region['phones_on_network'] *
-        country_parameters['financials']['ops_and_acquisition_per_subscriber'])
+        country_parameters['financials']['acquisition_per_subscriber'])
 
     return region
 
@@ -128,12 +128,6 @@ def get_spectrum_costs(region, strategy, global_parameters, country_parameters):
     generation = strategy.split('_')[0]
     frequencies = frequencies[generation]
 
-    # geotype = region['geotype'].split(' ')[0]
-    # # generation_core_backhaul_sharing_networks_spectrum_tax_integration
-    # network_strategy = strategy.split('_')[4]
-    # net_handle = network_strategy + '_' + geotype
-    # networks = country_parameters['networks'][net_handle]
-
     spectrum_cost = strategy.split('_')[5]
 
     coverage_spectrum_cost = 'spectrum_coverage_baseline_usd_mhz_pop'
@@ -143,12 +137,16 @@ def get_spectrum_costs(region, strategy, global_parameters, country_parameters):
     capacity_cost_usd_mhz_pop = country_parameters['financials'][capacity_spectrum_cost]
 
     if spectrum_cost == 'low':
-        coverage_cost_usd_mhz_pop = coverage_cost_usd_mhz_pop * (country_parameters['financials']['spectrum_cost_low'] /100)
-        capacity_cost_usd_mhz_pop = capacity_cost_usd_mhz_pop * (country_parameters['financials']['spectrum_cost_low'] /100)
+        coverage_cost_usd_mhz_pop = (coverage_cost_usd_mhz_pop *
+            (country_parameters['financials']['spectrum_cost_low'] /100))
+        capacity_cost_usd_mhz_pop = (capacity_cost_usd_mhz_pop *
+            (country_parameters['financials']['spectrum_cost_low'] /100))
 
     if spectrum_cost == 'high':
-        coverage_cost_usd_mhz_pop = coverage_cost_usd_mhz_pop * (country_parameters['financials']['spectrum_cost_high'] / 100)
-        capacity_cost_usd_mhz_pop = capacity_cost_usd_mhz_pop * (country_parameters['financials']['spectrum_cost_high'] / 100)
+        coverage_cost_usd_mhz_pop = (coverage_cost_usd_mhz_pop *
+            (country_parameters['financials']['spectrum_cost_high'] / 100))
+        capacity_cost_usd_mhz_pop = (capacity_cost_usd_mhz_pop *
+            (country_parameters['financials']['spectrum_cost_high'] / 100))
 
     all_costs = []
 
