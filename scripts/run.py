@@ -331,7 +331,7 @@ def write_results(regional_results, folder, metric):
         'GID_0', 'scenario', 'strategy', 'integration','confidence', 'population', 'population_km2',
         'phones_on_network', 'cost_per_sp_user',
         'total_revenue', 'ran', 'backhaul_fronthaul', 'civils', 'core_network',
-        'admin_and_ops',
+        'admin_and_ops', 'acquisition_per_subscriber',
         'spectrum_cost', 'tax', 'profit_margin', 'total_cost',
         'available_cross_subsidy', 'deficit', 'used_cross_subsidy',
         'required_state_subsidy',
@@ -385,7 +385,7 @@ def write_results(regional_results, folder, metric):
         'population', 'area_km2', #'population_km2',
         'phones_on_network', #'cost_per_sp_user',
         'total_revenue', 'ran', 'backhaul_fronthaul', 'civils', 'core_network',
-        'admin_and_ops', 'spectrum_cost', 'tax', 'profit_margin', 'total_cost',
+        'admin_and_ops', 'acquisition_per_subscriber', 'spectrum_cost', 'tax', 'profit_margin', 'total_cost',
         'available_cross_subsidy', 'deficit', 'used_cross_subsidy',
         'required_state_subsidy',
     ]]
@@ -412,7 +412,6 @@ def write_results(regional_results, folder, metric):
 
     path = os.path.join(folder,'regional_results_{}.csv'.format(metric))
     regional_results.to_csv(path, index=True)
-
 
 
 def allocate_deciles(data):
@@ -448,15 +447,7 @@ if __name__ == '__main__':
         'distributed_power_supply_converter': 250,
         'power_generator_battery_system': 5000,
         'bbu_cabinet': 500,
-        'fiber_fronthaul_urban_m': 10,
-        'fiber_fronthaul_suburban_m': 5,
-        'fiber_fronthaul_rural_m': 2,
-        'cots_processing': 500,
-        'io_n2_n3': 1500,
-        'low_latency_switch': 500,
         'rack': 500,
-        'cloud_power_supply_converter': 1000,
-        'software': 50,
         'tower': 10000,
         'civil_materials': 5000,
         'transportation': 5000,
@@ -465,23 +456,16 @@ if __name__ == '__main__':
         'site_rental_suburban': 4000,
         'site_rental_rural': 2000,
         'router': 2000,
-        'microwave_small': 5000,
-        'microwave_medium': 10000,
-        'microwave_large': 15000,
+        'microwave_small': 10000,
+        'microwave_medium': 20000,
+        'microwave_large': 40000,
         'fiber_urban_m': 25,
         'fiber_suburban_m': 15,
         'fiber_rural_m': 10,
-        'core_node_epc': 50000,
-        'core_node_nsa': 50000,
-        'core_node_sa': 50000,
+        'core_node_epc': 200000,
         'core_edge': 10,
-        'regional_node_epc': 25000,
-        'regional_node_nsa': 25000,
-        'regional_node_sa': 100000,
+        'regional_node_epc': 100000,
         'regional_edge': 5,
-        'regional_node_lower_epc': 5000,
-        'regional_node_lower_nsa': 5000,
-        'regional_node_lower_sa': 10000,
         'per_site_spectrum_acquisition_cost': 500,
         'per_site_administration_cost': 500,
     }
@@ -493,17 +477,6 @@ if __name__ == '__main__':
         'opex_percentage_of_capex': 10,
         'sectorization': 3,
         'confidence': [50], #[5, 50, 95],
-        'networks': 3,
-        'io_n2_n3': 1,
-        'cots_processing_split_urban': 2,
-        'cots_processing_split_suburban': 4,
-        'cots_processing_split_rural': 16,
-        'io_n2_n3_split': 7,
-        'low_latency_switch_split': 7,
-        'rack_split': 7,
-        'cloud_power_supply_converter_split': 7,
-        'software_split': 7,
-        'cloud_backhaul_split': 7,
         'regional_integration_factor': 50,
         }
 
