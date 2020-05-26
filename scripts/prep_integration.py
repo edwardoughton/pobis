@@ -1808,7 +1808,6 @@ def generate_core_lut(country):
             'source': 'new',
         })
 
-
     path = os.path.join(DATA_INTERMEDIATE, iso3, 'network', 'regional_edges.shp')
     if os.path.exists(path):
         regional_edges = gpd.read_file(path, crs='epsg:4326')
@@ -2005,13 +2004,13 @@ if __name__ == '__main__':
     # countries = find_country_list(['Africa'])
 
     countries = [
-        # {'name': 'SEN-MLI-CIV', 'iso3': ['SEN', 'MLI', 'CIV'], 'iso2': ['SN', 'ML', 'CI'],
-        #   'regional_level': 2, 'regional_nodes_level': 2, 'region': 'SSA',
-        #   'pop_density_km2': 100, 'settlement_size': 1000, 'subs_growth': 1.5,
-        # },
+        {'name': 'SEN-MLI-CIV', 'iso3': ['SEN', 'MLI', 'CIV'], 'iso2': ['SN', 'ML', 'CI'],
+          'regional_level': 2, 'regional_nodes_level': 2, 'region': 'SSA',
+          'pop_density_km2': 500, 'settlement_size': 1000, 'subs_growth': 1.5,
+        },
         {'name': 'KEN-TZA-UGA', 'iso3': ['KEN', 'TZA', 'UGA'], 'iso2': ['KE', 'TZ', 'UG'],
           'regional_level': 2, 'regional_nodes_level': 2, 'region': 'SSA',
-          'pop_density_km2': 100, 'settlement_size': 1000, 'subs_growth': 1.5,
+          'pop_density_km2': 500, 'settlement_size': 1000, 'subs_growth': 1.5,
         },
     ]
 
