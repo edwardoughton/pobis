@@ -477,7 +477,7 @@ if __name__ == '__main__':
         'opex_percentage_of_capex': 10,
         'sectorization': 3,
         'confidence': [50], #[5, 50, 95],
-        'regional_integration_factor': 50,
+        'regional_integration_factor': 10,
         }
 
     path = os.path.join(DATA_RAW, 'pysim5g', 'capacity_lut_by_frequency.csv')

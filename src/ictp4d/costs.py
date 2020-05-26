@@ -432,12 +432,8 @@ def regional_net_costs(region, asset_type, costs, core_lut, strategy, country_pa
     Return regional asset costs for only the 'new' assets that have been planned.
     """
     core = strategy.split('_')[1]
-    # generation_core_backhaul_sharing_networks_spectrum_tax
-    # network_strategy = strategy.split('_')[4]
     geotype = region['geotype'].split(' ')[0]
 
-    # net_handle = network_strategy + '_' + geotype.split(' ')[0]
-    # networks = country_parameters['networks'][net_handle]
     networks = country_parameters['networks']['baseline' + '_' + geotype]
 
     if asset_type in core_lut.keys():
@@ -452,14 +448,14 @@ def regional_net_costs(region, asset_type, costs, core_lut, strategy, country_pa
                 cost_m = costs['regional_edge']
                 cost = int(distance_m * cost_m)
 
-                existing_sites = (region['sites_estimated_total'] / networks)
+                sites = ((region['upgraded_sites'] + region['new_sites']) / networks)
 
-                if existing_sites == 0:
+                if sites == 0:
                     return 0
-                elif existing_sites <= 1:
-                    return cost * existing_sites
+                elif sites <= 1:
+                    return cost * sites
                 else:
-                    return cost / existing_sites
+                    return cost / sites
 
             elif asset_type == 'regional_node':
 
@@ -469,17 +465,17 @@ def regional_net_costs(region, asset_type, costs, core_lut, strategy, country_pa
 
                 regional_node_cost = int(regional_nodes * cost_each)
 
-                existing_sites = (region['sites_estimated_total'] / networks)
+                sites = ((region['upgraded_sites'] + region['new_sites']) / networks)
 
-                if existing_sites == 0:
+                if sites == 0:
                     return 0
-                elif existing_sites <= 1:
-                    return regional_node_cost #* existing_sites
+                elif sites <= 1:
+                    return regional_node_cost
                 else:
-                    return regional_node_cost / existing_sites
+                    return regional_node_cost / sites
 
 
-                return (regional_node_cost / existing_sites)
+                return (regional_node_cost / sites)
 
             else:
                 return 'Did not recognise core asset type'
@@ -512,14 +508,14 @@ def core_costs(region, asset_type, costs, core_lut, strategy, country_parameters
                 cost = int(distance_m * costs['core_edge'])
                 total_cost.append(cost)
 
-                existing_sites = (region['sites_estimated_total'] / networks)
+                sites = ((region['upgraded_sites'] + region['new_sites']) / networks)
 
-                if existing_sites == 0:
+                if sites == 0:
                     return 0
-                elif existing_sites < 1:
-                    return sum(total_cost) #* existing_sites
+                elif sites < 1:
+                    return sum(total_cost)
                 else:
-                    return sum(total_cost) / existing_sites
+                    return sum(total_cost) / sites
         else:
             return 0
 
@@ -537,14 +533,14 @@ def core_costs(region, asset_type, costs, core_lut, strategy, country_parameters
             cost = int(nodes * costs['core_node_{}'.format(core)])
             total_cost.append(cost)
 
-            existing_sites = (region['sites_estimated_total'] / networks)
+            sites = ((region['upgraded_sites'] + region['new_sites']) / networks)
 
-            if existing_sites == 0:
+            if sites == 0:
                 return 0
-            elif existing_sites <= 1:
-                return sum(total_cost) #* existing_sites
+            elif sites < 1:
+                return sum(total_cost)
             else:
-                return sum(total_cost) / existing_sites
+                return sum(total_cost) / sites
 
         else:
             return 0
@@ -623,10 +619,9 @@ def calc_costs(region, strategy, cost_structure, backhaul_quantity,
     # generation = strategy.split('_')[0]
     core = strategy.split('_')[1]
     backhaul = strategy.split('_')[2]
-    regional_integration = strategy.split('_')[7]
+    regional_integration = region['integration']
 
     all_sites = region['upgraded_sites'] + region['new_sites']
-    # geotype = region['geotype'].split(' ')[0]
 
     total_cost = 0
     cost_by_asset = []
@@ -647,6 +642,10 @@ def calc_costs(region, strategy, cost_structure, backhaul_quantity,
                 if type_of_cost == 'capex_and_opex':
 
                     cost = discount_capex_and_opex(cost, global_parameters, country_parameters)
+
+                    if regional_integration == 'integration':
+                        cost = (cost * (1 -
+                            (global_parameters['regional_integration_factor'] /  100)))
 
                     if asset_name1 == 'single_sector_antenna':
                         cost = cost * global_parameters['sectorization']
@@ -758,7 +757,7 @@ def calc_costs(region, strategy, cost_structure, backhaul_quantity,
         'ran': ran_cost,
         'backhaul_fronthaul': backhaul_fronthaul_cost,
         'civils': civils_cost,
-        'core_network': core_cost, # + ran_cost * 0.1,
+        'core_network': core_cost,
         'admin_and_ops': admin_and_ops_cost,
     }
 
