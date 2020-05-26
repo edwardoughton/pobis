@@ -109,13 +109,13 @@ COUNTRY_PARAMETERS = {
         },
         'frequencies': {
             '3G': [
-                # {
-                #     'frequency': 1800,
-                #     'bandwidth': '2x10',
-                # },
+                {
+                    'frequency': 1800,
+                    'bandwidth': '2x10',
+                },
                 {
                     'frequency': 2100,
-                    'bandwidth': '2x15',
+                    'bandwidth': '2x10',
                 },
             ],
             '4G': [
@@ -123,16 +123,16 @@ COUNTRY_PARAMETERS = {
                     'frequency': 800,
                     'bandwidth': '2x10',
                 },
-                # {
-                #     'frequency': 1800,
-                #     'bandwidth': '2x10',
-                # },
+                {
+                    'frequency': 1800,
+                    'bandwidth': '2x10',
+                },
             ],
         },
         'financials': {
             'wacc': 15,
             'profit_margin': 10,
-            'spectrum_coverage_baseline_usd_mhz_pop': 0.05,
+            'spectrum_coverage_baseline_usd_mhz_pop': 0.04,
             'spectrum_capacity_baseline_usd_mhz_pop': 0.03,
             'tax_low': 10,
             'tax_baseline': 30,
@@ -157,10 +157,10 @@ COUNTRY_PARAMETERS = {
         },
         'frequencies': {
             '3G': [
-                # {
-                #     'frequency': 1800,
-                #     'bandwidth': '2x10',
-                # },
+                {
+                    'frequency': 1800,
+                    'bandwidth': '2x10',
+                },
                 {
                     'frequency': 2100,
                     'bandwidth': '2x10',
@@ -171,17 +171,17 @@ COUNTRY_PARAMETERS = {
                     'frequency': 700,
                     'bandwidth': '2x10',
                 },
-                # {
-                #     'frequency': 1800,
-                #     'bandwidth': '2x10',
-                # },
+                {
+                    'frequency': 1800,
+                    'bandwidth': '2x10',
+                },
             ],
         },
         'financials': {
             'wacc': 15,
             'profit_margin': 10,
-            'spectrum_coverage_baseline_usd_mhz_pop': 0.02,
-            'spectrum_capacity_baseline_usd_mhz_pop': 0.02,
+            'spectrum_coverage_baseline_usd_mhz_pop': 0.04,
+            'spectrum_capacity_baseline_usd_mhz_pop': 0.03,
             'tax_low': 10,
             'tax_baseline': 30,
             'tax_high': 40,
@@ -228,8 +228,8 @@ COUNTRY_PARAMETERS = {
         'financials': {
             'wacc': 15,
             'profit_margin': 10,
-            'spectrum_coverage_baseline_usd_mhz_pop': 0.1,
-            'spectrum_capacity_baseline_usd_mhz_pop': 0.08,
+            'spectrum_coverage_baseline_usd_mhz_pop': 0.04,
+            'spectrum_capacity_baseline_usd_mhz_pop': 0.03,
             'spectrum_cost_low': 50,
             'spectrum_cost_high': 50,
             'tax_low': 10,
@@ -257,12 +257,12 @@ COUNTRY_PARAMETERS = {
             '3G': [
                 {
                     'frequency': 1800,
-                    'bandwidth': '2x20',
+                    'bandwidth': '2x10',
                 },
-                # {
-                #     'frequency': 2100,
-                #     'bandwidth': '2x10',
-                # },
+                {
+                    'frequency': 2100,
+                    'bandwidth': '2x10',
+                },
             ],
             '4G': [
                 {
@@ -378,8 +378,8 @@ COUNTRY_PARAMETERS = {
             'profit_margin': 10,
             'subsidy_low': 10,
             'subsidy_high': 40,
-            'spectrum_coverage_baseline_usd_mhz_pop': 0.04,
-            'spectrum_capacity_baseline_usd_mhz_pop': 0.03,
+            'spectrum_coverage_baseline_usd_mhz_pop': 0.1,
+            'spectrum_capacity_baseline_usd_mhz_pop': 0.08,
             'tax_low': 10,
             'tax_baseline': 30,
             'tax_high': 40,
@@ -474,8 +474,8 @@ COUNTRY_PARAMETERS = {
         'financials': {
             'wacc': 15,
             'profit_margin': 10,
-            'spectrum_coverage_baseline_usd_mhz_pop': 0.4,
-            'spectrum_capacity_baseline_usd_mhz_pop': 0.3,
+            'spectrum_coverage_baseline_usd_mhz_pop': 0.1,
+            'spectrum_capacity_baseline_usd_mhz_pop': 0.08,
             'tax_low': 10,
             'tax_baseline': 30,
             'tax_high': 40,
