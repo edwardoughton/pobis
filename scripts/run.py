@@ -185,17 +185,17 @@ def load_cluster(path, iso3):
     return output
 
 
-def load_penetration(path):
+def load_penetration(scenario, path):
     """
     Load penetration forecast.
 
     """
     output = {}
-
     with open(path, 'r') as source:
         reader = csv.DictReader(source)
         for row in reader:
-            output[int(row['year'])] = float(row['penetration'])
+            if row['scenario'] == scenario.split('_')[0]:
+                output[int(row['year'])] = float(row['penetration'])
 
     return output
 
@@ -468,16 +468,17 @@ if __name__ == '__main__':
         'regional_edge': 5,
         'per_site_spectrum_acquisition_cost': 500,
         'per_site_administration_cost': 500,
+        'per_site_facilities_cost': 500,
     }
 
     GLOBAL_PARAMETERS = {
-        'overbooking_factor': 100,
+        'overbooking_factor': 20,
         'return_period': 10,
         'discount_rate': 5,
         'opex_percentage_of_capex': 10,
         'sectorization': 3,
         'confidence': [50], #[5, 50, 95],
-        'regional_integration_factor': 10,
+        'regional_integration_factor': 20,
         }
 
     path = os.path.join(DATA_RAW, 'pysim5g', 'capacity_lut_by_frequency.csv')
@@ -502,6 +503,12 @@ if __name__ == '__main__':
         'integration_options',
     ]
 
+    scenarios = [
+        'low',
+        'baseline',
+        'high'
+    ]
+
     for decision_option in decision_options:#[:1]:
 
         print('Working on {}'.format(decision_option))
@@ -523,10 +530,6 @@ if __name__ == '__main__':
             filename = 'data_clustering_results.csv'
             country['cluster'] = load_cluster(os.path.join(folder, filename), iso3)
 
-            folder = os.path.join(DATA_INTERMEDIATE, iso3, 'subscriptions')
-            filename = 'subs_forecast.csv'
-            penetration_lut = load_penetration(os.path.join(folder, filename))
-
             folder = os.path.join(DATA_RAW, 'wb_smartphone_survey')
             filename = 'wb_smartphone_survey.csv'
             smartphone_lut = load_smartphones(country, os.path.join(folder, filename))
@@ -544,6 +547,10 @@ if __name__ == '__main__':
                 print('Working on {} and {}'.format(option['scenario'], option['strategy']))
 
                 confidence_intervals = GLOBAL_PARAMETERS['confidence']
+
+                folder = os.path.join(DATA_INTERMEDIATE, iso3, 'subscriptions')
+                filename = 'subs_forecast.csv'
+                penetration_lut = load_penetration(option['scenario'], os.path.join(folder, filename))
 
                 for ci in confidence_intervals:
 

@@ -24,67 +24,159 @@ integration: option to undertake regional integration
 OPTIONS = {
     'technology_options': [
         {
-            'scenario': 'S1_2_2_2',
+            'scenario': 'low_2_2_2',
             'strategy': '3G_epc_microwave_baseline_baseline_baseline_baseline_baseline',
         },
         {
-            'scenario': 'S1_2_2_2',
+            'scenario': 'low_2_2_2',
             'strategy': '3G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
         },
         {
-            'scenario': 'S1_2_2_2',
+            'scenario': 'low_2_2_2',
             'strategy': '4G_epc_microwave_baseline_baseline_baseline_baseline_baseline',
         },
         {
-            'scenario': 'S1_2_2_2',
+            'scenario': 'low_2_2_2',
+            'strategy': '4G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'baseline_2_2_2',
+            'strategy': '3G_epc_microwave_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'baseline_2_2_2',
+            'strategy': '3G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'baseline_2_2_2',
+            'strategy': '4G_epc_microwave_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'baseline_2_2_2',
+            'strategy': '4G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'high_2_2_2',
+            'strategy': '3G_epc_microwave_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'high_2_2_2',
+            'strategy': '3G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'high_2_2_2',
+            'strategy': '4G_epc_microwave_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'high_2_2_2',
             'strategy': '4G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
         },
     ],
     'business_model_options': [
         {
-            'scenario': 'S1_2_2_2',
+            'scenario': 'low_2_2_2',
             'strategy': '4G_epc_microwave_baseline_baseline_baseline_baseline_baseline',
         },
         {
-            'scenario': 'S1_2_2_2',
+            'scenario': 'low_2_2_2',
             'strategy': '4G_epc_microwave_pss_baseline_baseline_baseline_baseline',
         },
         {
-            'scenario': 'S1_2_2_2',
+            'scenario': 'low_2_2_2',
             'strategy': '4G_epc_microwave_psb_baseline_baseline_baseline_baseline',
         },
         {
-            'scenario': 'S1_2_2_2',
+            'scenario': 'low_2_2_2',
             'strategy': '4G_epc_microwave_moran_baseline_baseline_baseline_baseline',
         },
-        ### {
-        ###     'scenario': 'S1_2_2_2',
-        ###     'strategy': '4G_epc_microwave_mocn_baseline_baseline_baseline_baseline',
-        ### },
         {
-            'scenario': 'S1_2_2_2',
+            'scenario': 'low_2_2_2',
             'strategy': '4G_epc_microwave_cns_baseline_baseline_baseline_baseline',
         },
         {
-            'scenario': 'S1_2_2_2', #single shared core network
+            'scenario': 'low_2_2_2', #single shared core network
+            'strategy': '4G_epc_microwave_baseline_srn_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'baseline_2_2_2',
+            'strategy': '4G_epc_microwave_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'baseline_2_2_2',
+            'strategy': '4G_epc_microwave_pss_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'baseline_2_2_2',
+            'strategy': '4G_epc_microwave_psb_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'baseline_2_2_2',
+            'strategy': '4G_epc_microwave_moran_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'baseline_2_2_2',
+            'strategy': '4G_epc_microwave_cns_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'baseline_2_2_2', #single shared core network
+            'strategy': '4G_epc_microwave_baseline_srn_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'high_2_2_2',
+            'strategy': '4G_epc_microwave_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'high_2_2_2',
+            'strategy': '4G_epc_microwave_pss_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'high_2_2_2',
+            'strategy': '4G_epc_microwave_psb_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'high_2_2_2',
+            'strategy': '4G_epc_microwave_moran_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'high_2_2_2',
+            'strategy': '4G_epc_microwave_cns_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'high_2_2_2', #single shared core network
             'strategy': '4G_epc_microwave_baseline_srn_baseline_baseline_baseline',
         },
     ],
     'integration_options': [
+        # {
+        #     'scenario': 'baseline_2_2_2',
+        #     'strategy': '3G_epc_microwave_baseline_baseline_baseline_baseline_baseline',
+        # },
+        # {
+        #     'scenario': 'baseline_2_2_2',
+        #     'strategy': '3G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
+        # },
+        # {
+        #     'scenario': 'baseline_2_2_2',
+        #     'strategy': '4G_epc_microwave_baseline_baseline_baseline_baseline_baseline',
+        # },
+        # {
+        #     'scenario': 'baseline_2_2_2',
+        #     'strategy': '4G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
+        # },
         {
-            'scenario': 'S1_2_2_2',
+            'scenario': 'baseline_2_2_2',
             'strategy': '3G_epc_microwave_baseline_baseline_baseline_baseline_integration',
         },
         {
-            'scenario': 'S1_2_2_2',
+            'scenario': 'baseline_2_2_2',
             'strategy': '3G_epc_fiber_baseline_baseline_baseline_baseline_integration',
         },
         {
-            'scenario': 'S1_2_2_2',
+            'scenario': 'baseline_2_2_2',
             'strategy': '4G_epc_microwave_baseline_baseline_baseline_baseline_integration',
         },
         {
-            'scenario': 'S1_2_2_2',
+            'scenario': 'baseline_2_2_2',
             'strategy': '4G_epc_fiber_baseline_baseline_baseline_baseline_integration',
         },
     ]
