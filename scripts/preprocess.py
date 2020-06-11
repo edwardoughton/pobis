@@ -1931,15 +1931,19 @@ def load_subscription_data(path, iso3):
     historical_data = pd.read_csv(path, encoding = "ISO-8859-1")
     historical_data = historical_data.to_dict('records')
 
-    for year in range(2010, 2021):
-        year = str(year)
-        for item in historical_data:
-            if item['iso3'] == iso3:
-                output.append({
-                    'country': iso3,
-                    'penetration': float(item[year]) * 100,
-                    'year':  year,
-                })
+    scenarios = ['low', 'baseline', 'high']
+
+    for scenario in scenarios:
+        for year in range(2010, 2021):
+            year = str(year)
+            for item in historical_data:
+                if item['iso3'] == iso3:
+                    output.append({
+                        'scenario': scenario,
+                        'country': iso3,
+                        'penetration': float(item[year]) * 100,
+                        'year':  year,
+                    })
 
     return output
 
@@ -1995,24 +1999,33 @@ def forecast_linear(country, historical_data, start_point, end_point, horizon):
     """
     output = []
 
-    subs_growth = country['subs_growth']
+    scenarios = ['low', 'baseline', 'high']
 
-    year_0 = sorted(historical_data, key = lambda i: i['year'], reverse=True)[0]
+    for scenario in scenarios:
 
-    for year in range(start_point, end_point + 1):
-        if year == start_point:
+        scenario_data = []
 
-            penetration = year_0['penetration'] * (1 + (subs_growth/100))
-        else:
-            penetration = penetration * (1 + (subs_growth/100))
+        subs_growth = country['subs_growth_{}'.format(scenario)]
 
-        if year not in [item['year'] for item in output]:
+        year_0 = sorted(historical_data, key = lambda i: i['year'], reverse=True)[0]
 
-            output.append({
-                'country': country['iso3'],
-                'year': year,
-                'penetration': round(penetration, 2),
-            })
+        for year in range(start_point, end_point + 1):
+            if year == start_point:
+
+                penetration = year_0['penetration'] * (1 + (subs_growth/100))
+            else:
+                penetration = penetration * (1 + (subs_growth/100))
+
+            if year not in [item['year'] for item in scenario_data]:
+
+                scenario_data.append({
+                    'scenario': scenario,
+                    'country': country['iso3'],
+                    'year': year,
+                    'penetration': round(penetration, 2),
+                })
+
+        output = output + scenario_data
 
     return output
 
@@ -2023,68 +2036,74 @@ if __name__ == '__main__':
 
     countries = [
         {'iso3': 'SEN', 'iso2': 'SN', 'regional_level': 2, 'regional_nodes_level': 2,
-            'region': 'SSA', 'pop_density_km2': 500, 'settlement_size': 1000, 'subs_growth': 1.5,
+            'region': 'SSA', 'pop_density_km2': 500, 'settlement_size': 1000,
+            'subs_growth_low': 1, 'subs_growth_baseline': 2, 'subs_growth_high': 3,
         },
         {'iso3': 'MLI', 'iso2': 'ML', 'regional_level': 2, 'regional_nodes_level': 2,
-            'region': 'SSA', 'pop_density_km2': 500, 'settlement_size': 1000, 'subs_growth': 1.5,
+            'region': 'SSA', 'pop_density_km2': 500, 'settlement_size': 1000,
+            'subs_growth_low': 1, 'subs_growth_baseline': 2, 'subs_growth_high': 3,
         },
         {'iso3': 'CIV', 'iso2': 'CI', 'regional_level': 2, 'regional_nodes_level': 2,
-            'region': 'SSA', 'pop_density_km2': 500, 'settlement_size': 1000, 'subs_growth': 1.5,
+            'region': 'SSA', 'pop_density_km2': 500, 'settlement_size': 1000,
+            'subs_growth_low': 1, 'subs_growth_baseline': 2, 'subs_growth_high': 3,
         },
         {'iso3': 'UGA', 'iso2': 'UG', 'regional_level': 2, 'regional_nodes_level': 2,
-            'region': 'S&SE Asia', 'pop_density_km2': 500, 'settlement_size': 1000, 'subs_growth': 1.5,
+            'region': 'S&SE Asia', 'pop_density_km2': 500, 'settlement_size': 1000,
+            'subs_growth_low': 1, 'subs_growth_baseline': 2, 'subs_growth_high': 3,
         },
         {'iso3': 'KEN', 'iso2': 'KE', 'regional_level': 2, 'regional_nodes_level': 2,
-            'region': 'SSA', 'pop_density_km2': 500, 'settlement_size': 1000, 'subs_growth': 1.5,
+            'region': 'SSA', 'pop_density_km2': 500, 'settlement_size': 1000,
+            'subs_growth_low': 1, 'subs_growth_baseline': 2, 'subs_growth_high': 3,
         },
         {'iso3': 'TZA', 'iso2': 'TZ', 'regional_level': 2, 'regional_nodes_level': 2,
-            'region': 'Europe', 'pop_density_km2': 500, 'settlement_size': 1000, 'subs_growth': 1.5,
+            'region': 'Europe', 'pop_density_km2': 500, 'settlement_size': 1000,
+            'subs_growth_low': 1, 'subs_growth_baseline': 2, 'subs_growth_high': 3,
         },
     ]
 
     for country in countries:
 
-        print('Processing country boundary')
-        process_country_shapes(country)
+        # print('Processing country boundary')
+        # process_country_shapes(country)
 
-        print('Processing regions')
-        process_regions(country)
+        # print('Processing regions')
+        # process_regions(country)
 
-        print('Processing settlement layer')
-        process_settlement_layer(country)
+        # print('Processing settlement layer')
+        # process_settlement_layer(country)
 
-        print('Processing night lights')
-        process_night_lights(country)
+        # print('Processing night lights')
+        # process_night_lights(country)
 
-        print('Processing coverage shapes')
-        process_coverage_shapes(country)
+        # print('Processing coverage shapes')
+        # process_coverage_shapes(country)
 
-        print('Getting regional data')
-        get_regional_data(country)
+        # print('Getting regional data')
+        # get_regional_data(country)
 
-        print('Generating agglomeration lookup table')
-        generate_agglomeration_lut(country)
+        # print('Generating agglomeration lookup table')
+        # generate_agglomeration_lut(country)
 
-        print('Load existing fiber infrastructure')
-        process_existing_fiber(country)
+        # print('Load existing fiber infrastructure')
+        # process_existing_fiber(country)
 
-        print('Estimate existing nodes')
-        find_nodes_on_existing_infrastructure(country)
+        # print('Estimate existing nodes')
+        # find_nodes_on_existing_infrastructure(country)
 
-        print('Find regional nodes')
-        find_regional_nodes(country)
+        # print('Find regional nodes')
+        # find_regional_nodes(country)
 
-        print('Fit edges')
-        prepare_edge_fitting(country)
+        # print('Fit edges')
+        # prepare_edge_fitting(country)
 
-        print('Fit regional edges')
-        fit_regional_edges(country)
+        # print('Fit regional edges')
+        # fit_regional_edges(country)
 
-        print('Create core lookup table')
-        generate_core_lut(country)
+        # print('Create core lookup table')
+        # generate_core_lut(country)
 
-        print('Create backhaul lookup table')
-        generate_backhaul_lut(country)
+        # print('Create backhaul lookup table')
+        # generate_backhaul_lut(country)
 
         print('Create subscription forcast')
         forecast_subscriptions(country)
