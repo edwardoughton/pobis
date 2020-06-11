@@ -111,6 +111,7 @@ venv.bak/
 /vis/smartphones/*
 /vis/spectrum/*
 /vis/subscriptions/data_inputs/*
+/vis/subscriptions/figures/*
 /vis/figures/*
 
 /tests/*
