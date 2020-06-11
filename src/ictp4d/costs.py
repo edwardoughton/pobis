@@ -674,6 +674,8 @@ def calc_costs(region, strategy, cost_structure, backhaul_quantity,
 
                     if regional_integration == 'integration' and asset_name1 == 'per_site_administration_cost':
                         cost = cost / 2
+                    elif regional_integration == 'integration' and asset_name1 == 'per_site_facilities_cost':
+                        cost = cost / 2
                     elif regional_integration == 'integration':
                         cost = (cost * (1 -
                             (global_parameters['regional_integration_factor'] /  100)))
