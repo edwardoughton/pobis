@@ -311,8 +311,8 @@ def write_results(regional_results, folder, metric):
     print('Writing national results')
     national_results = pd.DataFrame(regional_results)
     national_results = national_results[[
-        'GID_0', 'scenario', 'strategy', 'integration', 'confidence', 'population', 'area_km2',
-        'population_km2', 'phones_on_network', 'smartphones_on_network',
+        'GID_0', 'scenario', 'strategy', 'integration', 'confidence', 'population',
+        'area_km2', 'population_km2', 'phones_on_network', 'smartphones_on_network',
         'sites_estimated_total', 'existing_network_sites', 'upgraded_sites', 'new_sites',
         'total_revenue', 'total_cost', 'cost_per_sp_user',
     ]]
@@ -328,8 +328,8 @@ def write_results(regional_results, folder, metric):
     print('Writing national cost composition results')
     national_cost_results = pd.DataFrame(regional_results)
     national_cost_results = national_cost_results[[
-        'GID_0', 'scenario', 'strategy', 'integration','confidence', 'population', 'population_km2',
-        'phones_on_network', 'cost_per_sp_user',
+        'GID_0', 'scenario', 'strategy', 'integration','confidence', 'population',
+        'population_km2', 'phones_on_network', 'cost_per_sp_user',
         'total_revenue', 'ran', 'backhaul_fronthaul', 'civils', 'core_network',
         'admin_and_ops', 'acquisition_per_subscriber',
         'spectrum_cost', 'tax', 'profit_margin', 'total_cost',

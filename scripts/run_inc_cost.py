@@ -297,7 +297,7 @@ def define_deciles(regions):
     regions['decile'] = regions.groupby([
         'GID_0', 'scenario', 'strategy', 'confidence'], as_index=True).population_km2.apply( #cost_per_sp_user
             pd.qcut, q=11, precision=0,
-            labels=[100,90,80,70,60,50,40,30,20,10,0], duplicates='drop') #   [0,10,20,30,40,50,60,70,80,90,100]
+            labels=[100,90,80,70,60,50,40,30,20,10,0], duplicates='drop') #[0,10,20,30,40,50,60,70,80,90,100]
 
     return regions
 
@@ -309,17 +309,18 @@ def write_results(regional_results, folder, metric):
     print('Writing national results')
     national_results = pd.DataFrame(regional_results)
     national_results = national_results[[
-        'incremenent', 'GID_0', 'scenario', 'strategy', 'confidence',
-        'population', 'area_km2', #'population_km2',
+        'increment', 'GID_0', 'scenario',
+        'strategy', 'confidence',
+        'population', 'area_km2',
         'phones_on_network',
         'smartphones_on_network',
-        'sites_estimated_total', #'existing_network_sites',
+        'sites_estimated_total',
         'upgraded_sites', 'new_sites',
         'total_revenue', 'total_cost',
     ]]
 
     national_results = national_results.groupby([
-        'incremenent', 'GID_0', 'scenario', 'strategy', 'confidence'], as_index=True).sum()
+        'increment', 'GID_0', 'scenario', 'strategy', 'confidence'], as_index=True).sum()
     national_results['cost_per_network_user'] = (
         national_results['total_cost'] / national_results['phones_on_network'])
 
@@ -327,6 +328,46 @@ def write_results(regional_results, folder, metric):
 
     path = os.path.join(folder,'national_results_{}.csv'.format(metric))
     national_results.to_csv(path, index=True)
+
+    print('Writing general decile results')
+    decile_results = pd.DataFrame(regional_results)
+    decile_results = decile_results[[
+        'increment', 'GID_0', 'scenario',
+        'decile', 'strategy', 'confidence',
+        'population', 'area_km2',
+        'phones_on_network',
+        'smartphones_on_network',
+        'sites_estimated_total',
+        'upgraded_sites', 'new_sites',
+        'total_revenue', 'total_cost',
+    ]]
+
+    decile_results = decile_results.groupby([
+        'increment', 'GID_0', 'scenario', 'strategy', 'confidence', 'decile'], as_index=True).sum()
+
+    decile_results['population_km2'] = (
+        decile_results['population'] / decile_results['area_km2'])
+    decile_results['sites_estimated_total_km2'] = (
+        decile_results['sites_estimated_total'] / decile_results['area_km2'])
+    decile_results['cost_per_network_user'] = (
+        decile_results['total_cost'] / decile_results['phones_on_network'])
+
+    path = os.path.join(folder,'decile_results_{}.csv'.format(metric))
+    decile_results.to_csv(path, index=True)
+
+
+def allocate_deciles(data):
+    """
+    Convert to pandas df, define deciles, and then return as a list of dicts.
+
+    """
+    data = pd.DataFrame(data)
+
+    data = define_deciles(data)
+
+    data = data.to_dict('records')
+
+    return data
 
 
 if __name__ == '__main__':
@@ -429,84 +470,90 @@ if __name__ == '__main__':
 
         penetration_lut = load_penetration(TIMESTEPS)
 
-        for ci in confidence_intervals:
+        ci = 50
 
-            print('CI: {}'.format(ci))
+        path = os.path.join(DATA_INTERMEDIATE, iso3, 'regional_data.csv')
+        data = load_regions(iso3, path)
 
-            path = os.path.join(DATA_INTERMEDIATE, iso3, 'regional_data.csv')
-            data = load_regions(iso3, path)
+        data_initial = data.to_dict('records')
 
-            data_initial = data.to_dict('records')
+        increments = 10
 
-            increments = 100
+        for i in range (1, increments + 1):
 
-            for i in range (1, increments + 1):
+            # if i > 4:
+            #     continue
 
-                print('Working on increment {}'.format(i))
+            print('Working on increment {}'.format(i))
 
-                data_fraction = []
+            data_fraction = []
 
-                for region in data_initial:#[:1]:
+            for region in data_initial:#[:1]:
 
-                    increment = region['population'] / increments
+                increment = region['population'] / (increments - 1)
 
-                    population = increment * i
+                if i == 1:
+                    population = 1
+                else:
+                    population = increment * (i - 1)
 
-                    data_fraction.append({
-                        'incremenent': i,
-                        'GID_0': region['GID_0'],
-                        'GID_id': region['GID_id'],
-                        'GID_level': region['GID_level'],
-                        'mean_luminosity_km2': region['mean_luminosity_km2'],
-                        'population': population,
-                        'area_km2': region['area_km2'],
-                        'population_km2': population / region['area_km2'],
-                        'coverage_GSM_percent': region['coverage_GSM_percent'],
-                        'coverage_3G_percent': region['coverage_3G_percent'],
-                        'coverage_4G_percent': region['coverage_4G_percent'],
-                        'sites_estimated_total': region['sites_estimated_total'],
-                        'sites_estimated_km2': region['sites_estimated_km2'],
-                        'sites_3G': region['sites_3G'],
-                        'sites_4G': region['sites_4G'],
-                        'backhaul_fiber': region['backhaul_fiber'],
-                        'backhaul_copper': region['backhaul_copper'],
-                        'backhaul_microwave': region['backhaul_microwave'],
-                        'backhaul_satellite': region['backhaul_satellite'],
-                        'geotype': region['geotype'],
-                        'integration': region['integration'],
-                    })
+                data_fraction.append({
+                    'increment': i,
+                    'GID_0': region['GID_0'],
+                    'GID_id': region['GID_id'],
+                    'GID_level': region['GID_level'],
+                    'mean_luminosity_km2': region['mean_luminosity_km2'],
+                    'population': population,
+                    'area_km2': region['area_km2'],
+                    'population_km2': population / region['area_km2'],
+                    'coverage_GSM_percent': region['coverage_GSM_percent'],
+                    'coverage_3G_percent': region['coverage_3G_percent'],
+                    'coverage_4G_percent': region['coverage_4G_percent'],
+                    'sites_estimated_total': region['sites_estimated_total'],
+                    'sites_estimated_km2': region['sites_estimated_km2'],
+                    'sites_3G': region['sites_3G'],
+                    'sites_4G': region['sites_4G'],
+                    'backhaul_fiber': region['backhaul_fiber'],
+                    'backhaul_copper': region['backhaul_copper'],
+                    'backhaul_microwave': region['backhaul_microwave'],
+                    'backhaul_satellite': region['backhaul_satellite'],
+                    'geotype': region['geotype'],
+                    'integration': region['integration'],
+                })
 
-                data_demand = estimate_demand(
-                    data_fraction,
-                    option,
-                    GLOBAL_PARAMETERS,
-                    country_parameters,
-                    TIMESTEPS,
-                    penetration_lut,
-                    smartphone_lut
-                )
+            data_demand = estimate_demand(
+                data_fraction,
+                option,
+                GLOBAL_PARAMETERS,
+                country_parameters,
+                TIMESTEPS,
+                penetration_lut,
+                smartphone_lut
+            )
 
-                data_supply = estimate_supply(
-                    country,
-                    data_demand,
-                    lookup,
-                    option,
-                    GLOBAL_PARAMETERS,
-                    country_parameters,
-                    COSTS,
-                    core_lut,
-                    ci
-                )
+            data_supply = estimate_supply(
+                country,
+                data_demand,
+                lookup,
+                option,
+                GLOBAL_PARAMETERS,
+                country_parameters,
+                COSTS,
+                core_lut,
+                ci
+            )
 
-                data_assess = assess(
-                    country,
-                    data_supply,
-                    option,
-                    GLOBAL_PARAMETERS,
-                    country_parameters,
-                )
+            data_assess = assess(
+                country,
+                data_supply,
+                option,
+                GLOBAL_PARAMETERS,
+                country_parameters,
+            )
 
-                regional_results = regional_results + data_assess
+            final_results = allocate_deciles(data_assess)
+
+            regional_results = regional_results + final_results
 
     folder = os.path.join(BASE_PATH, '..', 'results')
     write_results(regional_results, folder, 'inc_cost')
