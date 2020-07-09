@@ -1,10 +1,11 @@
 import pytest
 import math
 from podis.costs import (upgrade_to_3g, upgrade_to_4g,
-    greenfield_3g, greenfield_4g, get_fronthaul_costs,
-    get_backhaul_costs, regional_net_costs, core_costs,
-    discount_opex, discount_capex_and_opex,
-    calc_costs, find_single_network_cost)
+    greenfield_3g, greenfield_4g, backhaul_quantity,
+    get_fronthaul_costs, get_backhaul_costs,
+    regional_net_costs, core_costs, discount_opex,
+    discount_capex_and_opex, calc_costs,
+    find_single_network_cost)
 
 #test approach is to:
 #test each function which returns the cost structure
@@ -17,7 +18,7 @@ def test_upgrade_to_3g(setup_region, setup_option, setup_costs,
     setup_country_parameters):
 
     setup_region[0]['sites_estimated_total'] = 1
-    setup_region[0]['upgraded_sites'] = 0
+    setup_region[0]['upgraded_sites'] = 1
     setup_region[0]['new_sites'] = 1
     setup_region[0]['site_density'] = 0.5
 
@@ -136,7 +137,7 @@ def test_upgrade_to_4g(setup_region, setup_option, setup_costs,
 
     setup_region[0]['sites_estimated_total'] = 1
     setup_region[0]['new_sites'] = 1
-    setup_region[0]['upgraded_sites'] = 0
+    setup_region[0]['upgraded_sites'] = 1
     setup_region[0]['site_density'] = 0.5
 
     cost_structure = upgrade_to_4g(setup_region[0],
@@ -251,7 +252,7 @@ def test_greenfield_3g(setup_region, setup_option, setup_costs,
 
     setup_region[0]['sites_estimated_total'] = 1
     setup_region[0]['new_sites'] = 1
-    setup_region[0]['upgraded_sites'] = 0
+    setup_region[0]['upgraded_sites'] = 1
     setup_region[0]['site_density'] = 0.5
 
     cost_structure = greenfield_3g(setup_region[0],
@@ -371,7 +372,7 @@ def test_greenfield_4g(setup_region, setup_option, setup_costs,
 
     setup_region[0]['sites_estimated_total'] = 1
     setup_region[0]['new_sites'] = 1
-    setup_region[0]['upgraded_sites'] = 0
+    setup_region[0]['upgraded_sites'] = 1
     setup_region[0]['site_density'] = 0.5
 
     cost_structure = greenfield_4g(setup_region[0],
@@ -485,6 +486,11 @@ def test_greenfield_4g(setup_region, setup_option, setup_costs,
         (setup_costs['core_edge'] * 1000))
 
 
+def test_backhaul_quantity():
+
+    assert backhaul_quantity(2, 1) == 0
+
+
 def test_get_fronthaul_costs(setup_region, setup_costs):
 
     setup_region[0]['site_density'] = 4
@@ -503,7 +509,7 @@ def test_get_fronthaul_costs(setup_region, setup_costs):
         setup_costs['fiber_urban_m'] * math.sqrt(1/setup_region[0]['site_density'])) * 1000
 
 
-def test_get_backhaul_costs(setup_region, setup_costs, setup_core_lut):
+def test_get_backhaul_costs(setup_region, setup_costs, setup_core_lut, setup_empty_core_lut):
 
     assert get_backhaul_costs(setup_region[0], 'microwave',
         setup_costs, setup_core_lut) == (setup_costs['microwave_small'])
@@ -512,6 +518,11 @@ def test_get_backhaul_costs(setup_region, setup_costs, setup_core_lut):
 
     assert get_backhaul_costs(setup_region[0], 'microwave',
         setup_costs, setup_core_lut) == (setup_costs['microwave_small'])
+
+    setup_region[0]['area_km2'] = 20000
+
+    assert get_backhaul_costs(setup_region[0], 'microwave',
+        setup_costs, setup_core_lut) == (setup_costs['microwave_medium'])
 
     setup_region[0]['area_km2'] = 100000
 
@@ -525,6 +536,9 @@ def test_get_backhaul_costs(setup_region, setup_costs, setup_core_lut):
 
     assert get_backhaul_costs(setup_region[0], 'incorrect_backhaul_tech_name',
         setup_costs, setup_core_lut) == 0
+
+    assert get_backhaul_costs(setup_region[0], 'fiber',
+        setup_costs, setup_empty_core_lut) == 14140
 
 
 def test_regional_net_costs(setup_region, setup_option, setup_costs, setup_core_lut,
@@ -578,6 +592,16 @@ def test_regional_net_costs(setup_region, setup_option, setup_costs, setup_core_
     assert regional_net_costs(setup_region[0], 'regional_node', setup_costs,
         setup_core_lut, setup_option['strategy'], setup_country_parameters) == 0
 
+    #test that no sites returns zero cost
+    setup_region[0]['sites_estimated_total'] = 0
+
+    assert regional_net_costs(setup_region[0], 'regional_edge', setup_costs,
+        setup_core_lut, setup_option['strategy'], setup_country_parameters) == 0
+
+    #test asset name not being in the LUT
+    assert regional_net_costs(setup_region[0], 'incorrrect_asset_name', setup_costs,
+        setup_core_lut, setup_option['strategy'], setup_country_parameters) == 'Asset name not in lut'
+
 
 def test_core_costs(setup_region, setup_option, setup_costs, setup_core_lut, setup_country_parameters):
 
@@ -602,6 +626,22 @@ def test_core_costs(setup_region, setup_option, setup_costs, setup_core_lut, set
             (setup_costs['core_edge'] * setup_core_lut['core_edge']['MWI.1.1.1_1_new']) /
             (setup_region[0]['sites_estimated_total'] /
             (setup_country_parameters['networks']['baseline_urban'])))
+
+    #test that no sites returns zero cost
+    setup_region[0]['upgraded_sites'] = 0
+    setup_region[0]['new_sites'] = 0
+
+    assert core_costs(setup_region[0], 'core_edge', setup_costs,
+        setup_core_lut, setup_option['strategy'], setup_country_parameters) == 0
+
+    assert core_costs(setup_region[0], 'core_node', setup_costs,
+        setup_core_lut, setup_option['strategy'], setup_country_parameters) == 0
+
+    assert core_costs(setup_region[0], 'core_edge', setup_costs,
+        {}, setup_option['strategy'], setup_country_parameters) == 0
+
+    assert core_costs(setup_region[0], 'core_node', setup_costs,
+        {}, setup_option['strategy'], setup_country_parameters) == 0
 
 
 def test_discount_capex_and_opex(setup_global_parameters, setup_country_parameters):
@@ -759,12 +799,30 @@ def test_calc_costs(setup_region, setup_global_parameters, setup_country_paramet
 
     answer, structure = calc_costs(setup_region[0],
         '5G_sa_microwave_cns_baseline_baseline_baseline_integration',
+        {'single_remote_radio_unit': 4000},
+        0,
+        setup_global_parameters,
+        setup_country_parameters)
+
+    assert answer == 4948.335
+
+    answer, structure = calc_costs(setup_region[0],
+        '5G_sa_microwave_cns_baseline_baseline_baseline_integration',
         {'per_site_spectrum_acquisition_cost': 100},
         0,
         setup_global_parameters,
         setup_country_parameters)
 
     assert answer == 50
+
+    answer, structure = calc_costs(setup_region[0],
+        '5G_sa_microwave_cns_baseline_baseline_baseline_integration',
+        {'site_rental': 1000},
+        0,
+        setup_global_parameters,
+        setup_country_parameters)
+
+    assert answer == 2020.3199999999997
 
     answer, structure = calc_costs(setup_region[0],
         '5G_sa_microwave_cns_baseline_baseline_baseline_integration',

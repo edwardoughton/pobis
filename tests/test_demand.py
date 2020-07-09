@@ -60,6 +60,21 @@ def test_estimate_demand(
         smartphones_on_network * 50 / 100 / 2
     )
 
+    #test that the region is dropped if the area is 0 km^2
+    setup_region[0]['area_km2'] = 0
+
+    answer = estimate_demand(
+        setup_region,
+        setup_option,
+        setup_global_parameters,
+        setup_country_parameters,
+        setup_timesteps,
+        {2020: 50},
+        {'MWI':{'urban': {'smartphone': 0.5}}}
+    )
+
+    assert answer == []
+
 
 def test_get_per_user_capacity():
 
