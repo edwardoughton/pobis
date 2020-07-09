@@ -10,7 +10,7 @@ import math
 from itertools import tee
 from operator import itemgetter
 
-from ictp4d.costs import find_single_network_cost
+from podis.costs import find_single_network_cost
 
 
 def estimate_supply(country, regions, lookup, option, global_parameters,
@@ -50,8 +50,6 @@ def estimate_supply(country, regions, lookup, option, global_parameters,
             country_parameters, lookup, ci)
 
         total_sites_required = math.ceil(region['site_density'] * region['area_km2'])
-        # print('existing site density {}'.format(region['site_density']))
-        # print('total sites required {}'.format(total_sites_required))
 
         region = estimate_site_upgrades(
             region,
