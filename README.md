@@ -1,6 +1,6 @@
 Policy Options for Digital Infrastructure Strategies
 ====================================================
-
+[![Build Status](https://travis-ci.org/edwardoughton/podis.svg?branch=master)](https://travis-ci.org/edwardoughton/podis)
 [![Coverage Status](https://coveralls.io/repos/github/edwardoughton/podis/badge.svg?branch=master)](https://coveralls.io/github/edwardoughton/podis?branch=master)
 
 **podis** allows transparent and reproducible analysis of policies options for improving
