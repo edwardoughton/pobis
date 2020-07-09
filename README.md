@@ -1,10 +1,9 @@
-ictp4d
-====
+podis
+=====
 
-ICT Policies for Development
+Policy Options for Digital Infrastructure Strategies
 
-**ictp4d** allows transparent and reproducible analysis of policies which improve ICT access
-and enable sustainable economic development.
+**podis** allows transparent and reproducible analysis of policies options for improving digital infrastructure access, thus contributing to sustainable economic development.
 
 Using conda
 ==========
@@ -13,19 +12,19 @@ The recommended installation method is to use conda, which handles packages and 
 environments, along with the conda-forge channel which has a host of pre-built libraries and
 packages.
 
-Create a conda environment called ictp4d:
+Create a conda environment called podis:
 
-    conda create --name ictp4d python=3.7 gdal
+    conda create --name podis python=3.7 gdal
 
 Activate it (run this each time you switch projects):
 
-    conda activate ictp4d
+    conda activate podis
 
 First, install optional packages:
 
     conda install geopandas rasterio rasterstats
 
-Then install ictp4d:
+Then install podis:
 
     python setup.py install
 
@@ -84,4 +83,4 @@ Then
 Thanks for the support
 ======================
 
-**ictp4d** was written and developed at the `Environmental Change Institute, University of Oxford <http://www.eci.ox.ac.uk>`_ within the EPSRC-sponsored MISTRAL programme, as part of the `Infrastructure Transition Research Consortium <http://www.itrc.org.uk/>`_.
+**podis** was written and developed at the `Environmental Change Institute, University of Oxford <http://www.eci.ox.ac.uk>`_ within the EPSRC-sponsored MISTRAL programme, as part of the `Infrastructure Transition Research Consortium <http://www.itrc.org.uk/>`_.

@@ -3,8 +3,8 @@ Cost module
 Author: Edward Oughton
 Date: April 2019
 
-Based off the repo pysim5g:
-https://github.com/edwardoughton/pysim5g
+Based off the repo pytal:
+https://github.com/edwardoughton/pytal
 
 """
 import math
@@ -488,6 +488,7 @@ def regional_net_costs(region, asset_type, costs, core_lut, strategy, country_pa
 def core_costs(region, asset_type, costs, core_lut, strategy, country_parameters):
     """
     Return core asset costs for only the 'new' assets that have been planned.
+
     """
     core = strategy.split('_')[1]
     geotype = region['geotype'].split(' ')[0]

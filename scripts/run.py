@@ -14,9 +14,9 @@ import geopandas
 from collections import OrderedDict
 
 from options import OPTIONS, COUNTRY_PARAMETERS
-from ictp4d.demand import estimate_demand
-from ictp4d.supply import estimate_supply
-from ictp4d.assess import assess
+from podis.demand import estimate_demand
+from podis.supply import estimate_supply
+from podis.assess import assess
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__), 'script_config.ini'))
