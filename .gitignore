@@ -114,7 +114,6 @@ venv.bak/
 /vis/subscriptions/figures/*
 /vis/figures/*
 
-/tests/*
 /results/*
 /clustering/data_inputs/*
 /clustering/figures/*
