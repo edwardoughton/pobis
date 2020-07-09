@@ -17,16 +17,16 @@ def readme():
 
 
 setup(
-    name='ictp4d',
+    name='podic',
     # use_scm_version=True,
     version=0.1,
     license='MIT License',
-    description='ICT policies for Development',
+    description='Policy Options for Digital Infrastructure Strategies',
     long_description=readme(),
     long_description_content_type="text/markdown",
     author='Ed Oughton',
     author_email='edward.oughton@gmail.com',
-    url='https://github.com/edwardoughton/ictp4d',
+    url='https://github.com/edwardoughton/podis',
     packages=find_packages('src'),
     package_dir={'': 'src'},
     py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],
@@ -43,7 +43,7 @@ setup(
         'Topic :: Utilities',
     ],
     keywords=[
-        'ict', 'telecommunications', 'broadband', 'infrastructure', 'policy', 'policies'
+        'broadband', 'infrastructure', 'ict', 'policy', 'policies','telecommunications'
     ],
     setup_requires=[
         'setuptools_scm'
