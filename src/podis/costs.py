@@ -401,7 +401,7 @@ def get_backhaul_costs(region, backhaul, costs, core_lut):
     if node_density_km2 > 0:
         ave_distance_to_a_node_m = (math.sqrt(1/node_density_km2) / 2) * 1000
     else:
-        ave_distance_to_a_node_m = math.sqrt(region['area_km2']) * 1000
+        ave_distance_to_a_node_m = round(math.sqrt(region['area_km2']) * 1000)
 
     if backhaul_tech == 'microwave':
         if ave_distance_to_a_node_m < 15000:
@@ -457,7 +457,7 @@ def regional_net_costs(region, asset_type, costs, core_lut, strategy, country_pa
                 else:
                     return cost / sites
 
-            elif asset_type == 'regional_node':
+            if asset_type == 'regional_node':
 
                 regional_nodes = core_lut[asset_type][combined_key]
 
@@ -473,12 +473,6 @@ def regional_net_costs(region, asset_type, costs, core_lut, strategy, country_pa
                     return regional_node_cost
                 else:
                     return regional_node_cost / sites
-
-
-                return (regional_node_cost / sites)
-
-            else:
-                return 'Did not recognise core asset type'
         else:
             return 0
 
@@ -592,6 +586,7 @@ def discount_capex_and_opex(capex, global_parameters, country_parameters):
 def discount_opex(opex, global_parameters, country_parameters):
     """
     Discount opex based on return period.
+
     """
     return_period = global_parameters['return_period']
     discount_rate = global_parameters['discount_rate'] / 100
@@ -645,6 +640,7 @@ def calc_costs(region, strategy, cost_structure, backhaul_quantity,
                     cost = discount_capex_and_opex(cost, global_parameters, country_parameters)
 
                     if regional_integration == 'integration':
+                        print('------')
                         cost = (cost * (1 -
                             (global_parameters['regional_integration_factor'] /  100)))
 

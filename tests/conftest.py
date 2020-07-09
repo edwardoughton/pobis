@@ -248,3 +248,24 @@ def setup_core_lut():
             'MWI.1.1.1_1_existing': 2
         },
     }
+
+@fixture(scope='function')
+def setup_empty_core_lut():
+    return {
+        'core_edge': {
+            'MWI.1.1.1_1_new': 0,
+            'MWI.1.1.1_1_existing': 0
+        },
+        'core_node': {
+            'MWI.1.1.1_1_new': 0,
+            'MWI.1.1.1_1_existing': 0
+        },
+        'regional_edge': {
+            'MWI.1.1.1_1_new': 0,
+            'MWI.1.1.1_1_existing': 0
+        },
+        'regional_node': {
+            'MWI.1.1.1_1_new': 0,
+            'MWI.1.1.1_1_existing': 0
+        },
+    }
