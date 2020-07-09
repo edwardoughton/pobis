@@ -3,7 +3,13 @@ Policy Options for Digital Infrastructure Strategies
 
 [![Coverage Status](https://coveralls.io/repos/github/edwardoughton/podis/badge.svg?branch=master)](https://coveralls.io/github/edwardoughton/podis?branch=master)
 
-**podis** allows transparent and reproducible analysis of policies options for improving digital infrastructure access, thus contributing to sustainable economic development.
+**podis** allows transparent and reproducible analysis of policies options for improving
+digital infrastructure access, thus contributing to sustainable economic development.
+
+The simulation model available in this repository can be applied to local, national or regional
+telecommunication markets, to quantify the performance of different technology, business model
+or regional integration options. The evidence produced can be used to inform the design of
+digital infrastructure strategies.
 
 Using conda
 ==========
