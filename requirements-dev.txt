@@ -1,4 +1,8 @@
-# test/lint
-pylint
-pytest>=3.6
-pytest-cov
+geopandas
+numpy
+shapely
+fiona
+rasterio
+pyproj
+pytest >= 4.6
+rasterstats

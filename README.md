@@ -1,7 +1,7 @@
-podis
-=====
+podis - Policy Options for Digital Infrastructure Strategies
+============================================================
 
-Policy Options for Digital Infrastructure Strategies
+[![Coverage Status](https://coveralls.io/repos/github/edwardoughton/podis/badge.svg?branch=master)](https://coveralls.io/github/edwardoughton/podis?branch=master)
 
 **podis** allows transparent and reproducible analysis of policies options for improving digital infrastructure access, thus contributing to sustainable economic development.
 
