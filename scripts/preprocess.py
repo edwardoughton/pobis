@@ -20,7 +20,7 @@ from fiona.crs import from_epsg
 import rasterio
 from rasterio.mask import mask
 from rasterstats import zonal_stats
-import networkx as nx
+# import networkx as nx
 from rtree import index
 import numpy as np
 import random
@@ -680,8 +680,8 @@ def estimate_sites(data, iso3, backhaul_lut):
                 'coverage_GSM_percent': region['coverage_GSM_percent'],
                 'coverage_3G_percent': region['coverage_3G_percent'],
                 'coverage_4G_percent': region['coverage_4G_percent'],
-                'sites_estimated_total': sites_estimated_total,
-                'sites_estimated_km2': sites_estimated_km2,
+                'total_estimated_sites': sites_estimated_total,
+                'total_estimated_sites_km2': sites_estimated_km2,
                 'sites_3G': sites_estimated_total * (region['coverage_3G_percent'] /100),
                 'sites_4G': sites_estimated_total * (region['coverage_4G_percent'] /100),
                 'backhaul_fiber': backhaul_fiber,
@@ -2030,6 +2030,126 @@ def forecast_linear(country, historical_data, start_point, end_point, horizon):
     return output
 
 
+def forecast_smartphones(country):
+    """
+    Forecast smartphone adoption.
+
+    Parameters
+    ----------
+    historical_data : list of dicts
+        Past penetration data.
+
+    """
+    iso3 = country['iso3']
+
+    path = os.path.join(DATA_RAW, 'wb_smartphone_survey', 'wb_smartphone_survey.csv')
+    survey_data = load_smartphone_data(path, country)
+
+    start_point = 2020
+    end_point = 2030
+
+    forecast = forecast_smartphones_linear(
+        survey_data,
+        country,
+        start_point,
+        end_point
+    )
+
+    forecast_df = pd.DataFrame(forecast)
+
+    path = os.path.join(DATA_INTERMEDIATE, iso3, 'smartphones')
+
+    if not os.path.exists(path):
+        os.mkdir(path)
+
+    forecast_df.to_csv(os.path.join(path, 'smartphone_forecast.csv'), index=False)
+
+    path = os.path.join(BASE_PATH, '..', 'vis', 'smartphones', 'data_inputs')
+    if not os.path.exists(path):
+        os.mkdir(path)
+    forecast_df.to_csv(os.path.join(path, '{}.csv'.format(iso3)), index=False)
+
+    return print('Completed subscription forecast')
+
+
+def load_smartphone_data(path, country):
+    """
+    Load smartphone adoption survey data.
+
+    Parameters
+    ----------
+    path : string
+        Location of data as .csv.
+    country : string
+        ISO3 digital country code.
+
+    """
+    survey_data = pd.read_csv(path)
+
+    survey_data = survey_data.to_dict('records')
+
+    countries_with_data = [i['iso3'] for i in survey_data]
+
+    output = []
+
+    if country['iso3']  in countries_with_data:
+        for item in survey_data:
+                if item['iso3'] == country['iso3']:
+                    output.append({
+                        'country': item['iso3'],
+                        'cluster': item['cluster'],
+                        'settlement_type': item['Settlement'],
+                        'smartphone_penetration': item['Smartphone']
+                    })
+
+    else:
+        for item in survey_data:
+            if item['cluster'] == country['cluster']:
+                output.append({
+                    'country': country['iso3'],
+                    'cluster': item['cluster'],
+                    'settlement_type': item['Settlement'],
+                    'smartphone_penetration': item['Smartphone']
+                })
+
+    return output
+
+
+def forecast_smartphones_linear(data, country, start_point, end_point):
+    """
+    Forecast smartphone adoption.
+
+    """
+    output = []
+
+    scenarios = ['low', 'baseline', 'high']
+
+    for scenario in scenarios:
+
+        smartphone_growth = country['sp_growth_{}'.format(scenario)]
+
+        for item in data:
+
+            for year in range(start_point, end_point + 1):
+
+                if year == start_point:
+
+                    penetration = item['smartphone_penetration']
+
+                else:
+                    penetration = penetration * (1 + (smartphone_growth/100))
+
+                output.append({
+                    'scenario': scenario,
+                    'country': item['country'],
+                    'settlement_type': item['settlement_type'].lower(),
+                    'year': year,
+                    'penetration': round(penetration, 2),
+                })
+
+    return output
+
+
 if __name__ == '__main__':
 
     # countries = find_country_list(['Africa'])
@@ -2038,26 +2158,38 @@ if __name__ == '__main__':
         {'iso3': 'SEN', 'iso2': 'SN', 'regional_level': 2, 'regional_nodes_level': 2,
             'region': 'SSA', 'pop_density_km2': 500, 'settlement_size': 1000,
             'subs_growth_low': 1, 'subs_growth_baseline': 2, 'subs_growth_high': 3,
+            'sp_growth_low': 1.5, 'sp_growth_baseline': 2.5, 'sp_growth_high': 3.5,
+            'cluster': 'C2',
         },
         {'iso3': 'MLI', 'iso2': 'ML', 'regional_level': 2, 'regional_nodes_level': 2,
             'region': 'SSA', 'pop_density_km2': 500, 'settlement_size': 1000,
             'subs_growth_low': 1, 'subs_growth_baseline': 2, 'subs_growth_high': 3,
+            'sp_growth_low': 1, 'sp_growth_baseline': 2, 'sp_growth_high': 3,
+            'cluster': 'C1',
         },
         {'iso3': 'CIV', 'iso2': 'CI', 'regional_level': 2, 'regional_nodes_level': 2,
             'region': 'SSA', 'pop_density_km2': 500, 'settlement_size': 1000,
             'subs_growth_low': 1, 'subs_growth_baseline': 2, 'subs_growth_high': 3,
+            'sp_growth_low': 1.2, 'sp_growth_baseline': 2.2, 'sp_growth_high': 3.2,
+            'cluster': 'C1',
         },
         {'iso3': 'UGA', 'iso2': 'UG', 'regional_level': 2, 'regional_nodes_level': 2,
             'region': 'S&SE Asia', 'pop_density_km2': 500, 'settlement_size': 1000,
             'subs_growth_low': 1, 'subs_growth_baseline': 2, 'subs_growth_high': 3,
+            'sp_growth_low': 1.1, 'sp_growth_baseline': 1.6, 'sp_growth_high': 2.1,
+            'cluster': 'C1',
         },
         {'iso3': 'KEN', 'iso2': 'KE', 'regional_level': 2, 'regional_nodes_level': 2,
             'region': 'SSA', 'pop_density_km2': 500, 'settlement_size': 1000,
             'subs_growth_low': 1, 'subs_growth_baseline': 2, 'subs_growth_high': 3,
+            'sp_growth_low': 0.5, 'sp_growth_baseline': 1, 'sp_growth_high': 1.5,
+            'cluster': 'C2',
         },
         {'iso3': 'TZA', 'iso2': 'TZ', 'regional_level': 2, 'regional_nodes_level': 2,
             'region': 'Europe', 'pop_density_km2': 500, 'settlement_size': 1000,
             'subs_growth_low': 1, 'subs_growth_baseline': 2, 'subs_growth_high': 3,
+            'sp_growth_low': 1, 'sp_growth_baseline': 2, 'sp_growth_high': 3,
+            'cluster': 'C1',
         },
     ]
 
@@ -2078,8 +2210,8 @@ if __name__ == '__main__':
         # print('Processing coverage shapes')
         # process_coverage_shapes(country)
 
-        # print('Getting regional data')
-        # get_regional_data(country)
+        print('Getting regional data')
+        get_regional_data(country)
 
         # print('Generating agglomeration lookup table')
         # generate_agglomeration_lut(country)
@@ -2105,5 +2237,8 @@ if __name__ == '__main__':
         # print('Create backhaul lookup table')
         # generate_backhaul_lut(country)
 
-        print('Create subscription forcast')
-        forecast_subscriptions(country)
+        # print('Create subscription forcast')
+        # forecast_subscriptions(country)
+
+        print('Forecasting smartphones')
+        forecast_smartphones(country)
