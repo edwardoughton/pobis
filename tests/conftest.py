@@ -82,12 +82,12 @@ def setup_country_parameters():
             'low': 2,
         },
         'networks': {
-            'baseline_urban': 2,
-            'baseline_suburban': 2,
-            'baseline_rural': 2,
-            # 'srn_urban': 2,
-            # 'srn_suburban': 2,
-            # 'srn_rural': 1,
+            'baseline_urban': 3,
+            'baseline_suburban': 3,
+            'baseline_rural': 3,
+            'shared_urban': 3,
+            'shared_suburban': 3,
+            'shared_rural': 1,
         },
         'frequencies': {
             '4G': [
