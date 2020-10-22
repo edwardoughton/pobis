@@ -43,8 +43,8 @@ def find_single_network_cost(region, option, costs, global_parameters,
     core = strategy.split('_')[1]
     backhaul = strategy.split('_')[2]
 
-    new_sites = region['new_sites']
-    upgraded_sites = region['upgraded_sites']
+    new_sites = region['new_mno_sites']
+    upgraded_sites = region['upgraded_mno_sites']
     all_sites = new_sites + upgraded_sites
 
     new_backhaul = region['backhaul_new']
@@ -448,7 +448,7 @@ def regional_net_costs(region, asset_type, costs, core_lut, strategy, country_pa
                 cost_m = costs['regional_edge']
                 cost = int(distance_m * cost_m)
 
-                sites = ((region['upgraded_sites'] + region['new_sites']) / networks)
+                sites = ((region['upgraded_mno_sites'] + region['new_mno_sites']) / networks)
 
                 if sites == 0:
                     return 0
@@ -465,7 +465,7 @@ def regional_net_costs(region, asset_type, costs, core_lut, strategy, country_pa
 
                 regional_node_cost = int(regional_nodes * cost_each)
 
-                sites = ((region['upgraded_sites'] + region['new_sites']) / networks)
+                sites = ((region['upgraded_mno_sites'] + region['new_mno_sites']) / networks)
 
                 if sites == 0:
                     return 0
@@ -503,7 +503,7 @@ def core_costs(region, asset_type, costs, core_lut, strategy, country_parameters
                 cost = int(distance_m * costs['core_edge'])
                 total_cost.append(cost)
 
-                sites = ((region['upgraded_sites'] + region['new_sites']) / networks)
+                sites = ((region['upgraded_mno_sites'] + region['new_mno_sites']) / networks)
 
                 if sites == 0:
                     return 0
@@ -528,7 +528,7 @@ def core_costs(region, asset_type, costs, core_lut, strategy, country_parameters
             cost = int(nodes * costs['core_node_{}'.format(core)])
             total_cost.append(cost)
 
-            sites = ((region['upgraded_sites'] + region['new_sites']) / networks)
+            sites = ((region['upgraded_mno_sites'] + region['new_mno_sites']) / networks)
 
             if sites == 0:
                 return 0
@@ -617,7 +617,7 @@ def calc_costs(region, strategy, cost_structure, backhaul_quantity,
     backhaul = strategy.split('_')[2]
     regional_integration = region['integration']
 
-    all_sites = region['upgraded_sites'] + region['new_sites']
+    all_sites = region['upgraded_mno_sites'] + region['new_mno_sites']
 
     total_cost = 0
     cost_by_asset = []
@@ -640,7 +640,7 @@ def calc_costs(region, strategy, cost_structure, backhaul_quantity,
                     cost = discount_capex_and_opex(cost, global_parameters, country_parameters)
 
                     if regional_integration == 'integration':
-                        print('------')
+
                         cost = (cost * (1 -
                             (global_parameters['regional_integration_factor'] /  100)))
 

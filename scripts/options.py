@@ -27,50 +27,50 @@ OPTIONS = {
             'scenario': 'low_2_2_2',
             'strategy': '3G_epc_microwave_baseline_baseline_baseline_baseline_baseline',
         },
-        {
-            'scenario': 'low_2_2_2',
-            'strategy': '3G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
-        },
-        {
-            'scenario': 'low_2_2_2',
-            'strategy': '4G_epc_microwave_baseline_baseline_baseline_baseline_baseline',
-        },
-        {
-            'scenario': 'low_2_2_2',
-            'strategy': '4G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
-        },
-        {
-            'scenario': 'baseline_2_2_2',
-            'strategy': '3G_epc_microwave_baseline_baseline_baseline_baseline_baseline',
-        },
-        {
-            'scenario': 'baseline_2_2_2',
-            'strategy': '3G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
-        },
-        {
-            'scenario': 'baseline_2_2_2',
-            'strategy': '4G_epc_microwave_baseline_baseline_baseline_baseline_baseline',
-        },
-        {
-            'scenario': 'baseline_2_2_2',
-            'strategy': '4G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
-        },
-        {
-            'scenario': 'high_2_2_2',
-            'strategy': '3G_epc_microwave_baseline_baseline_baseline_baseline_baseline',
-        },
-        {
-            'scenario': 'high_2_2_2',
-            'strategy': '3G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
-        },
-        {
-            'scenario': 'high_2_2_2',
-            'strategy': '4G_epc_microwave_baseline_baseline_baseline_baseline_baseline',
-        },
-        {
-            'scenario': 'high_2_2_2',
-            'strategy': '4G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
-        },
+        # {
+        #     'scenario': 'low_2_2_2',
+        #     'strategy': '3G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
+        # },
+        # {
+        #     'scenario': 'low_2_2_2',
+        #     'strategy': '4G_epc_microwave_baseline_baseline_baseline_baseline_baseline',
+        # },
+        # {
+        #     'scenario': 'low_2_2_2',
+        #     'strategy': '4G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
+        # },
+        # {
+        #     'scenario': 'baseline_2_2_2',
+        #     'strategy': '3G_epc_microwave_baseline_baseline_baseline_baseline_baseline',
+        # },
+        # {
+        #     'scenario': 'baseline_2_2_2',
+        #     'strategy': '3G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
+        # },
+        # {
+        #     'scenario': 'baseline_2_2_2',
+        #     'strategy': '4G_epc_microwave_baseline_baseline_baseline_baseline_baseline',
+        # },
+        # {
+        #     'scenario': 'baseline_2_2_2',
+        #     'strategy': '4G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
+        # },
+        # {
+        #     'scenario': 'high_2_2_2',
+        #     'strategy': '3G_epc_microwave_baseline_baseline_baseline_baseline_baseline',
+        # },
+        # {
+        #     'scenario': 'high_2_2_2',
+        #     'strategy': '3G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
+        # },
+        # {
+        #     'scenario': 'high_2_2_2',
+        #     'strategy': '4G_epc_microwave_baseline_baseline_baseline_baseline_baseline',
+        # },
+        # {
+        #     'scenario': 'high_2_2_2',
+        #     'strategy': '4G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
+        # },
     ],
     'business_model_options': [
         {
@@ -229,7 +229,7 @@ COUNTRY_PARAMETERS = {
             'tax_low': 10,
             'tax_baseline': 30,
             'tax_high': 40,
-            'acquisition_per_subscriber': 5,
+            'administration_percentage_of_network_cost': 30,
             },
         },
     'MLI': {
@@ -277,7 +277,7 @@ COUNTRY_PARAMETERS = {
             'tax_low': 10,
             'tax_baseline': 30,
             'tax_high': 40,
-            'acquisition_per_subscriber': 5,
+            'administration_percentage_of_network_cost': 30,
             },
         },
     'SEN': {
@@ -327,7 +327,7 @@ COUNTRY_PARAMETERS = {
             'tax_low': 10,
             'tax_baseline': 30,
             'tax_high': 40,
-            'acquisition_per_subscriber': 5,
+            'administration_percentage_of_network_cost': 30,
             },
         },
     'KEN': {
@@ -375,7 +375,7 @@ COUNTRY_PARAMETERS = {
             'tax_low': 10,
             'tax_baseline': 30,
             'tax_high': 40,
-            'acquisition_per_subscriber': 5,
+            'administration_percentage_of_network_cost': 30,
             },
         },
     'TZA': {
@@ -425,7 +425,7 @@ COUNTRY_PARAMETERS = {
             'tax_low': 10,
             'tax_baseline': 30,
             'tax_high': 40,
-            'acquisition_per_subscriber': 5,
+            'administration_percentage_of_network_cost': 30,
             },
         },
     'UGA': {
@@ -475,7 +475,7 @@ COUNTRY_PARAMETERS = {
             'tax_low': 10,
             'tax_baseline': 30,
             'tax_high': 40,
-            'acquisition_per_subscriber': 5,
+            'administration_percentage_of_network_cost': 30,
             },
         },
     'SEN-MLI-CIV': {
@@ -523,7 +523,7 @@ COUNTRY_PARAMETERS = {
             'tax_low': 10,
             'tax_baseline': 30,
             'tax_high': 40,
-            'acquisition_per_subscriber': 5,
+            'administration_percentage_of_network_cost': 30,
             },
         },
     'KEN-TZA-UGA': {
@@ -571,7 +571,7 @@ COUNTRY_PARAMETERS = {
             'tax_low': 10,
             'tax_baseline': 30,
             'tax_high': 40,
-            'acquisition_per_subscriber': 5,
+            'administration_percentage_of_network_cost': 30,
             },
         },
     }
