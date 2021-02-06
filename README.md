@@ -1,15 +1,65 @@
-Policy Options for Digital Infrastructure Strategies
-====================================================
+Policy Options for Digital Infrastructure Strategies (podis)
+============================================================
 [![Build Status](https://travis-ci.org/edwardoughton/podis.svg?branch=master)](https://travis-ci.org/edwardoughton/podis)
 [![Coverage Status](https://coveralls.io/repos/github/edwardoughton/podis/badge.svg?branch=master)](https://coveralls.io/github/edwardoughton/podis?branch=master)
 
-**podis** allows transparent and reproducible analysis of policies options for improving
-digital infrastructure access, thus contributing to sustainable economic development.
+**podis** allows transparent and reproducible analysis of policy options for improving
+digital infrastructure connectivity, thus contributing to sustainable economic development.
 
 The simulation model available in this repository can be applied to local, national or regional
 telecommunication markets, to quantify the performance of different technology, business model
 or regional integration options. The evidence produced can be used to inform the design of
 digital infrastructure strategies.
+
+Citation
+---------
+
+- Oughton, E.J. (2021) Policy options for digital infrastructure strategies: A simulation
+  model for broadband universal service in Africa. arXiv:3592803  [cs, econ, q-fin].
+
+
+Data analytics for broadband strategies
+=======================================
+Myriad high-level policy reports have attempted to quantify the costs of infrastructure
+delivery for connecting unconnected communities. The majority use spreadsheet methods to
+estimate the required investment, leaving substantial uncertainty embedded within the results
+which is rarely portrayed to policy makers.
+
+The method developed here takes a new approach by drawing on a range of analytical tools rarely
+utilized in telecom policy research, including remote sensing and least-cost network designs
+derived from infrastructure simulation. The figure below illustrates how these approaches are
+combined to produce demand and supply estimates to quantify broadband universal service
+strategies.
+
+## Quantifying broadband strategies with data analytics
+
+<p align="center">
+  <img src="/figures/approach.png" />
+</p>
+
+The composition of the private cost is visualized below for each technology tested,
+demonstrating the structure of the investment required to achieve comprehensive universal
+broadband across the six example countries assessed here (Côte D’Ivoire, Mali, Senegal, Kenya,
+Tanzania and Uganda).
+
+## Composition of the private cost structure by country
+
+<p align="center">
+  <img src="/figures/private_cost.png" />
+</p>
+
+In those circumstances where the revenue able to support infrastructure deployment falls short
+of the required investment, areas are therefore unviable based on current market conditions.
+Consequently, government is required to provide a state subsidy to help deploy the required
+infrastructure in these situations. The figure below demonstrates how `podis` is able to
+estimate the required state subsidy needed to achieve universal broadband.
+
+## Quantifying state subsidies for universal broadband
+
+<p align="center">
+  <img src="/figures/government_cost.png" />
+</p>
+
 
 Using conda
 ==========
@@ -86,7 +136,13 @@ Then
     python scripts/core.py
 
 
-Thanks for the support
-======================
+Acknowledgements
+================
 
-**podis** was written and developed at the `Environmental Change Institute, University of Oxford <http://www.eci.ox.ac.uk>`_ within the EPSRC-sponsored MISTRAL programme, as part of the `Infrastructure Transition Research Consortium <http://www.itrc.org.uk/>`_.
+**podis** was developed at George Mason University, Fairfax, VA, USA.
+
+Guidance and support has been very much appreciated from collaborators at the World Bank's
+Digital Economy for Africa program.
+
+Thank you to both the Benton Institute for Broadband & Society and the TPRC Board for
+recognizing this paper at TPRC48 with a Charles Benton Early Career Scholar Award.

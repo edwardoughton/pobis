@@ -35,7 +35,7 @@ def setup_region_rural():
 def setup_option():
     return { #generation_core_backhaul_sharing_networks_spectrum_tax_integration
         'scenario': 'S1_50_50_50',
-        'strategy': '4G_epc_microwave_baseline_baseline_baseline_baseline_baseline_baseline'
+        'strategy': '4G_epc_wireless_baseline_baseline_baseline_baseline_baseline_baseline'
     }
 
 
@@ -43,28 +43,18 @@ def setup_option():
 def setup_option_high():
     return {
         'scenario': 'S1_50_50_50',
-        'strategy': '4G_epc_microwave_baseline_baseline_high_high_high'
+        'strategy': '4G_epc_wireless_baseline_baseline_high_high_high'
     }
 
 
 @fixture(scope='function')
 def setup_global_parameters():
     return {
+        'opex_percentage_of_capex': 10,
         'overbooking_factor': 100,
         'return_period': 2,
         'discount_rate': 5,
-        'opex_percentage_of_capex': 10,
-        'sectorization': 3,
         'confidence': [1, 10, 50],
-        'cots_processing_split_urban': 2,
-        'cots_processing_split_suburban': 4,
-        'cots_processing_split_rural': 16,
-        'io_n2_n3_split': 7,
-        'low_latency_switch_split': 7,
-        'rack_split': 7,
-        'cloud_power_supply_converter_split': 7,
-        'software_split': 7,
-        'cloud_backhaul_split': 7,
         'regional_integration_factor': 10
     }
 
@@ -82,12 +72,12 @@ def setup_country_parameters():
             'low': 2,
         },
         'networks': {
-            'baseline_urban': 2,
-            'baseline_suburban': 2,
-            'baseline_rural': 2,
-            # 'srn_urban': 2,
-            # 'srn_suburban': 2,
-            # 'srn_rural': 1,
+            'baseline_urban': 3,
+            'baseline_suburban': 3,
+            'baseline_rural': 3,
+            'shared_urban': 3,
+            'shared_suburban': 3,
+            'shared_rural': 1,
         },
         'frequencies': {
             '4G': [
@@ -122,6 +112,7 @@ def setup_country_parameters():
             'tax_baseline': 25,
             'tax_high': 40,
             'acquisition_per_subscriber': 10,
+            'administration_percentage_of_network_cost': 10
             },
         }
 
@@ -155,50 +146,24 @@ def setup_penetration_lut():
 def setup_costs():
     return {
         #all costs in $USD
-        'single_sector_antenna': 1500,
-        'single_remote_radio_unit': 4000,
-        'io_fronthaul': 1500,
-        'processing': 1500,
-        'io_s1_x2': 1500,
-        'control_unit': 1500,
-        'cooling_fans': 250,
-        'distributed_power_supply_converter': 250,
-        'power_generator_battery_system': 5000,
-        'bbu_cabinet': 500,
-        'fiber_fronthaul_urban_m': 10,
-        'fiber_fronthaul_suburban_m': 5,
-        'fiber_fronthaul_rural_m': 2,
-        'cots_processing': 500,
-        'io_n2_n3': 1500,
-        'low_latency_switch': 500,
-        'rack': 500,
-        'cloud_power_supply_converter': 1000,
-        'software': 50,
-        'tower': 10000,
-        'civil_materials': 5000,
-        'transportation': 5000,
-        'installation': 5000,
+        'equipment': 40000,
+        'site_build': 30000,
+        'installation': 30000,
         'site_rental_urban': 9600,
         'site_rental_suburban': 4000,
         'site_rental_rural': 2000,
-        'router': 2000,
-        'microwave_small': 10000,
-        'microwave_medium': 20000,
-        'microwave_large': 40000,
+        'operation_and_maintenance': 7400,
+        'power': 2200,
+        'wireless_small': 10000,
+        'wireless_medium': 20000,
+        'wireless_large': 40000,
         'fiber_urban_m': 10,
         'fiber_suburban_m': 5,
         'fiber_rural_m': 2,
         'core_node_epc': 100000,
-        'core_node_nsa': 150000,
-        'core_node_sa': 200000,
         'core_edge': 20,
         'regional_node_epc': 100000,
-        'regional_node_nsa': 150000,
-        'regional_node_sa': 200000,
         'regional_edge': 10,
-        'regional_node_lower_epc': 10000,
-        'regional_node_lower_nsa': 10000,
-        'regional_node_lower_sa': 10000,
         'per_site_spectrum_acquisition_cost': 1000,
         'per_site_administration_cost': 100,
     }
