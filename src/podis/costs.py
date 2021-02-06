@@ -11,7 +11,7 @@ import math
 from itertools import tee
 import collections, functools, operator
 
-def find_single_network_cost(region, option, costs, global_parameters,
+def find_network_cost(region, option, costs, global_parameters,
     country_parameters, core_lut):
     """
     Calculates the annual total cost using capex and opex.
@@ -20,8 +20,8 @@ def find_single_network_cost(region, option, costs, global_parameters,
     ----------
     region : dict
         The region being assessed and all associated parameters.
-    # strategy : str
-    #     Infrastructure sharing strategy.
+    strategy : str
+        Infrastructure sharing strategy.
     costs : dict
         Contains the costs of each necessary equipment item.
     global_parameters : dict
@@ -40,8 +40,6 @@ def find_single_network_cost(region, option, costs, global_parameters,
     """
     strategy = option['strategy']
     generation = strategy.split('_')[0]
-    core = strategy.split('_')[1]
-    backhaul = strategy.split('_')[2]
 
     new_sites = region['new_mno_sites']
     upgraded_sites = region['upgraded_mno_sites']
@@ -152,25 +150,18 @@ def upgrade_to_3g(region, strategy, costs, global_parameters,
     shared_assets = INFRA_SHARING_ASSETS[sharing]
 
     assets = {
-        'single_sector_antenna': costs['single_sector_antenna'],
-        'single_remote_radio_unit': costs['single_remote_radio_unit'],
-        'io_fronthaul': costs['io_fronthaul'],
-        'processing': costs['processing'],
-        'io_s1_x2': costs['io_s1_x2'],
-        'control_unit': costs['control_unit'],
-        'cooling_fans': costs['cooling_fans'],
-        'distributed_power_supply_converter': costs['distributed_power_supply_converter'],
-        'bbu_cabinet': costs['bbu_cabinet'],
+        'equipment': costs['equipment'],
         'installation': costs['installation'],
         'site_rental': costs['site_rental_{}'.format(geotype)],
-        'router': costs['router'],
+        'operation_and_maintenance': costs['operation_and_maintenance'],
+        'power': costs['power'],
         'backhaul': get_backhaul_costs(region, backhaul, costs, core_lut),
         'core_edge': core_costs(region, 'core_edge', costs, core_lut, strategy, country_parameters),
         'core_node': core_costs(region, 'core_node', costs, core_lut, strategy, country_parameters),
         'regional_edge': regional_net_costs(region, 'regional_edge', costs, core_lut, strategy, country_parameters),
         'regional_node': regional_net_costs(region, 'regional_node', costs, core_lut, strategy, country_parameters),
-        'per_site_spectrum_acquisition_cost': costs['per_site_spectrum_acquisition_cost'],
-        'per_site_administration_cost': costs['per_site_administration_cost'],
+        # 'per_site_spectrum_acquisition_cost': costs['per_site_spectrum_acquisition_cost'],
+        # 'per_site_administration_cost': costs['per_site_administration_cost'],
     }
 
     cost_structure = {}
@@ -210,25 +201,18 @@ def upgrade_to_4g(region, strategy, costs, global_parameters,
     shared_assets = INFRA_SHARING_ASSETS[sharing]
 
     assets = {
-        'single_sector_antenna': costs['single_sector_antenna'],
-        'single_remote_radio_unit': costs['single_remote_radio_unit'],
-        'io_fronthaul': costs['io_fronthaul'],
-        'processing': costs['processing'],
-        'io_s1_x2': costs['io_s1_x2'],
-        'control_unit': costs['control_unit'],
-        'cooling_fans': costs['cooling_fans'],
-        'distributed_power_supply_converter': costs['distributed_power_supply_converter'],
-        'bbu_cabinet': costs['bbu_cabinet'],
+        'equipment': costs['equipment'],
         'installation': costs['installation'],
         'site_rental': costs['site_rental_{}'.format(geotype)],
-        'router': costs['router'],
+        'operation_and_maintenance': costs['operation_and_maintenance'],
+        'power': costs['power'],
         'backhaul': get_backhaul_costs(region, backhaul, costs, core_lut),
         'core_edge': core_costs(region, 'core_edge', costs, core_lut, strategy, country_parameters),
         'core_node': core_costs(region, 'core_node', costs, core_lut, strategy, country_parameters),
         'regional_edge': regional_net_costs(region, 'regional_edge', costs, core_lut, strategy, country_parameters),
         'regional_node': regional_net_costs(region, 'regional_node', costs, core_lut, strategy, country_parameters),
-        'per_site_spectrum_acquisition_cost': costs['per_site_spectrum_acquisition_cost'],
-        'per_site_administration_cost': costs['per_site_administration_cost'],
+        # 'per_site_spectrum_acquisition_cost': costs['per_site_spectrum_acquisition_cost'],
+        # 'per_site_administration_cost': costs['per_site_administration_cost'],
     }
 
     cost_structure = {}
@@ -267,29 +251,19 @@ def greenfield_3g(region, strategy, costs, global_parameters,
     shared_assets = INFRA_SHARING_ASSETS[sharing]
 
     assets = {
-        'single_sector_antenna': costs['single_sector_antenna'],
-        'single_remote_radio_unit': costs['single_remote_radio_unit'],
-        'io_fronthaul': costs['io_fronthaul'],
-        'processing': costs['processing'],
-        'io_s1_x2': costs['io_s1_x2'],
-        'control_unit': costs['control_unit'],
-        'cooling_fans': costs['cooling_fans'],
-        'distributed_power_supply_converter': costs['distributed_power_supply_converter'],
-        'power_generator_battery_system': costs['power_generator_battery_system'],
-        'bbu_cabinet': costs['bbu_cabinet'],
-        'tower': costs['tower'],
-        'civil_materials': costs['civil_materials'],
-        'transportation': costs['transportation'],
+        'equipment': costs['equipment'],
+        'site_build': costs['site_build'],
         'installation': costs['installation'],
         'site_rental': costs['site_rental_{}'.format(geotype)],
-        'router': costs['router'],
+        'operation_and_maintenance': costs['operation_and_maintenance'],
+        'power': costs['power'],
         'backhaul': get_backhaul_costs(region, backhaul, costs, core_lut),
         'core_edge': core_costs(region, 'core_edge', costs, core_lut, strategy, country_parameters),
         'core_node': core_costs(region, 'core_node', costs, core_lut, strategy, country_parameters),
         'regional_edge': regional_net_costs(region, 'regional_edge', costs, core_lut, strategy, country_parameters),
         'regional_node': regional_net_costs(region, 'regional_node', costs, core_lut, strategy, country_parameters),
-        'per_site_spectrum_acquisition_cost': costs['per_site_spectrum_acquisition_cost'],
-        'per_site_administration_cost': costs['per_site_administration_cost'],
+        # 'per_site_spectrum_acquisition_cost': costs['per_site_spectrum_acquisition_cost'],
+        # 'per_site_administration_cost': costs['per_site_administration_cost'],
     }
 
     cost_structure = {}
@@ -328,29 +302,19 @@ def greenfield_4g(region, strategy, costs, global_parameters,
     shared_assets = INFRA_SHARING_ASSETS[sharing]
 
     assets = {
-        'single_sector_antenna': costs['single_sector_antenna'],
-        'single_remote_radio_unit': costs['single_remote_radio_unit'],
-        'io_fronthaul': costs['io_fronthaul'],
-        'processing': costs['processing'],
-        'io_s1_x2': costs['io_s1_x2'],
-        'control_unit': costs['control_unit'],
-        'cooling_fans': costs['cooling_fans'],
-        'distributed_power_supply_converter': costs['distributed_power_supply_converter'],
-        'power_generator_battery_system': costs['power_generator_battery_system'],
-        'bbu_cabinet': costs['bbu_cabinet'],
-        'tower': costs['tower'],
-        'civil_materials': costs['civil_materials'],
-        'transportation': costs['transportation'],
+        'equipment': costs['equipment'],
+        'site_build': costs['site_build'],
         'installation': costs['installation'],
         'site_rental': costs['site_rental_{}'.format(geotype)],
-        'router': costs['router'],
+        'operation_and_maintenance': costs['operation_and_maintenance'],
+        'power': costs['power'],
         'backhaul': get_backhaul_costs(region, backhaul, costs, core_lut),
         'core_edge': core_costs(region, 'core_edge', costs, core_lut, strategy, country_parameters),
         'core_node': core_costs(region, 'core_node', costs, core_lut, strategy, country_parameters),
         'regional_edge': regional_net_costs(region, 'regional_edge', costs, core_lut, strategy, country_parameters),
         'regional_node': regional_net_costs(region, 'regional_node', costs, core_lut, strategy, country_parameters),
-        'per_site_spectrum_acquisition_cost': costs['per_site_spectrum_acquisition_cost'],
-        'per_site_administration_cost': costs['per_site_administration_cost'],
+        # 'per_site_spectrum_acquisition_cost': costs['per_site_spectrum_acquisition_cost'],
+        # 'per_site_administration_cost': costs['per_site_administration_cost'],
     }
 
     cost_structure = {}
@@ -369,24 +333,11 @@ def greenfield_4g(region, strategy, costs, global_parameters,
     return cost_structure
 
 
-def get_fronthaul_costs(region, costs):
-    """
-    Calculate fronthaul costs.
-    """
-    average_cell_spacing_km = math.sqrt(1/region['site_density'])
-    average_cell_spacing_m = average_cell_spacing_km * 1000 #convert km to m
-
-    tech = 'fiber_{}_m'.format(region['geotype'].split(' ')[0])
-    cost_per_meter = costs[tech]
-    cost = cost_per_meter * average_cell_spacing_m
-
-    return cost
-
-
 def get_backhaul_costs(region, backhaul, costs, core_lut):
     """
     Calculate backhaul costs.
-    # backhaul_fiber backhaul_copper backhaul_microwave	backhaul_satellite
+    # backhaul_fiber backhaul_copper backhaul_wireless	backhaul_satellite
+
     """
     backhaul_tech = backhaul.split('_')[0]
     geotype = region['geotype'].split(' ')[0]
@@ -403,7 +354,7 @@ def get_backhaul_costs(region, backhaul, costs, core_lut):
     else:
         ave_distance_to_a_node_m = round(math.sqrt(region['area_km2']) * 1000)
 
-    if backhaul_tech == 'microwave':
+    if backhaul_tech == 'wireless':
         if ave_distance_to_a_node_m < 15000:
             tech = '{}_{}'.format(backhaul_tech, 'small')
             cost = costs[tech]
@@ -413,7 +364,6 @@ def get_backhaul_costs(region, backhaul, costs, core_lut):
         else:
             tech = '{}_{}'.format(backhaul_tech, 'large')
             cost = costs[tech] * (ave_distance_to_a_node_m / 30000)
-
 
     elif backhaul_tech == 'fiber':
         tech = '{}_{}_m'.format(backhaul_tech, geotype)
@@ -546,9 +496,146 @@ def core_costs(region, asset_type, costs, core_lut, strategy, country_parameters
     return 0
 
 
+def calc_costs(region, strategy, cost_structure, backhaul_quantity,
+    global_parameters, country_parameters):
+    """
+
+    """
+    # generation = strategy.split('_')[0]
+    core = strategy.split('_')[1]
+    backhaul = strategy.split('_')[2]
+    regional_integration = region['integration']
+
+    all_sites = region['upgraded_mno_sites'] + region['new_mno_sites']
+
+    total_cost = 0
+    cost_by_asset = []
+
+    for asset_name1, cost in cost_structure.items():
+        for asset_name2, type_of_cost in COST_TYPE.items():
+            if asset_name1 == asset_name2:
+
+                if asset_name1 == 'backhaul' and backhaul_quantity == 0:
+                    continue
+
+                if asset_name1 == 'regional_node' and backhaul == 'wireless':
+                    continue
+
+                if asset_name1 == 'regional_edge' and backhaul == 'wireless':
+                    continue
+
+                if type_of_cost == 'capex_and_opex':
+
+                    cost = discount_capex_and_opex(cost, global_parameters, country_parameters)
+
+                    if regional_integration == 'integration':
+
+                        cost = (cost * (1 -
+                            (global_parameters['regional_integration_factor'] /  100)))
+
+                    if asset_name1 in [
+                        'core_edge',
+                        'core_node',
+                        'regional_edge',
+                        'regional_node',
+                        ]:
+                        cost = cost / all_sites
+
+                elif type_of_cost == 'capex':
+
+                    cost = cost * (1 + (country_parameters['financials']['wacc'] / 100))
+
+                    # if regional_integration == 'integration' and asset_name1 == 'per_site_spectrum_acquisition_cost':
+                    #     cost = cost / 2
+                    # elif regional_integration == 'integration':
+                    #     cost = (cost * (1 -
+                    #         (global_parameters['regional_integration_factor'] /  100)))
+
+                elif type_of_cost == 'opex':
+
+                    cost = discount_opex(cost, global_parameters, country_parameters)
+
+                    # if regional_integration == 'integration' and asset_name1 == 'per_site_administration_cost':
+                    #     cost = cost / 2
+                    # elif regional_integration == 'integration' and asset_name1 == 'per_site_facilities_cost':
+                    #     cost = cost / 2
+                    # elif regional_integration == 'integration':
+                    #     cost = (cost * (1 -
+                    #         (global_parameters['regional_integration_factor'] /  100)))
+
+                else:
+                    return 'Did not recognize cost type'
+
+                total_cost += cost
+
+                cost_by_asset.append({
+                    'asset': asset_name1,
+                    'cost': cost,
+                })
+
+    cost_by_asset = {item['asset']: item['cost'] for item in cost_by_asset}
+
+    ran = [
+        'equipment',
+        'site_rental',
+        'operation_and_maintenance',
+        'power',
+    ]
+
+    backhaul_fronthaul = [
+        'backhaul',
+    ]
+
+    civils = [
+        'site_build',
+        'installation',
+    ]
+
+    core = [
+        'regional_node',
+        'regional_edge',
+        'core_node',
+        'core_edge',
+    ]
+
+    admin_and_ops = [
+        'per_site_spectrum_acquisition_cost',
+        'per_site_administration_cost',
+    ]
+
+    ran_cost = 0
+    backhaul_fronthaul_cost = 0
+    civils_cost = 0
+    core_cost = 0
+    admin_and_ops_cost = 0
+
+    for key, value in cost_by_asset.items():
+        if key in ran:
+            ran_cost += value
+        if key in backhaul_fronthaul:
+            backhaul_fronthaul_cost += value
+        if key in civils:
+             civils_cost += value
+        if key in core:
+            core_cost += value
+        if key in admin_and_ops:
+            admin_and_ops_cost += value
+
+    cost_by_asset = {
+        'ran': ran_cost,
+        'backhaul_fronthaul': backhaul_fronthaul_cost,
+        'civils': civils_cost,
+        'core_network': core_cost,
+        'admin_and_ops': admin_and_ops_cost,
+    }
+
+    return total_cost, cost_by_asset
+
+
 def discount_capex_and_opex(capex, global_parameters, country_parameters):
     """
     Discount costs based on return period.
+
     Parameters
     ----------
     cost : float
@@ -559,6 +646,7 @@ def discount_capex_and_opex(capex, global_parameters, country_parameters):
     -------
     discounted_cost : float
         The discounted cost over the desired time period.
+
     """
     return_period = global_parameters['return_period']
     discount_rate = global_parameters['discount_rate'] / 100
@@ -607,233 +695,36 @@ def discount_opex(opex, global_parameters, country_parameters):
     return discounted_cost
 
 
-def calc_costs(region, strategy, cost_structure, backhaul_quantity,
-    global_parameters, country_parameters):
-    """
-
-    """
-    # generation = strategy.split('_')[0]
-    core = strategy.split('_')[1]
-    backhaul = strategy.split('_')[2]
-    regional_integration = region['integration']
-
-    all_sites = region['upgraded_mno_sites'] + region['new_mno_sites']
-
-    total_cost = 0
-    cost_by_asset = []
-
-    for asset_name1, cost in cost_structure.items():
-        for asset_name2, type_of_cost in COST_TYPE.items():
-            if asset_name1 == asset_name2:
-
-                if asset_name1 == 'backhaul' and backhaul_quantity == 0:
-                    continue
-
-                if asset_name1 == 'regional_node' and backhaul == 'microwave':
-                    continue
-
-                if asset_name1 == 'regional_edge' and backhaul == 'microwave':
-                    continue
-
-                if type_of_cost == 'capex_and_opex':
-
-                    cost = discount_capex_and_opex(cost, global_parameters, country_parameters)
-
-                    if regional_integration == 'integration':
-
-                        cost = (cost * (1 -
-                            (global_parameters['regional_integration_factor'] /  100)))
-
-                    if asset_name1 == 'single_sector_antenna':
-                        cost = cost * global_parameters['sectorization']
-
-                    if asset_name1 in [
-                        'core_edge',
-                        'core_node',
-                        'regional_edge',
-                        'regional_node',
-                        ]:
-                        cost = cost / all_sites
-
-                elif type_of_cost == 'capex':
-
-                    cost = cost
-
-                    if regional_integration == 'integration' and asset_name1 == 'per_site_spectrum_acquisition_cost':
-                        cost = cost / 2
-                    elif regional_integration == 'integration':
-                        cost = (cost * (1 -
-                            (global_parameters['regional_integration_factor'] /  100)))
-
-                elif type_of_cost == 'opex':
-
-                    cost = discount_opex(cost, global_parameters, country_parameters)
-
-                    if regional_integration == 'integration' and asset_name1 == 'per_site_administration_cost':
-                        cost = cost / 2
-                    elif regional_integration == 'integration' and asset_name1 == 'per_site_facilities_cost':
-                        cost = cost / 2
-                    elif regional_integration == 'integration':
-                        cost = (cost * (1 -
-                            (global_parameters['regional_integration_factor'] /  100)))
-
-                else:
-                    return 'Did not recognize cost type'
-
-                total_cost += cost
-
-                cost_by_asset.append({
-                    'asset': asset_name1,
-                    'cost': cost,
-                })
-
-    cost_by_asset = {item['asset']: item['cost'] for item in cost_by_asset}
-
-    ran = [
-        'single_sector_antenna',
-        'single_remote_radio_unit',
-        'io_fronthaul',
-        'processing',
-        'io_s1_x2',
-        'control_unit',
-        'cooling_fans',
-        'distributed_power_supply_converter',
-        'bbu_cabinet',
-        'cots_processing',
-        'io_n2_n3',
-        'low_latency_switch',
-        'rack',
-        'cloud_power_supply_converter',
-        'software'
-    ]
-
-    backhaul_fronthaul = [
-        'fronthaul',
-        'backhaul',
-    ]
-
-    civils = [
-        'tower',
-        'civil_materials',
-        'transportation',
-        'installation',
-        'site_rental',
-        'power_generator_battery_system',
-    ]
-
-    core = [
-        'cloud_backhaul',
-        'regional_node',
-        'regional_edge',
-        'core_node',
-        'core_edge',
-    ]
-
-    admin_and_ops = [
-        'per_site_spectrum_acquisition_cost',
-        'per_site_administration_cost',
-    ]
-
-    ran_cost = 0
-    backhaul_fronthaul_cost = 0
-    civils_cost = 0
-    core_cost = 0
-    admin_and_ops_cost = 0
-
-    for key, value in cost_by_asset.items():
-        if key in ran:
-            ran_cost += value
-        if key in backhaul_fronthaul:
-            backhaul_fronthaul_cost += value
-        if key in civils:
-            civils_cost += value
-        if key in core:
-            core_cost += value
-        if key in admin_and_ops:
-            admin_and_ops_cost += value
-
-    cost_by_asset = {
-        'ran': ran_cost,
-        'backhaul_fronthaul': backhaul_fronthaul_cost,
-        'civils': civils_cost,
-        'core_network': core_cost,
-        'admin_and_ops': admin_and_ops_cost,
-    }
-
-    return total_cost, cost_by_asset
-
-
 INFRA_SHARING_ASSETS = {
     'baseline': [],
     'pss': [
-        'tower',
-        'civil_materials',
-        'transportation',
+        'site_build',
         'installation',
         'site_rental',
-        'power_generator_battery_system',
     ],
     'psb': [
-        'tower',
-        'civil_materials',
-        'transportation',
+        'site_build',
         'installation',
         'site_rental',
-        'power_generator_battery_system',
         'backhaul',
-        'cloud_backhaul',
     ],
     'moran': [
-        'single_sector_antenna',
-        'single_remote_radio_unit',
-        'io_fronthaul',
-        'processing',
-        'io_s1_x2',
-        'control_unit',
-        'cooling_fans',
-        'distributed_power_supply_converter',
-        'bbu_cabinet',
-        'fronthaul',
-        'cots_processing',
-        'io_n2_n3',
-        'low_latency_switch',
-        'rack',
-        'cloud_power_supply_converter',
-        'software',
-        'tower',
-        'civil_materials',
-        'transportation',
+        'equipment',
+        'site_build',
         'installation',
         'site_rental',
-        'power_generator_battery_system',
+        'operation_and_maintenance',
+        'power',
         'backhaul',
-        'cloud_backhaul',
     ],
     'cns': [
-        'single_sector_antenna',
-        'single_remote_radio_unit',
-        'io_fronthaul',
-        'processing',
-        'io_s1_x2',
-        'control_unit',
-        'cooling_fans',
-        'distributed_power_supply_converter',
-        'bbu_cabinet',
-        'fronthaul',
-        'cots_processing',
-        'io_n2_n3',
-        'low_latency_switch',
-        'rack',
-        'cloud_power_supply_converter',
-        'tower',
-        'civil_materials',
-        'transportation',
+        'equipment',
+        'site_build',
         'installation',
         'site_rental',
-        'power_generator_battery_system',
+        'operation_and_maintenance',
+        'power',
         'backhaul',
-        'cloud_backhaul',
-        'local_node',
         'regional_edge',
         'regional_node',
         'core_edge',
@@ -842,31 +733,13 @@ INFRA_SHARING_ASSETS = {
 }
 
 COST_TYPE = {
-    'single_sector_antenna': 'capex_and_opex',
-    'single_remote_radio_unit': 'capex_and_opex',
-    'single_baseband_unit': 'capex_and_opex',
-    'io_fronthaul': 'capex_and_opex',
-    'processing': 'capex_and_opex',
-    'io_s1_x2': 'capex_and_opex',
-    'control_unit': 'capex_and_opex',
-    'cooling_fans': 'capex_and_opex',
-    'distributed_power_supply_converter': 'capex_and_opex',
-    'bbu_cabinet': 'capex',
-    'fronthaul': 'capex_and_opex',
-    'cots_processing': 'capex_and_opex',
-    'io_n2_n3': 'capex_and_opex',
-    'low_latency_switch': 'capex_and_opex',
-    'rack': 'capex',
-    'cloud_power_supply_converter': 'capex_and_opex',
-    'software': 'opex',
-    'tower': 'capex',
-    'civil_materials': 'capex',
-    'transportation': 'capex',
+    'equipment': 'capex',
+    'site_build': 'capex',
     'installation': 'capex',
     'site_rental': 'opex',
-    'power_generator_battery_system': 'capex_and_opex',
+    'operation_and_maintenance': 'opex',
+    'power': 'opex',
     'backhaul': 'capex_and_opex',
-    'cloud_backhaul': 'capex_and_opex',
     'regional_node': 'capex_and_opex',
     'regional_edge': 'capex_and_opex',
     'core_node': 'capex_and_opex',

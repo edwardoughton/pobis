@@ -10,7 +10,7 @@ import math
 from itertools import tee
 from operator import itemgetter
 
-from podis.costs import find_single_network_cost
+from podis.costs import find_network_cost
 
 
 def estimate_supply(country, regions, capacity_lut, option, global_parameters,
@@ -51,10 +51,10 @@ def estimate_supply(country, regions, capacity_lut, option, global_parameters,
 
     for region in regions:
 
-        region['network_site_density'] = find_site_density(region, option,
+        region['mno_site_density'] = find_site_density(region, option,
             global_parameters, country_parameters, capacity_lut, ci)
 
-        total_sites_required = math.ceil(region['network_site_density'] *
+        total_sites_required = math.ceil(region['mno_site_density'] *
             region['area_km2'])
 
         region = estimate_site_upgrades(
@@ -66,7 +66,7 @@ def estimate_supply(country, regions, capacity_lut, option, global_parameters,
 
         region = estimate_backhaul_upgrades(region, option['strategy'], country_parameters)
 
-        region = find_single_network_cost(
+        region = find_network_cost(
             region,
             option,
             costs,
@@ -348,24 +348,24 @@ def estimate_backhaul_upgrades(region, strategy, country_parameters):
     backhaul = strategy.split('_')[2]
     geotype = region['geotype'].split(' ')[0]
     networks = country_parameters['networks']['baseline' + '_' + geotype]
-    all_sites = (region['new_mno_sites'] + region['upgraded_mno_sites']) / networks
+    all_mno_sites = (region['new_mno_sites'] + region['upgraded_mno_sites']) # networks
 
     if backhaul == 'fiber':
 
         existing_fiber = region['backhaul_fiber'] / networks
 
-        if existing_fiber < all_sites:
-            region['backhaul_new'] =  math.ceil(all_sites - existing_fiber)
+        if existing_fiber < all_mno_sites:
+            region['backhaul_new'] =  math.ceil(all_mno_sites - existing_fiber)
         else:
             region['backhaul_new'] = 0
 
-    elif backhaul == 'microwave':
+    elif backhaul == 'wireless':
 
-        existing_backhaul = (region['backhaul_microwave'] +
+        existing_backhaul = (region['backhaul_wireless'] +
             region['backhaul_fiber']) / networks
 
-        if existing_backhaul < all_sites:
-            region['backhaul_new'] =  math.ceil(all_sites - existing_backhaul)
+        if existing_backhaul < all_mno_sites:
+            region['backhaul_new'] =  math.ceil(all_mno_sites - existing_backhaul)
         else:
             region['backhaul_new'] = 0
 

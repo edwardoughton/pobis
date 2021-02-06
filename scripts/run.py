@@ -262,128 +262,6 @@ def load_core_lut(path):
     return output
 
 
-# def define_deciles(regions):
-
-#     regions = regions.sort_values(by='population_km2', ascending=True)
-
-#     regions['decile'] = regions.groupby([
-#         'GID_0', 'scenario', 'strategy', 'confidence'], as_index=True).population_km2.apply( #cost_per_sp_user
-#             pd.qcut, q=11, precision=0,
-#             labels=[100,90,80,70,60,50,40,30,20,10,0], duplicates='drop') #   [0,10,20,30,40,50,60,70,80,90,100]
-
-#     return regions
-
-
-# def write_results(regional_results, folder, metric):
-#     """
-#     Write all results.
-#     """
-#     print('Writing national results')
-#     national_results = pd.DataFrame(regional_results)
-#     national_results = national_results[[
-#         'GID_0', 'scenario', 'strategy', 'integration', 'confidence', 'population',
-#         'area_km2', 'population_km2', 'phones_on_network', 'smartphones_on_network',
-#         'sites_estimated_total', 'existing_network_sites', 'upgraded_sites', 'new_sites',
-#         'total_revenue', 'total_cost', 'cost_per_sp_user',
-#     ]]
-
-#     national_results = national_results.groupby([
-#         'GID_0', 'scenario', 'strategy', 'integration','confidence'], as_index=True).sum()
-#     national_results['cost_per_network_user'] = (
-#         national_results['total_cost'] / national_results['phones_on_network'])
-
-#     path = os.path.join(folder,'national_results_{}.csv'.format(metric))
-#     national_results.to_csv(path, index=True)
-
-#     print('Writing national cost composition results')
-#     national_cost_results = pd.DataFrame(regional_results)
-#     national_cost_results = national_cost_results[[
-#         'GID_0', 'scenario', 'strategy', 'integration','confidence', 'population',
-#         'population_km2', 'phones_on_network', 'cost_per_sp_user',
-#         'total_revenue', 'ran', 'backhaul_fronthaul', 'civils', 'core_network',
-#         'admin_and_ops', 'acquisition_per_subscriber',
-#         'spectrum_cost', 'tax', 'profit_margin', 'total_cost',
-#         'available_cross_subsidy', 'deficit', 'used_cross_subsidy',
-#         'required_state_subsidy',
-#     ]]
-
-#     national_cost_results = national_cost_results.groupby([
-#         'GID_0', 'scenario', 'strategy', 'integration','confidence'], as_index=True).sum()
-#     national_cost_results['cost_per_network_user'] = (
-#         national_cost_results['total_cost'] / national_cost_results['phones_on_network'])
-
-#     path = os.path.join(folder,'national_cost_results_{}.csv'.format(metric))
-#     national_cost_results.to_csv(path, index=True)
-
-#     print('Writing general decile results')
-#     decile_results = pd.DataFrame(regional_results)
-#     decile_results = define_deciles(decile_results)
-#     decile_results = decile_results[[
-#         'GID_0', 'scenario', 'strategy', 'integration','decile', 'confidence',
-#         'population', 'area_km2', #'population_km2',
-#         'phones_on_network', #'phone_density_on_network_km2',
-#         'smartphones_on_network', #'sp_density_on_network_km2',
-#         'sites_estimated_total', 'existing_network_sites', 'upgraded_sites', 'new_sites',
-#         'total_revenue', 'total_cost', #'cost_per_sp_user',
-#     ]]
-#     decile_results = decile_results.groupby([
-#         'GID_0', 'scenario', 'strategy', 'integration', 'confidence', 'decile'], as_index=True).sum()
-
-#     decile_results['population_km2'] = (
-#         decile_results['population'] / decile_results['area_km2'])
-#     decile_results['phone_density_on_network_km2'] = (
-#         decile_results['phones_on_network'] / decile_results['area_km2'])
-#     decile_results['sp_density_on_network_km2'] = (
-#         decile_results['smartphones_on_network'] / decile_results['area_km2'])
-#     decile_results['sites_estimated_total_km2'] = (
-#         decile_results['sites_estimated_total'] / decile_results['area_km2'])
-#     decile_results['existing_network_sites_km2'] = (
-#         decile_results['existing_network_sites'] / decile_results['area_km2'])
-#     decile_results['cost_per_network_user'] = (
-#         decile_results['total_cost'] / decile_results['phones_on_network'])
-#     decile_results['cost_per_sp_user'] = (
-#         decile_results['total_cost'] / decile_results['smartphones_on_network'])
-
-#     path = os.path.join(folder,'decile_results_{}.csv'.format(metric))
-#     decile_results.to_csv(path, index=True)
-
-#     print('Writing cost decile results')
-#     decile_cost_results = pd.DataFrame(regional_results)
-#     decile_cost_results = define_deciles(decile_cost_results)
-#     decile_cost_results = decile_cost_results[[
-#         'GID_0', 'scenario', 'strategy', 'integration', 'decile', 'confidence',
-#         'population', 'area_km2', #'population_km2',
-#         'phones_on_network', #'cost_per_sp_user',
-#         'total_revenue', 'ran', 'backhaul_fronthaul', 'civils', 'core_network',
-#         'admin_and_ops', 'acquisition_per_subscriber', 'spectrum_cost', 'tax', 'profit_margin', 'total_cost',
-#         'available_cross_subsidy', 'deficit', 'used_cross_subsidy',
-#         'required_state_subsidy',
-#     ]]
-
-#     decile_cost_results = decile_cost_results.groupby([
-#         'GID_0', 'scenario', 'strategy', 'integration', 'confidence', 'decile'], as_index=True).sum()
-#     decile_cost_results['cost_per_network_user'] = (
-#         decile_cost_results['total_cost'] / decile_cost_results['phones_on_network'])
-
-#     path = os.path.join(folder,'decile_cost_results_{}.csv'.format(metric))
-#     decile_cost_results.to_csv(path, index=True)
-
-#     print('Writing regional results')
-#     regional_results = pd.DataFrame(regional_results)
-#     # regional_results = define_deciles(regional_results)
-#     regional_results = regional_results[[
-#         'GID_0', 'GID_id', 'scenario', 'strategy', 'integration', 'geotype', #'decile',
-#         'confidence', 'population', 'area_km2', #'population_km2',
-#         'phones_on_network', 'cost_per_sp_user',
-#         'upgraded_sites','new_sites', 'total_revenue', 'total_cost',
-#     ]]
-#     regional_results['cost_per_network_user'] = (
-#         regional_results['total_cost'] / regional_results['phones_on_network'])
-
-#     path = os.path.join(folder,'regional_results_{}.csv'.format(metric))
-#     regional_results.to_csv(path, index=True)
-
-
 def allocate_deciles(data):
     """
     Convert to pandas df, define deciles, and then return as a list of dicts.
@@ -407,38 +285,27 @@ if __name__ == '__main__':
 
     COSTS = {
         #all costs in $USD
-        'single_sector_antenna': 1500,
-        'single_remote_radio_unit': 4000,
-        'io_fronthaul': 1500,
-        'processing': 1500,
-        'io_s1_x2': 1500,
-        'control_unit': 1500,
-        'cooling_fans': 250,
-        'distributed_power_supply_converter': 250,
-        'power_generator_battery_system': 5000,
-        'bbu_cabinet': 500,
-        'rack': 500,
-        'tower': 10000,
-        'civil_materials': 5000,
-        'transportation': 5000,
-        'installation': 5000,
-        'site_rental_urban': 9600,
-        'site_rental_suburban': 4000,
+        'equipment': 40000,
+        'site_build': 30000,
+        'installation': 30000,
+        'site_rental_urban': 15000,
+        'site_rental_suburban': 9900,
         'site_rental_rural': 2000,
-        'router': 2000,
-        'microwave_small': 10000,
-        'microwave_medium': 20000,
-        'microwave_large': 40000,
+        'operation_and_maintenance': 7400,
+        'power': 2200,
+        'wireless_small': 10000,
+        'wireless_medium': 20000,
+        'wireless_large': 40000,
         'fiber_urban_m': 25,
         'fiber_suburban_m': 15,
         'fiber_rural_m': 10,
-        'core_node_epc': 200000,
-        'core_edge': 10,
-        'regional_node_epc': 100000,
-        'regional_edge': 5,
-        'per_site_spectrum_acquisition_cost': 500,
-        'per_site_administration_cost': 500,
-        'per_site_facilities_cost': 500,
+        'core_node_epc': 500000,
+        'core_edge': 20,
+        'regional_node_epc': 200000,
+        'regional_edge': 20,
+        # 'per_site_spectrum_acquisition_cost': 500,
+        # 'per_site_administration_cost': 500,
+        # 'per_site_facilities_cost': 500,
     }
 
     GLOBAL_PARAMETERS = {
@@ -446,7 +313,6 @@ if __name__ == '__main__':
         'return_period': 10,
         'discount_rate': 5,
         'opex_percentage_of_capex': 10,
-        'sectorization': 3,
         'confidence': [50],#[5, 50, 95]
         'regional_integration_factor': 20,
         }
@@ -460,23 +326,23 @@ if __name__ == '__main__':
         {'iso3': 'CIV', 'iso2': 'CI', 'regional_level': 2, 'regional_nodes_level': 1},
         {'iso3': 'KEN', 'iso2': 'KE', 'regional_level': 3, 'regional_nodes_level': 2},
         {'iso3': 'MLI', 'iso2': 'ML', 'regional_level': 2, 'regional_nodes_level': 2},
-        {'iso3': 'SEN-MLI-CIV', 'iso2': 'SN-ML-CI', 'regional_level': 2, 'regional_nodes_level': 2},
-        # {'iso3': 'SEN', 'iso2': 'SN', 'regional_level': 2, 'regional_nodes_level': 2},
-        # {'iso3': 'TZA', 'iso2': 'TZ', 'regional_level': 2, 'regional_nodes_level': 1},
-        # {'iso3': 'UGA', 'iso2': 'UG', 'regional_level': 2, 'regional_nodes_level': 2},
+        # {'iso3': 'SEN-MLI-CIV', 'iso2': 'SN-ML-CI', 'regional_level': 2, 'regional_nodes_level': 2},
+        {'iso3': 'SEN', 'iso2': 'SN', 'regional_level': 2, 'regional_nodes_level': 2},
+        {'iso3': 'TZA', 'iso2': 'TZ', 'regional_level': 2, 'regional_nodes_level': 1},
+        {'iso3': 'UGA', 'iso2': 'UG', 'regional_level': 2, 'regional_nodes_level': 2},
         # {'iso3': 'KEN-TZA-UGA', 'iso2': 'KE-TZ-UG', 'regional_level': 2, 'regional_nodes_level': 2},
         ]
 
     decision_options = [
         'technology_options',
-        # 'business_model_options',
+        'business_model_options',
         # 'integration_options',
     ]
 
     scenarios = [
-        # 'low',
+        'low',
         'baseline',
-        # 'high'
+        'high'
     ]
 
     all_results = []
@@ -573,8 +439,6 @@ if __name__ == '__main__':
             folder = os.path.join(BASE_PATH, '..', 'results')
             path = os.path.join(folder, 'regional_annual_demand_{}.csv'.format(decision_option))
             write_mno_demand(regional_annual_demand, folder, decision_option, path)
-
-            write_results(regional_results, folder, decision_option)
 
             all_results = all_results + regional_results
 

@@ -53,14 +53,14 @@ def estimate_demand(regions, option, global_parameters,
 
         geotype = region['geotype'].split(' ')[0]
 
-        net_handle = network_strategy + '_' + geotype
+        net_handle = network_strategy + '_' + geotype.split(' ')[0]
         networks = country_parameters['networks'][net_handle]
 
         if geotype == 'suburban':
             #smartphone lut only has urban-rural split, hence no suburban
             geotype_sps = 'urban'
         else:
-            geotype_sps = geotype
+            geotype_sps = geotype.split(' ')[0]
 
         revenue = []
         demand_mbps_km2 = []
@@ -97,6 +97,13 @@ def estimate_demand(regions, option, global_parameters,
 
             #add regional smartphone penetration
             region['smartphone_penetration'] = smartphone_lut[geotype_sps][timestep]
+
+            #phones : int
+            #Total number of smartphones on the network being modeled.
+            region['population_with_smartphones'] = (
+                region['population_with_phones'] *
+                (region['smartphone_penetration'] / 100)
+            )
 
             #phones : int
             #Total number of smartphones on the network being modeled.
@@ -137,12 +144,13 @@ def estimate_demand(regions, option, global_parameters,
                 'population': region['population'],
                 'area_km2': region['area_km2'],
                 'population_km2': region['population_km2'],
-                'geotype': region['geotype'],
+                'geotype': region['geotype'].split(' ')[0],
                 'arpu_discounted_monthly': region['arpu_discounted_monthly'],
                 'penetration': region['penetration'],
                 'population_with_phones': region['population_with_phones'],
                 'phones_on_network': region['phones_on_network'],
                 'smartphone_penetration': region['smartphone_penetration'],
+                'population_with_smartphones': region['population_with_smartphones'],
                 'smartphones_on_network': region['smartphones_on_network'],
                 'revenue': annual_revenue,
             })

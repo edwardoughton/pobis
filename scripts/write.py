@@ -42,7 +42,7 @@ def write_mno_demand(regional_annual_demand, folder, metric, path):
         'GID_0', 'GID_id', 'scenario', 'strategy',
         'confidence', 'year', 'population', 'area_km2', 'population_km2',
         'geotype', 'arpu_discounted_monthly', 'penetration', 'population_with_phones',
-        'phones_on_network', 'smartphone_penetration',
+        'phones_on_network', 'smartphone_penetration', 'population_with_smartphones',
         'smartphones_on_network', 'revenue'
     ]]
 
@@ -92,12 +92,12 @@ def write_results(regional_results, folder, metric):
     national_cost_results['cost_per_smartphone_user'] = (
         national_cost_results['total_mno_cost'] /
         national_cost_results['smartphones_on_network'])
-    #Calculate private, govt and societal costs
+    #Calculate private, govt and social costs
     national_cost_results['private_cost'] = national_cost_results['total_mno_cost']
     national_cost_results['government_cost'] = (
         national_cost_results['required_state_subsidy'] -
             (national_cost_results['spectrum_cost'] + national_cost_results['tax']))
-    national_cost_results['societal_cost'] = (
+    national_cost_results['social_cost'] = (
         national_cost_results['private_cost'] + national_cost_results['government_cost'])
     path = os.path.join(folder,'national_mno_cost_results_{}.csv'.format(metric))
     national_cost_results.to_csv(path, index=True)
@@ -152,6 +152,12 @@ def write_results(regional_results, folder, metric):
         decile_cost_results['total_mno_cost'] / decile_cost_results['phones_on_network'])
     decile_cost_results['cost_per_smartphone_user'] = (
         decile_cost_results['total_mno_cost'] / decile_cost_results['smartphones_on_network'])
+    decile_cost_results['private_cost'] = decile_cost_results['total_mno_cost']
+    decile_cost_results['government_cost'] = (
+        decile_cost_results['required_state_subsidy'] -
+            (decile_cost_results['spectrum_cost'] + decile_cost_results['tax']))
+    decile_cost_results['social_cost'] = (
+        decile_cost_results['private_cost'] + decile_cost_results['government_cost'])
     path = os.path.join(folder,'decile_mno_cost_results_{}.csv'.format(metric))
     decile_cost_results.to_csv(path, index=True)
 
@@ -218,13 +224,13 @@ def write_results(regional_results, folder, metric):
         national_cost_results['total_market_cost'] / national_cost_results['total_phones'])
     national_cost_results['cost_per_smartphone_user'] = (
         national_cost_results['total_market_cost'] / national_cost_results['total_smartphones'])
-    #Calculate private, govt and societal costs
+    #Calculate private, govt and social costs
     national_cost_results['private_cost'] = (
         national_cost_results['total_market_cost'])
     national_cost_results['government_cost'] = (
         national_cost_results['total_required_state_subsidy'] -
             (national_cost_results['total_spectrum_cost'] + national_cost_results['total_tax']))
-    national_cost_results['societal_cost'] = (
+    national_cost_results['social_cost'] = (
         national_cost_results['private_cost'] + national_cost_results['government_cost'])
     path = os.path.join(folder,'national_market_cost_results_{}.csv'.format(metric))
     national_cost_results.to_csv(path, index=True)

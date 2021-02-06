@@ -1,6 +1,6 @@
 import pytest
 from podis.assess import (get_spectrum_costs, calculate_tax,
-    calculate_profit, calculate_benefit_cost_ratio, assess,
+    calculate_profit, assess,
     estimate_subsidies, allocate_available_excess)
 
 def test_get_spectrum_costs(setup_region, setup_option, setup_global_parameters,
@@ -56,28 +56,12 @@ def test_calculate_profit(setup_region, setup_country_parameters):
     assert calculate_profit(setup_region[0], setup_country_parameters) == 265e3
 
 
-def test_calculate_benefit_cost_ratio(setup_region, setup_country_parameters):
-
-    setup_region[0]['network_cost'] = 1e6
-    setup_region[0]['spectrum_cost'] = 6e4
-    setup_region[0]['tax'] = 265e3
-    setup_region[0]['profit_margin'] = 265e3
-    setup_region[0]['total_revenue'] = 159e4
-    setup_region[0]['used_cross_subsidy'] = 0
-
-    assert calculate_benefit_cost_ratio(setup_region[0], setup_country_parameters) == 1
-
-    setup_region[0]['used_cross_subsidy'] = 159e4
-
-    assert calculate_benefit_cost_ratio(setup_region[0], setup_country_parameters) == 1
-
-
 def test_estimate_subsidies():
 
     region = {
             'GID_id': 'a',
-            'total_revenue': 10000,
-            'total_cost': 5000,
+            'total_mno_revenue': 10000,
+            'total_mno_cost': 5000,
             'available_cross_subsidy': 5000,
             'deficit': 0,
         }
@@ -91,8 +75,8 @@ def test_estimate_subsidies():
 
     region = {
             'GID_id': 'a',
-            'total_revenue': 5000,
-            'total_cost': 10000,
+            'total_mno_revenue': 5000,
+            'total_mno_cost': 10000,
             'available_cross_subsidy': 0,
             'deficit': 5000,
         }
@@ -106,8 +90,8 @@ def test_estimate_subsidies():
 
     region = {
             'GID_id': 'a',
-            'total_revenue': 5000,
-            'total_cost': 10000,
+            'total_mno_revenue': 5000,
+            'total_mno_cost': 10000,
             'available_cross_subsidy': 0,
             'deficit': 5000,
         }
@@ -121,8 +105,8 @@ def test_estimate_subsidies():
 
     region = {
             'GID_id': 'a',
-            'total_revenue': 5000,
-            'total_cost': 10000,
+            'total_mno_revenue': 5000,
+            'total_mno_cost': 10000,
             'available_cross_subsidy': 0,
             'deficit': 5000,
         }
@@ -135,23 +119,26 @@ def test_estimate_subsidies():
     assert available_cross_subsidy == 0
 
 
-def test_assess(setup_option, setup_global_parameters, setup_country_parameters):
+def test_assess(setup_option, setup_global_parameters,
+    setup_country_parameters, setup_timesteps):
 
     regions = [
         {
             'GID_id': 'a',
+            'geotype': 'urban',
             'population': 1000,
             'population_km2': 500,
-            'total_revenue': 20000,
+            'total_mno_revenue': 20000,
             'network_cost': 5000,
             'phones_on_network': 250,
             'smartphones_on_network': 250
         },
         {
             'GID_id': 'b',
+            'geotype': 'urban',
             'population': 500,
             'population_km2': 250,
-            'total_revenue': 12000,
+            'total_mno_revenue': 12000,
             'network_cost': 8000,
             'phones_on_network': 300,
             'smartphones_on_network': 250
@@ -159,7 +146,7 @@ def test_assess(setup_option, setup_global_parameters, setup_country_parameters)
     ]
 
     answer = assess('MWI', regions, setup_option, setup_global_parameters,
-        setup_country_parameters)
+        setup_country_parameters, setup_timesteps)
 
     for item in answer:
         if item['GID_id'] == 'a':
@@ -167,43 +154,43 @@ def test_assess(setup_option, setup_global_parameters, setup_country_parameters)
         if item['GID_id'] == 'b':
             answer2 = item
 
-    assert answer1['total_revenue'] == 20000
+    assert answer1['total_mno_revenue'] == 20000
     assert answer1['network_cost'] == 5000
     assert answer1['spectrum_cost'] == 40000
     assert answer1['tax'] == 1250
     assert answer1['profit_margin'] == 9250.0
-    assert answer1['total_cost'] == 55500.0
+    assert answer1['total_mno_cost'] == 56000.0
     assert answer1['available_cross_subsidy'] == 0
     assert answer1['used_cross_subsidy'] == 0
-    assert answer1['bcr'] ==  0.36036036036036034
-    assert answer1['required_state_subsidy'] == 35500
+    assert answer1['required_state_subsidy'] == 36000.0
 
-    assert answer2['total_revenue'] == 12000
+    assert answer2['total_mno_revenue'] == 12000
     assert answer2['network_cost'] == 8000
     assert answer2['spectrum_cost'] == 20000
     assert answer2['tax'] == 2000
     assert answer2['profit_margin'] == 6000
-    assert answer2['total_cost'] == 36000
+    assert answer2['total_mno_cost'] == 36800.0
     assert answer2['available_cross_subsidy'] == 0
     assert answer2['used_cross_subsidy'] == 0
-    assert answer2['bcr'] == 0.3333333333333333
-    assert answer2['required_state_subsidy'] == 24000.0
+    assert answer2['required_state_subsidy'] == 24800.0
 
     regions = [
         {
             'GID_id': 'a',
+            'geotype': 'urban',
             'population': 1000,
             'population_km2': 500,
-            'total_revenue': 20000,
+            'total_mno_revenue': 20000,
             'network_cost': 5200,
             'phones_on_network': 250,
             'smartphones_on_network': 250,
         },
         {
             'GID_id': 'b',
+            'geotype': 'urban',
             'population': 1000,
             'population_km2': 500,
-            'total_revenue': 2500,
+            'total_mno_revenue': 2500,
             'network_cost': 5200,
             'phones_on_network': 250,
             'smartphones_on_network': 250,
@@ -211,21 +198,21 @@ def test_assess(setup_option, setup_global_parameters, setup_country_parameters)
     ]
 
     answer = assess('MWI', regions, setup_option, setup_global_parameters,
-        setup_country_parameters)
+        setup_country_parameters, setup_timesteps)
 
     assert answer[0]['available_cross_subsidy'] == 0
     assert answer[0]['used_cross_subsidy'] == 0
-    assert answer[0]['required_state_subsidy'] == 35800.0
+    assert answer[0]['required_state_subsidy'] == 36320.0
     assert answer[1]['available_cross_subsidy'] == 0
     assert answer[1]['used_cross_subsidy'] == 0
-    assert answer[1]['required_state_subsidy'] == 53300.0
+    assert answer[1]['required_state_subsidy'] == 53820.0
 
 
 def test_allocate_available_excess():
 
     region = {
-            'total_revenue': 10000,
-            'total_cost': 5000,
+            'total_mno_revenue': 10000,
+            'total_mno_cost': 5000,
         }
 
     answer = allocate_available_excess(region)
@@ -234,8 +221,8 @@ def test_allocate_available_excess():
     assert answer['deficit'] == 0
 
     regions = {
-            'total_revenue': 5000,
-            'total_cost': 10000,
+            'total_mno_revenue': 5000,
+            'total_mno_cost': 10000,
         }
 
     answer = allocate_available_excess(regions)

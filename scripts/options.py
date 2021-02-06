@@ -12,7 +12,7 @@ January 2020
 
 generation: technology generation, so 3G or 4G
 core: type of core data transport network, eg. evolved packet core (4G)
-backhaul: type of backhaul, so fiber or microwave
+backhaul: type of backhaul, so fiber or wireless
 sharing: the type of infrastructure sharing, active, passive etc..
 network: relates to the number of networks, as defined in country parameters
 spectrum: type of spectrum strategy, so baseline, high or low
@@ -24,159 +24,159 @@ integration: option to undertake regional integration
 OPTIONS = {
     'technology_options': [
         {
-            'scenario': 'low_2_2_2',
-            'strategy': '3G_epc_microwave_baseline_baseline_baseline_baseline_baseline',
+            'scenario': 'low_10_10_10',
+            'strategy': '3G_epc_wireless_baseline_baseline_baseline_baseline_baseline',
         },
-        # {
-        #     'scenario': 'low_2_2_2',
-        #     'strategy': '3G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
-        # },
-        # {
-        #     'scenario': 'low_2_2_2',
-        #     'strategy': '4G_epc_microwave_baseline_baseline_baseline_baseline_baseline',
-        # },
-        # {
-        #     'scenario': 'low_2_2_2',
-        #     'strategy': '4G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
-        # },
-        # {
-        #     'scenario': 'baseline_2_2_2',
-        #     'strategy': '3G_epc_microwave_baseline_baseline_baseline_baseline_baseline',
-        # },
-        # {
-        #     'scenario': 'baseline_2_2_2',
-        #     'strategy': '3G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
-        # },
-        # {
-        #     'scenario': 'baseline_2_2_2',
-        #     'strategy': '4G_epc_microwave_baseline_baseline_baseline_baseline_baseline',
-        # },
-        # {
-        #     'scenario': 'baseline_2_2_2',
-        #     'strategy': '4G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
-        # },
-        # {
-        #     'scenario': 'high_2_2_2',
-        #     'strategy': '3G_epc_microwave_baseline_baseline_baseline_baseline_baseline',
-        # },
-        # {
-        #     'scenario': 'high_2_2_2',
-        #     'strategy': '3G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
-        # },
-        # {
-        #     'scenario': 'high_2_2_2',
-        #     'strategy': '4G_epc_microwave_baseline_baseline_baseline_baseline_baseline',
-        # },
-        # {
-        #     'scenario': 'high_2_2_2',
-        #     'strategy': '4G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
-        # },
+        {
+            'scenario': 'low_10_10_10',
+            'strategy': '3G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'low_10_10_10',
+            'strategy': '4G_epc_wireless_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'low_10_10_10',
+            'strategy': '4G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'baseline_10_10_10',
+            'strategy': '3G_epc_wireless_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'baseline_10_10_10',
+            'strategy': '3G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'baseline_10_10_10',
+            'strategy': '4G_epc_wireless_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'baseline_10_10_10',
+            'strategy': '4G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'high_10_10_10',
+            'strategy': '3G_epc_wireless_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'high_10_10_10',
+            'strategy': '3G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'high_10_10_10',
+            'strategy': '4G_epc_wireless_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'high_10_10_10',
+            'strategy': '4G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
+        },
     ],
     'business_model_options': [
         {
-            'scenario': 'low_2_2_2',
-            'strategy': '4G_epc_microwave_baseline_baseline_baseline_baseline_baseline',
+            'scenario': 'low_10_10_10',
+            'strategy': '4G_epc_wireless_baseline_baseline_baseline_baseline_baseline',
         },
         {
-            'scenario': 'low_2_2_2',
-            'strategy': '4G_epc_microwave_pss_baseline_baseline_baseline_baseline',
+            'scenario': 'low_10_10_10',
+            'strategy': '4G_epc_wireless_pss_baseline_baseline_baseline_baseline',
         },
         {
-            'scenario': 'low_2_2_2',
-            'strategy': '4G_epc_microwave_psb_baseline_baseline_baseline_baseline',
+            'scenario': 'low_10_10_10',
+            'strategy': '4G_epc_wireless_psb_baseline_baseline_baseline_baseline',
         },
         {
-            'scenario': 'low_2_2_2',
-            'strategy': '4G_epc_microwave_moran_baseline_baseline_baseline_baseline',
+            'scenario': 'low_10_10_10',
+            'strategy': '4G_epc_wireless_moran_baseline_baseline_baseline_baseline',
         },
         {
-            'scenario': 'low_2_2_2',
-            'strategy': '4G_epc_microwave_cns_baseline_baseline_baseline_baseline',
+            'scenario': 'low_10_10_10',
+            'strategy': '4G_epc_wireless_cns_baseline_baseline_baseline_baseline',
         },
         {
-            'scenario': 'low_2_2_2', #single shared core network
-            'strategy': '4G_epc_microwave_baseline_srn_baseline_baseline_baseline',
+            'scenario': 'low_10_10_10', #single shared core network
+            'strategy': '4G_epc_wireless_baseline_srn_baseline_baseline_baseline',
         },
         {
-            'scenario': 'baseline_2_2_2',
-            'strategy': '4G_epc_microwave_baseline_baseline_baseline_baseline_baseline',
+            'scenario': 'baseline_10_10_10',
+            'strategy': '4G_epc_wireless_baseline_baseline_baseline_baseline_baseline',
         },
         {
-            'scenario': 'baseline_2_2_2',
-            'strategy': '4G_epc_microwave_pss_baseline_baseline_baseline_baseline',
+            'scenario': 'baseline_10_10_10',
+            'strategy': '4G_epc_wireless_pss_baseline_baseline_baseline_baseline',
         },
         {
-            'scenario': 'baseline_2_2_2',
-            'strategy': '4G_epc_microwave_psb_baseline_baseline_baseline_baseline',
+            'scenario': 'baseline_10_10_10',
+            'strategy': '4G_epc_wireless_psb_baseline_baseline_baseline_baseline',
         },
         {
-            'scenario': 'baseline_2_2_2',
-            'strategy': '4G_epc_microwave_moran_baseline_baseline_baseline_baseline',
+            'scenario': 'baseline_10_10_10',
+            'strategy': '4G_epc_wireless_moran_baseline_baseline_baseline_baseline',
         },
         {
-            'scenario': 'baseline_2_2_2',
-            'strategy': '4G_epc_microwave_cns_baseline_baseline_baseline_baseline',
+            'scenario': 'baseline_10_10_10',
+            'strategy': '4G_epc_wireless_cns_baseline_baseline_baseline_baseline',
         },
         {
-            'scenario': 'baseline_2_2_2', #single shared core network
-            'strategy': '4G_epc_microwave_baseline_srn_baseline_baseline_baseline',
+            'scenario': 'baseline_10_10_10', #single shared core network
+            'strategy': '4G_epc_wireless_baseline_srn_baseline_baseline_baseline',
         },
         {
-            'scenario': 'high_2_2_2',
-            'strategy': '4G_epc_microwave_baseline_baseline_baseline_baseline_baseline',
+            'scenario': 'high_10_10_10',
+            'strategy': '4G_epc_wireless_baseline_baseline_baseline_baseline_baseline',
         },
         {
-            'scenario': 'high_2_2_2',
-            'strategy': '4G_epc_microwave_pss_baseline_baseline_baseline_baseline',
+            'scenario': 'high_10_10_10',
+            'strategy': '4G_epc_wireless_pss_baseline_baseline_baseline_baseline',
         },
         {
-            'scenario': 'high_2_2_2',
-            'strategy': '4G_epc_microwave_psb_baseline_baseline_baseline_baseline',
+            'scenario': 'high_10_10_10',
+            'strategy': '4G_epc_wireless_psb_baseline_baseline_baseline_baseline',
         },
         {
-            'scenario': 'high_2_2_2',
-            'strategy': '4G_epc_microwave_moran_baseline_baseline_baseline_baseline',
+            'scenario': 'high_10_10_10',
+            'strategy': '4G_epc_wireless_moran_baseline_baseline_baseline_baseline',
         },
         {
-            'scenario': 'high_2_2_2',
-            'strategy': '4G_epc_microwave_cns_baseline_baseline_baseline_baseline',
+            'scenario': 'high_10_10_10',
+            'strategy': '4G_epc_wireless_cns_baseline_baseline_baseline_baseline',
         },
         {
-            'scenario': 'high_2_2_2', #single shared core network
-            'strategy': '4G_epc_microwave_baseline_srn_baseline_baseline_baseline',
+            'scenario': 'high_10_10_10', #single shared core network
+            'strategy': '4G_epc_wireless_baseline_srn_baseline_baseline_baseline',
         },
     ],
     'integration_options': [
-        # {
-        #     'scenario': 'baseline_2_2_2',
-        #     'strategy': '3G_epc_microwave_baseline_baseline_baseline_baseline_baseline',
-        # },
-        # {
-        #     'scenario': 'baseline_2_2_2',
-        #     'strategy': '3G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
-        # },
-        # {
-        #     'scenario': 'baseline_2_2_2',
-        #     'strategy': '4G_epc_microwave_baseline_baseline_baseline_baseline_baseline',
-        # },
-        # {
-        #     'scenario': 'baseline_2_2_2',
-        #     'strategy': '4G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
-        # },
         {
-            'scenario': 'baseline_2_2_2',
-            'strategy': '3G_epc_microwave_baseline_baseline_baseline_baseline_integration',
+            'scenario': 'baseline_10_10_10',
+            'strategy': '3G_epc_wireless_baseline_baseline_baseline_baseline_baseline',
         },
         {
-            'scenario': 'baseline_2_2_2',
+            'scenario': 'baseline_10_10_10',
+            'strategy': '3G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'baseline_10_10_10',
+            'strategy': '4G_epc_wireless_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'baseline_10_10_10',
+            'strategy': '4G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'baseline_10_10_10',
+            'strategy': '3G_epc_wireless_baseline_baseline_baseline_baseline_integration',
+        },
+        {
+            'scenario': 'baseline_10_10_10',
             'strategy': '3G_epc_fiber_baseline_baseline_baseline_baseline_integration',
         },
         {
-            'scenario': 'baseline_2_2_2',
-            'strategy': '4G_epc_microwave_baseline_baseline_baseline_baseline_integration',
+            'scenario': 'baseline_10_10_10',
+            'strategy': '4G_epc_wireless_baseline_baseline_baseline_baseline_integration',
         },
         {
-            'scenario': 'baseline_2_2_2',
+            'scenario': 'baseline_10_10_10',
             'strategy': '4G_epc_fiber_baseline_baseline_baseline_baseline_integration',
         },
     ]
@@ -198,6 +198,9 @@ COUNTRY_PARAMETERS = {
             'baseline_urban': 3,
             'baseline_suburban': 3,
             'baseline_rural': 3,
+            'srn_urban': 3,
+            'srn_suburban': 3,
+            'srn_rural': 1,
         },
         'frequencies': {
             '3G': [
@@ -229,7 +232,7 @@ COUNTRY_PARAMETERS = {
             'tax_low': 10,
             'tax_baseline': 30,
             'tax_high': 40,
-            'administration_percentage_of_network_cost': 30,
+            'administration_percentage_of_network_cost': 10,
             },
         },
     'MLI': {
@@ -246,6 +249,9 @@ COUNTRY_PARAMETERS = {
             'baseline_urban': 3,
             'baseline_suburban': 3,
             'baseline_rural': 3,
+            'srn_urban': 3,
+            'srn_suburban': 3,
+            'srn_rural': 1,
         },
         'frequencies': {
             '3G': [
@@ -277,7 +283,7 @@ COUNTRY_PARAMETERS = {
             'tax_low': 10,
             'tax_baseline': 30,
             'tax_high': 40,
-            'administration_percentage_of_network_cost': 30,
+            'administration_percentage_of_network_cost': 10,
             },
         },
     'SEN': {
@@ -294,6 +300,9 @@ COUNTRY_PARAMETERS = {
             'baseline_urban': 3,
             'baseline_suburban': 3,
             'baseline_rural': 3,
+            'srn_urban': 3,
+            'srn_suburban': 3,
+            'srn_rural': 1,
         },
         'frequencies': {
             '3G': [
@@ -327,7 +336,7 @@ COUNTRY_PARAMETERS = {
             'tax_low': 10,
             'tax_baseline': 30,
             'tax_high': 40,
-            'administration_percentage_of_network_cost': 30,
+            'administration_percentage_of_network_cost': 10,
             },
         },
     'KEN': {
@@ -344,6 +353,9 @@ COUNTRY_PARAMETERS = {
             'baseline_urban': 3,
             'baseline_suburban': 3,
             'baseline_rural': 3,
+            'srn_urban': 3,
+            'srn_suburban': 3,
+            'srn_rural': 1,
         },
         'frequencies': {
             '3G': [
@@ -375,7 +387,7 @@ COUNTRY_PARAMETERS = {
             'tax_low': 10,
             'tax_baseline': 30,
             'tax_high': 40,
-            'administration_percentage_of_network_cost': 30,
+            'administration_percentage_of_network_cost': 10,
             },
         },
     'TZA': {
@@ -392,6 +404,9 @@ COUNTRY_PARAMETERS = {
             'baseline_urban': 3,
             'baseline_suburban': 3,
             'baseline_rural': 3,
+            'srn_urban': 3,
+            'srn_suburban': 3,
+            'srn_rural': 1,
         },
         'frequencies': {
             '3G': [
@@ -425,7 +440,7 @@ COUNTRY_PARAMETERS = {
             'tax_low': 10,
             'tax_baseline': 30,
             'tax_high': 40,
-            'administration_percentage_of_network_cost': 30,
+            'administration_percentage_of_network_cost': 10,
             },
         },
     'UGA': {
@@ -442,6 +457,9 @@ COUNTRY_PARAMETERS = {
             'baseline_urban': 3,
             'baseline_suburban': 3,
             'baseline_rural': 3,
+            'srn_urban': 3,
+            'srn_suburban': 3,
+            'srn_rural': 1,
         },
         'frequencies': {
             '3G': [
@@ -475,7 +493,7 @@ COUNTRY_PARAMETERS = {
             'tax_low': 10,
             'tax_baseline': 30,
             'tax_high': 40,
-            'administration_percentage_of_network_cost': 30,
+            'administration_percentage_of_network_cost': 10,
             },
         },
     'SEN-MLI-CIV': {
@@ -492,6 +510,9 @@ COUNTRY_PARAMETERS = {
             'baseline_urban': 3,
             'baseline_suburban': 3,
             'baseline_rural': 3,
+            'srn_urban': 3,
+            'srn_suburban': 3,
+            'srn_rural': 1,
         },
         'frequencies': {
             '3G': [
@@ -523,7 +544,7 @@ COUNTRY_PARAMETERS = {
             'tax_low': 10,
             'tax_baseline': 30,
             'tax_high': 40,
-            'administration_percentage_of_network_cost': 30,
+            'administration_percentage_of_network_cost': 10,
             },
         },
     'KEN-TZA-UGA': {
@@ -540,6 +561,9 @@ COUNTRY_PARAMETERS = {
             'baseline_urban': 3,
             'baseline_suburban': 3,
             'baseline_rural': 3,
+            'srn_urban': 3,
+            'srn_suburban': 3,
+            'srn_rural': 1,
         },
         'frequencies': {
             '3G': [
@@ -571,7 +595,7 @@ COUNTRY_PARAMETERS = {
             'tax_low': 10,
             'tax_baseline': 30,
             'tax_high': 40,
-            'administration_percentage_of_network_cost': 30,
+            'administration_percentage_of_network_cost': 10,
             },
         },
     }

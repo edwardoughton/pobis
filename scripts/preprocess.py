@@ -653,7 +653,7 @@ def estimate_sites(data, iso3, backhaul_lut):
 
         backhaul_fiber = 0
         backhaul_copper = 0
-        backhaul_microwave = 0
+        backhaul_wireless = 0
         backhaul_satellite = 0
 
         for i in range(1, int(round(sites_estimated_total)) + 1):
@@ -665,7 +665,7 @@ def estimate_sites(data, iso3, backhaul_lut):
             elif tower_backhaul_lut['fiber'] < num <= tower_backhaul_lut['copper']:
                 backhaul_copper += 1
             elif tower_backhaul_lut['copper'] < num <= tower_backhaul_lut['microwave']:
-                backhaul_microwave += 1
+                backhaul_wireless += 1
             elif tower_backhaul_lut['microwave'] < num:
                 backhaul_satellite += 1
 
@@ -686,7 +686,7 @@ def estimate_sites(data, iso3, backhaul_lut):
                 'sites_4G': sites_estimated_total * (region['coverage_4G_percent'] /100),
                 'backhaul_fiber': backhaul_fiber,
                 'backhaul_copper': backhaul_copper,
-                'backhaul_microwave': backhaul_microwave,
+                'backhaul_wireless': backhaul_wireless,
                 'backhaul_satellite': backhaul_satellite,
             })
 
@@ -2123,29 +2123,38 @@ def forecast_smartphones_linear(data, country, start_point, end_point):
     output = []
 
     scenarios = ['low', 'baseline', 'high']
+    settlement_types = ['urban', 'rural']
 
     for scenario in scenarios:
+        for settlement_type in settlement_types:
 
-        smartphone_growth = country['sp_growth_{}'.format(scenario)]
+            smartphone_growth = country['sp_growth_{}_{}'.format(scenario, settlement_type)]
 
-        for item in data:
+            for item in data:
 
-            for year in range(start_point, end_point + 1):
+                if not item['settlement_type'].lower() == settlement_type:
+                    continue
 
-                if year == start_point:
+                for year in range(start_point, end_point + 1):
 
-                    penetration = item['smartphone_penetration']
+                    if year == start_point:
 
-                else:
-                    penetration = penetration * (1 + (smartphone_growth/100))
+                        penetration = item['smartphone_penetration']
 
-                output.append({
-                    'scenario': scenario,
-                    'country': item['country'],
-                    'settlement_type': item['settlement_type'].lower(),
-                    'year': year,
-                    'penetration': round(penetration, 2),
-                })
+                    else:
+
+                        penetration = penetration * (1 + (smartphone_growth/100))
+
+                    if penetration > 90:
+                        penetration = 90
+
+                    output.append({
+                        'scenario': scenario,
+                        'country': item['country'],
+                        'settlement_type': item['settlement_type'].lower(),
+                        'year': year,
+                        'penetration': round(penetration, 2),
+                    })
 
     return output
 
@@ -2158,37 +2167,43 @@ if __name__ == '__main__':
         {'iso3': 'SEN', 'iso2': 'SN', 'regional_level': 2, 'regional_nodes_level': 2,
             'region': 'SSA', 'pop_density_km2': 500, 'settlement_size': 1000,
             'subs_growth_low': 1, 'subs_growth_baseline': 2, 'subs_growth_high': 3,
-            'sp_growth_low': 1.5, 'sp_growth_baseline': 2.5, 'sp_growth_high': 3.5,
+            'sp_growth_low_urban': 4.5, 'sp_growth_baseline_urban': 6.5, 'sp_growth_high_urban': 8.5,
+            'sp_growth_low_rural': 8, 'sp_growth_baseline_rural': 10, 'sp_growth_high_rural': 12,
             'cluster': 'C2',
         },
         {'iso3': 'MLI', 'iso2': 'ML', 'regional_level': 2, 'regional_nodes_level': 2,
             'region': 'SSA', 'pop_density_km2': 500, 'settlement_size': 1000,
             'subs_growth_low': 1, 'subs_growth_baseline': 2, 'subs_growth_high': 3,
-            'sp_growth_low': 1, 'sp_growth_baseline': 2, 'sp_growth_high': 3,
+            'sp_growth_low_urban': 2, 'sp_growth_baseline_urban': 4, 'sp_growth_high_urban': 6,
+            'sp_growth_low_rural': 15, 'sp_growth_baseline_rural': 18, 'sp_growth_high_rural': 21,
             'cluster': 'C1',
         },
         {'iso3': 'CIV', 'iso2': 'CI', 'regional_level': 2, 'regional_nodes_level': 2,
             'region': 'SSA', 'pop_density_km2': 500, 'settlement_size': 1000,
             'subs_growth_low': 1, 'subs_growth_baseline': 2, 'subs_growth_high': 3,
-            'sp_growth_low': 1.2, 'sp_growth_baseline': 2.2, 'sp_growth_high': 3.2,
+            'sp_growth_low_urban': 3, 'sp_growth_baseline_urban': 6, 'sp_growth_high_urban': 9,
+            'sp_growth_low_rural': 15, 'sp_growth_baseline_rural': 18, 'sp_growth_high_rural': 21,
             'cluster': 'C1',
         },
         {'iso3': 'UGA', 'iso2': 'UG', 'regional_level': 2, 'regional_nodes_level': 2,
             'region': 'S&SE Asia', 'pop_density_km2': 500, 'settlement_size': 1000,
             'subs_growth_low': 1, 'subs_growth_baseline': 2, 'subs_growth_high': 3,
-            'sp_growth_low': 1.1, 'sp_growth_baseline': 1.6, 'sp_growth_high': 2.1,
+            'sp_growth_low_urban': 2.5, 'sp_growth_baseline_urban': 5.5, 'sp_growth_high_urban': 7.5,
+            'sp_growth_low_rural': 15, 'sp_growth_baseline_rural': 18, 'sp_growth_high_rural': 21,
             'cluster': 'C1',
         },
         {'iso3': 'KEN', 'iso2': 'KE', 'regional_level': 2, 'regional_nodes_level': 2,
             'region': 'SSA', 'pop_density_km2': 500, 'settlement_size': 1000,
             'subs_growth_low': 1, 'subs_growth_baseline': 2, 'subs_growth_high': 3,
-            'sp_growth_low': 0.5, 'sp_growth_baseline': 1, 'sp_growth_high': 1.5,
+            'sp_growth_low_urban': 2, 'sp_growth_baseline_urban': 4, 'sp_growth_high_urban': 6,
+            'sp_growth_low_rural': 10, 'sp_growth_baseline_rural': 12, 'sp_growth_high_rural': 14,
             'cluster': 'C2',
         },
         {'iso3': 'TZA', 'iso2': 'TZ', 'regional_level': 2, 'regional_nodes_level': 2,
             'region': 'Europe', 'pop_density_km2': 500, 'settlement_size': 1000,
             'subs_growth_low': 1, 'subs_growth_baseline': 2, 'subs_growth_high': 3,
-            'sp_growth_low': 1, 'sp_growth_baseline': 2, 'sp_growth_high': 3,
+            'sp_growth_low_urban': 4, 'sp_growth_baseline_urban': 6, 'sp_growth_high_urban': 8,
+            'sp_growth_low_rural': 15, 'sp_growth_baseline_rural': 18, 'sp_growth_high_rural': 21,
             'cluster': 'C1',
         },
     ]
@@ -2210,8 +2225,8 @@ if __name__ == '__main__':
         # print('Processing coverage shapes')
         # process_coverage_shapes(country)
 
-        print('Getting regional data')
-        get_regional_data(country)
+        # print('Getting regional data')
+        # get_regional_data(country)
 
         # print('Generating agglomeration lookup table')
         # generate_agglomeration_lut(country)
@@ -2237,8 +2252,8 @@ if __name__ == '__main__':
         # print('Create backhaul lookup table')
         # generate_backhaul_lut(country)
 
-        # print('Create subscription forcast')
-        # forecast_subscriptions(country)
+        print('Create subscription forcast')
+        forecast_subscriptions(country)
 
         print('Forecasting smartphones')
         forecast_smartphones(country)
