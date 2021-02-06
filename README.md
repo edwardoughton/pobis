@@ -1,10 +1,10 @@
-Policy Options for Digital Infrastructure Strategies
-====================================================
+Policy Options for Digital Infrastructure Strategies (podis)
+============================================================
 [![Build Status](https://travis-ci.org/edwardoughton/podis.svg?branch=master)](https://travis-ci.org/edwardoughton/podis)
 [![Coverage Status](https://coveralls.io/repos/github/edwardoughton/podis/badge.svg?branch=master)](https://coveralls.io/github/edwardoughton/podis?branch=master)
 
-**podis** allows transparent and reproducible analysis of policies options for improving
-digital infrastructure access, thus contributing to sustainable economic development.
+**podis** allows transparent and reproducible analysis of policy options for improving
+digital infrastructure connectivity, thus contributing to sustainable economic development.
 
 The simulation model available in this repository can be applied to local, national or regional
 telecommunication markets, to quantify the performance of different technology, business model
@@ -18,29 +18,29 @@ Citation
   model for broadband universal service in Africa. arXiv:3592803  [cs, econ, q-fin].
 
 
-**podis** uses data analytics to improve our understanding of broadband strategies
-==================================================================================
+Data analytics for broadband strategies
+=======================================
 Myriad high-level policy reports have attempted to quantify the costs of infrastructure
 delivery for connecting unconnected communities. The majority use spreadsheet methods to
 estimate the required investment, leaving substantial uncertainty embedded within the results
 which is rarely portrayed to policy makers.
 
-The method developed here takes a new approach by drawing on a range of analytics tool rarely
+The method developed here takes a new approach by drawing on a range of analytical tools rarely
 utilized in telecom policy research, including remote sensing and least-cost network designs
-derived from infrastructure simulation. The figure bellow illustrates how these approaches are
+derived from infrastructure simulation. The figure below illustrates how these approaches are
 combined to produce demand and supply estimates to quantify broadband universal service
 strategies.
 
-## Quantifying broadband strategies using data analytics
+## Quantifying broadband strategies with data analytics
 
 <p align="center">
   <img src="/figures/approach.png" />
 </p>
 
-The composition of the private cost is visualized below for each technology, demonstrating the
-structure of the investment required to achieve comprehensive universal broadband across the
-six example countries assessed here (Côte D’Ivoire, Mali, Senegal, Kenya, Tanzania and
-Uganda).
+The composition of the private cost is visualized below for each technology tested,
+demonstrating the structure of the investment required to achieve comprehensive universal
+broadband across the six example countries assessed here (Côte D’Ivoire, Mali, Senegal, Kenya,
+Tanzania and Uganda).
 
 ## Composition of the private cost structure by country
 
@@ -54,7 +54,7 @@ Consequently, government is required to provide a state subsidy to help deploy t
 infrastructure in these situations. The figure below demonstrates how `podis` is able to
 estimate the required state subsidy needed to achieve universal broadband.
 
-## Required state subsidy needed to provide universal broadband
+## Quantifying state subsidies for universal broadband
 
 <p align="center">
   <img src="/figures/government_cost.png" />
