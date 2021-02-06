@@ -141,8 +141,8 @@ Acknowledgements
 
 **podis** was developed at George Mason University, Fairfax, VA, USA.
 
-Support from collaborators at the World Bank's Digital Economy for Africa program has been very
-much appreciated.
+Guidance and support has been very much appreciated from collaborators at the World Bank's
+Digital Economy for Africa program.
 
-Thank you to the Benton Institute for Broadband & Society and TPRC Board for recognizing this
-paper at TPRC48 with a Charles Benton Early Career Scholar Award.
+Thank you to both the Benton Institute for Broadband & Society and the TPRC Board for
+recognizing this paper at TPRC48 with a Charles Benton Early Career Scholar Award.
