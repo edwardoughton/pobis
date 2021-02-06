@@ -31,7 +31,7 @@ derived from infrastructure simulation. The figure below illustrates how these a
 combined to produce demand and supply estimates to quantify broadband universal service
 strategies.
 
-## Quantifying broadband strategies with data analytics
+## Example analytical approach
 
 <p align="center">
   <img src="/figures/approach.png" />
