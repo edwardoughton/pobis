@@ -141,16 +141,16 @@ remove(subscriptions, smartphones, combined, data)
 ####Technology costs
 folder <- dirname(rstudioapi::getSourceEditorContext()$path)
 
-data <- read.csv(file.path(folder, '..', 'results', 'decile_mno_results_technology_options.csv'))
+data <- read.csv(file.path(folder, '..', 'results', 'decile_market_results_technology_options.csv'))
 
-data <- data[!(data$total_mno_cost == "NA"),]
+data <- data[!(data$total_market_cost == "NA"),]
 # data <- data[(data$integration == "baseline"),]
 
 names(data)[names(data) == 'GID_0'] <- 'country'
 
 #select desired columns
 data <- select(data, country, scenario, strategy, confidence, decile, area_km2, population,
-               total_mno_cost, total_mno_revenue, phones_on_network)
+               total_market_cost, total_market_revenue, total_phones)
 
 data <- data[(data$confidence == 50),]
 
@@ -192,16 +192,16 @@ data$combined = factor(data$combined,
                 "Uganda (10 Mbps) (Low)", "Uganda (10 Mbps) (Baseline)", "Uganda (10 Mbps) (High)"
                 ))
 
-perc_tech_cost_saving = data#[(data$scenario == 'baseline_10_10_10'),]
+perc_tech_cost_saving = data 
 
 data <- data[order(data$country, data$scenario, data$strategy, data$decile),]
 
-data1 <- select(data, combined, country, scenario, strategy, confidence, decile, total_mno_revenue, phones_on_network)
+data1 <- select(data, combined, country, scenario, strategy, confidence, decile, total_market_revenue, total_phones)
 data1 <- data1[(data1$strategy == "4G_epc_wireless_baseline_baseline_baseline_baseline_baseline"),]
 data1$strategy <- "Revenue"
-names(data1)[names(data1) == 'total_mno_revenue'] <- 'value'
-data2 <- select(data, combined, country, scenario, strategy, confidence, decile, total_mno_cost, phones_on_network)
-names(data2)[names(data2) == 'total_mno_cost'] <- 'value'
+names(data1)[names(data1) == 'total_market_revenue'] <- 'value'
+data2 <- select(data, combined, country, scenario, strategy, confidence, decile, total_market_cost, total_phones)
+names(data2)[names(data2) == 'total_market_cost'] <- 'value'
 data <- rbind(data1, data2)
 remove(data1, data2)
 
@@ -219,11 +219,11 @@ data$strategy = factor(data$strategy, levels=c(
                               "4G (FB)"
                               ))
 
-data$per_user_value <- data$value / data$phones_on_network
+data$per_user_value <- data$value / data$total_phones
 
 data <- data[order(data$combined, data$country, data$scenario, data$strategy, data$decile),]
 
-technology_results <- select(data, combined, strategy, confidence, value, phones_on_network, per_user_value)
+technology_results <- select(data, combined, strategy, confidence, value, total_phones, per_user_value)
 
 data <- data %>%
   group_by(combined, country, scenario, strategy) %>%
@@ -251,7 +251,7 @@ technology_results <- technology_results %>%
   group_by(combined, strategy, confidence) %>%
   summarise(
     value_m = round(sum(value)/1e6),
-    phones_on_network_m = round(sum(phones_on_network)/1e6),
+    phones_on_network_m = round(sum(total_phones)/1e6),
     per_user_value = round(mean(per_user_value))
     ) %>%
   group_by(strategy, confidence) %>%
@@ -261,28 +261,25 @@ technology_results <- technology_results %>%
     value_max_m = round(max(value_m)),
       )
 
-remove(data, panel)
+remove(panel)
 
-
-perc_tech_cost_saving = select(perc_tech_cost_saving, country, scenario, strategy, confidence, 
-                         total_mno_cost)
+perc_tech_cost_saving = select(perc_tech_cost_saving, country, scenario, 
+                               strategy, confidence,total_market_cost)
 
 baseline = perc_tech_cost_saving[(
   data$strategy == '4G_epc_wireless_baseline_baseline_baseline_baseline_baseline' 
 ),]
-baseline = select(baseline, country, scenario, confidence, total_mno_cost)
-names(baseline)[names(baseline) == 'total_mno_cost'] <- 'baseline'
+baseline = select(baseline, country, scenario, confidence, total_market_cost)
+names(baseline)[names(baseline) == 'total_market_cost'] <- 'baseline'
 
 perc_tech_cost_saving = merge(perc_tech_cost_saving, baseline, 
              by=c('country', 'scenario', 'confidence'),
              all.x=TRUE)
 
 perc_tech_cost_saving$saving = round(
-          (perc_tech_cost_saving$total_mno_cost - 
+          (perc_tech_cost_saving$total_market_cost - 
              perc_tech_cost_saving$baseline) / 
-            perc_tech_cost_saving$total_mno_cost * 100)
-
-# perc_tech_cost_saving <- perc_tech_cost_saving[!(perc_tech_cost_saving$scenario == "Baseline"),]
+            perc_tech_cost_saving$total_market_cost * 100)
 
 perc_tech_cost_saving = perc_tech_cost_saving %>%
   group_by(scenario, strategy, confidence) %>%
@@ -290,20 +287,14 @@ perc_tech_cost_saving = perc_tech_cost_saving %>%
     saving = round(mean(saving)),
   )
 
-
-
-
-
-
 ###################NATIONAL COST PROFILE FOR BASELINE
 folder <- dirname(rstudioapi::getSourceEditorContext()$path)
 
 #load data
-data <- read.csv(file.path(folder, '..', 'results', 'national_mno_cost_results_technology_options.csv'))
+data <- read.csv(file.path(folder, '..', 'results', 'national_market_cost_results_technology_options.csv'))
 
-data <- data[!(data$total_mno_cost == "NA"),]
+data <- data[!(data$total_market_cost == "NA"),]
 data <- data[(data$confidence == 50),]
-# data <- data[(data$integration == "baseline"),]
 
 names(data)[names(data) == 'GID_0'] <- 'country'
 
@@ -314,9 +305,9 @@ percentage_cost = data#[(data$scenario == 'baseline_10_10_10'),]
 cost_composition = data
 
 cost_composition$perc_network_cost = round((
-  (cost_composition$ran + cost_composition$backhaul_fronthaul +
-      cost_composition$civils + cost_composition$core_network) /
-    cost_composition$total_mno_cost 
+  (cost_composition$total_ran + cost_composition$total_backhaul_fronthaul +
+      cost_composition$total_civils + cost_composition$total_core_network) /
+    cost_composition$total_market_cost 
   ) * 100) 
 
 cost_composition = cost_composition %>%
@@ -324,9 +315,11 @@ cost_composition = cost_composition %>%
       summarize(perc_network_cost = round(mean(perc_network_cost)))
 
 
-data <- select(data, strategy, scenario, confidence, combined, ran, backhaul_fronthaul,
-               civils, core_network, administration, spectrum_cost,
-               tax, profit_margin, used_cross_subsidy, required_state_subsidy
+data <- select(data, strategy, scenario, confidence, combined, 
+               total_ran, total_backhaul_fronthaul,
+               total_civils, total_core_network, total_administration, 
+               total_spectrum_cost, total_tax, total_profit_margin, 
+               total_used_cross_subsidy, total_required_state_subsidy
                )
 
 data$combined = factor(data$combined,
@@ -354,19 +347,19 @@ data$strategy = factor(data$strategy, levels=c(
            "4G (W)",
            "4G (FB)"))
 
-data <- gather(data, metric, value, ran:required_state_subsidy)#ran:profit_margin)#
+data <- gather(data, metric, value, total_ran:total_required_state_subsidy)#ran:profit_margin)#
 
 data$metric = factor(data$metric, levels=c(
-                                           "required_state_subsidy",
-                                           "used_cross_subsidy",
-                                           "profit_margin",
-                                           "tax",
-                                           "spectrum_cost",
-                                           "administration",
-                                           'core_network',
-                                           'civils',
-                                           'backhaul_fronthaul',
-                                           "ran"
+                                           "total_required_state_subsidy",
+                                           "total_used_cross_subsidy",
+                                           "total_profit_margin",
+                                           "total_tax",
+                                           "total_spectrum_cost",
+                                           "total_administration",
+                                           'total_core_network',
+                                           'total_civils',
+                                           'total_backhaul_fronthaul',
+                                           "total_ran"
                                            ),
                                     labels=c(
                                              "Required State Subsidy",
@@ -384,15 +377,23 @@ data$metric = factor(data$metric, levels=c(
 network_costs <- data[!(data$metric == "User Cross-Subsidy" |
                data$metric == "Required State Subsidy"),]
 
-network <- ggplot(network_costs, aes(x=strategy, y=(value/1e9), group=metric, fill=metric)) +
+# totals <- network_costs %>%
+#   select(combined, strategy, value) %>%
+#   group_by(combined, strategy) %>%
+#   summarize(value = round(sum(value)/1e9))
+
+network <- ggplot(network_costs, aes(x=strategy, y=(value/1e9), fill=metric)) +
   geom_bar(stat = "identity") +
   coord_flip() +
   scale_fill_brewer(palette="Spectral", name = NULL, direction=1) +
+  # geom_text(aes(strategy, value, label=value, fill=NULL), size=2, data=totals) +
   theme(legend.position = "bottom") +
-  labs(title = "Private Cost Composition for Broadband Universal Service", colour=NULL,
+  labs(title = "Private Cost Composition for Broadband Universal Service", 
+       colour=NULL,
        subtitle = "Reported for a representative MNO delivering 10 Mbps broadband universal service",
        x = NULL, y = "Total Cost (Billions $USD)") +
-  scale_y_continuous(expand = c(0, 0)) +  theme(panel.spacing = unit(0.6, "lines")) +
+  scale_y_continuous(expand = c(0, 0)) +  
+  theme(panel.spacing = unit(0.6, "lines")) +
   guides(fill=guide_legend(ncol=8, reverse = TRUE)) +
   facet_wrap(~combined, scales = "free", ncol=3)
 
@@ -402,17 +403,17 @@ print(network)
 dev.off()
 
 percentage_cost = select(percentage_cost, country, scenario, strategy, confidence, 
-                         total_mno_cost, used_cross_subsidy, 
-                         required_state_subsidy)
+                         total_market_cost, total_used_cross_subsidy, 
+                         total_required_state_subsidy)
 
-percentage_cost$overall_cost = (percentage_cost$total_mno_cost + 
-                                  percentage_cost$used_cross_subsidy + 
-                                  percentage_cost$required_state_subsidy)
+percentage_cost$overall_cost = (percentage_cost$total_market_cost + 
+                                  percentage_cost$total_used_cross_subsidy + 
+                                  percentage_cost$total_required_state_subsidy)
 
-percentage_cost$perc_cross_subsidy = round((percentage_cost$used_cross_subsidy / 
+percentage_cost$perc_cross_subsidy = round((percentage_cost$total_used_cross_subsidy / 
                                               percentage_cost$overall_cost) * 100)
 
-percentage_cost$perc_state_subsidy = round((percentage_cost$required_state_subsidy / 
+percentage_cost$perc_state_subsidy = round((percentage_cost$total_required_state_subsidy / 
                                               percentage_cost$overall_cost) * 100)
 
 percentage_cost = select(percentage_cost, country, scenario, strategy, confidence, 
@@ -425,13 +426,76 @@ percentage_cost = percentage_cost %>%
     perc_state_subsidy = round(mean(perc_state_subsidy)),
   )
 
+###################Social cost
+folder <- dirname(rstudioapi::getSourceEditorContext()$path)
+
+#load data
+data <- read.csv(file.path(folder, '..', 'results', 'national_market_cost_results_technology_options.csv'))
+
+data <- data[!(data$total_market_cost == "NA"),]
+data <- data[(data$confidence == 50),]
+
+names(data)[names(data) == 'GID_0'] <- 'country'
+
+data <- select(data, country, scenario, strategy, social_cost)
+
+data$scenario = factor(data$scenario, levels=c("low_10_10_10",
+                                               "baseline_10_10_10",
+                                               "high_10_10_10"),
+                       labels=c("Low",
+                                "Baseline",
+                                "High"))
+
+data$country = factor(data$country, levels=c("CIV",
+                                             'MLI',
+                                             "SEN",
+                                             "KEN",
+                                             "TZA",
+                                             "UGA"),
+                      labels=c("Cote D'Ivoire",
+                               "Mali",
+                               "Senegal",
+                               "Kenya",
+                               "Tanzania",
+                               "Uganda"
+                      ))
+
+data$strategy = factor(data$strategy, levels=c(
+  "3G_epc_wireless_baseline_baseline_baseline_baseline_baseline",
+  "3G_epc_fiber_baseline_baseline_baseline_baseline_baseline",
+  "4G_epc_wireless_baseline_baseline_baseline_baseline_baseline",
+  "4G_epc_fiber_baseline_baseline_baseline_baseline_baseline"),
+  labels=c("3G (W)",
+           "3G (FB)",
+           "4G (W)",
+           "4G (FB)"))
+
+min_value = round(min(data$social_cost)/1e9,0)
+max_value = round(max(data$social_cost)/1e9,0)
+
+social_cost = ggplot(data, aes(x=strategy, y=round(social_cost/1e9), 
+                               group=scenario, fill=scenario)) +
+  geom_bar(stat = "identity", position=position_dodge()) +
+  geom_text(aes(label = round(social_cost/1e9)), size = 2.5,
+            position = position_dodge(width = 1), hjust=-.25) + 
+  coord_flip() +
+  scale_fill_brewer(palette="Dark2", name = NULL, direction=1) +
+  theme(legend.position = "bottom") +
+  labs(title = "(A) Total Social Cost of Broadband Universal Service", colour=NULL,
+       subtitle = "Reported for all scenarios and strategies for 10 Mbps broadband universal service",
+       x = NULL, y = "Total Social Cost (Billions $USD)") +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, max_value+15)) +  
+  theme(panel.spacing = unit(0.6, "lines")) +
+  guides(fill=guide_legend(ncol=3, reverse = TRUE)) +
+  facet_wrap(~country, scales = "free", ncol=3)
+
 ###################Cost to Government
 folder <- dirname(rstudioapi::getSourceEditorContext()$path)
 
 #load data
-data <- read.csv(file.path(folder, '..', 'results', 'national_mno_cost_results_technology_options.csv'))
+data <- read.csv(file.path(folder, '..', 'results', 'national_market_cost_results_technology_options.csv'))
 
-data <- data[!(data$total_mno_cost == "NA"),]
+data <- data[!(data$government_cost == "NA"),]
 data <- data[(data$confidence == 50),]
 # data <- data[(data$integration == "baseline"),]
 
@@ -483,17 +547,20 @@ govt_costs = ggplot(data, aes(x=strategy, y=round(government_cost/1e9,1),
   coord_flip() +
   scale_fill_brewer(palette="Dark2", name = NULL, direction=1) +
   theme(legend.position = "bottom") +
-  labs(title = "Net Government Cost for Broadband Universal Service", colour=NULL,
+  labs(title = "(B) Net Government Cost for Broadband Universal Service", colour=NULL,
        subtitle = "Reported for all scenarios and strategies for 10 Mbps broadband universal service",
        x = NULL, y = "Total Cost (Billions $USD)") +
-  scale_y_continuous(expand = c(0, 0), limits = c(min_value-.5, max_value+4)) +  
+  scale_y_continuous(expand = c(0, 0), limits = c(min_value-.5, max_value+15)) +  
   theme(panel.spacing = unit(0.6, "lines")) +
   guides(fill=guide_legend(ncol=3, reverse = TRUE)) +
   facet_wrap(~country, scales = "free", ncol=3)
 
-path = file.path(folder, 'figures', 'd_government_costs.png')
-ggsave(path, units="in", width=7, height=5, dpi=300)
-print(govt_costs)
+combined <- ggarrange(social_cost, govt_costs,   
+                      ncol = 1, nrow = 2)
+
+path = file.path(folder, 'figures', 'd_social_and_govt_cost.png')
+ggsave(path, units="in", width=8, height=11, dpi=300)
+print(combined)
 dev.off()
 
 remove(data)
@@ -501,10 +568,9 @@ remove(data)
 ################## BUSINESS MODELS
 #load data
 folder <- dirname(rstudioapi::getSourceEditorContext()$path)
-data <- read.csv(file.path(folder, '..', 'results', 'decile_mno_results_business_model_options.csv'))
+data <- read.csv(file.path(folder, '..', 'results', 'decile_market_results_business_model_options.csv'))
 
-data <- data[!(data$total_mno_cost == "NA"),]
-# data <- data[(data$integration == "baseline"),]
+data <- data[!(data$total_market_cost == "NA"),]
 data <- data[!(data$strategy == "4G_epc_wireless_cns_baseline_baseline_baseline_baseline"),]
 
 names(data)[names(data) == 'GID_0'] <- 'country'
@@ -547,12 +613,12 @@ data$combined = factor(data$combined,
                 "Uganda (10 Mbps) (Low)", "Uganda (10 Mbps) (Baseline)", "Uganda (10 Mbps) (High)"
        ))
 
-data1 <- select(data, combined, country, scenario, strategy, confidence, decile, total_mno_revenue)
+data1 <- select(data, combined, country, scenario, strategy, confidence, decile, total_market_revenue)
 data1 <- data1[(data1$strategy == "4G_epc_wireless_baseline_baseline_baseline_baseline_baseline"),]
 data1$strategy <- "Revenue"
-names(data1)[names(data1) == 'total_mno_revenue'] <- 'value'
-data2 <- select(data, combined, country, scenario, strategy, confidence, decile, total_mno_cost)
-names(data2)[names(data2) == 'total_mno_cost'] <- 'value'
+names(data1)[names(data1) == 'total_market_revenue'] <- 'value'
+data2 <- select(data, combined, country, scenario, strategy, confidence, decile, total_market_cost)
+names(data2)[names(data2) == 'total_market_cost'] <- 'value'
 data <- rbind(data1, data2)
 remove(data1, data2)
 
@@ -595,7 +661,7 @@ panel <- ggplot(data, aes(x=decile, y=cumulative_value_bn, colour=strategy, grou
   guides(colour=guide_legend(ncol=4)) +
   facet_wrap(~combined, scales = "free", ncol=3)
 
-path = file.path(folder, 'figures', 'd_results_business_model_options_wrap.png')
+path = file.path(folder, 'figures', 'e_results_business_model_options_wrap.png')
 ggsave(path, units="in", width=7, height=8.5, dpi=300)
 print(panel)
 dev.off()
@@ -613,14 +679,14 @@ business_model_results <- business_model_results %>%
   )
 
 folder <- dirname(rstudioapi::getSourceEditorContext()$path)
-data <- read.csv(file.path(folder, '..', 'results', 'national_mno_cost_results_business_model_options.csv'))
+data <- read.csv(file.path(folder, '..', 'results', 'national_market_cost_results_business_model_options.csv'))
 data <- data[!(data$strategy == "4G_epc_wireless_cns_baseline_baseline_baseline_baseline"),]
 
 names(data)[names(data) == 'GID_0'] <- 'country'
 
-data$overall_cost = (data$total_mno_cost + 
-                       data$used_cross_subsidy + 
-                       data$required_state_subsidy)
+data$overall_cost = (data$total_market_cost + 
+                       data$total_used_cross_subsidy + 
+                       data$total_required_state_subsidy)
 
 baseline = data[(
     data$strategy == '4G_epc_wireless_baseline_baseline_baseline_baseline_baseline' 
@@ -669,235 +735,77 @@ infra_sharing_perc_savings = infra_sharing_perc_savings %>%
 
 remove(data, baseline)
 
-# ###################DECILE COST PROFILE FOR BASELINE
-# folder <- dirname(rstudioapi::getSourceEditorContext()$path)
-#
-# #load data
-# data <- read.csv(file.path(folder, '..', 'results', 'decile_mno_cost_results_technology_options.csv'))
-#
-# data <- data[!(data$total_mno_cost == "NA"),]
-# data <- data[(data$confidence == 50),]
-# # data <- data[(data$integration == "baseline"),]
-# data <- data[(data$scenario == "baseline_10_10_10"),]
-#
-# names(data)[names(data) == 'GID_0'] <- 'country'
-#
-# data$combined <- paste(data$country, data$strategy, sep="_")
-#
-# data <- select(data, combined, decile, ran, backhaul_fronthaul,
-#                civils, core_network, administration, #acquisition_per_subscriber,
-#                spectrum_cost, tax, profit_margin,
-#                used_cross_subsidy, required_state_subsidy)
-#
-# data$combined = factor(data$combined,
-#                        levels=c(
-#                          "CIV_3G_epc_fiber_baseline_baseline_baseline_baseline_baseline",
-#                          "CIV_3G_epc_wireless_baseline_baseline_baseline_baseline_baseline",
-#                          "CIV_4G_epc_fiber_baseline_baseline_baseline_baseline_baseline",
-#                          "CIV_4G_epc_wireless_baseline_baseline_baseline_baseline_baseline",
-#                          "KEN_3G_epc_fiber_baseline_baseline_baseline_baseline_baseline",
-#                          "KEN_3G_epc_wireless_baseline_baseline_baseline_baseline_baseline",
-#                          "KEN_4G_epc_fiber_baseline_baseline_baseline_baseline_baseline",
-#                          "KEN_4G_epc_wireless_baseline_baseline_baseline_baseline_baseline",
-#                          "MLI_3G_epc_fiber_baseline_baseline_baseline_baseline_baseline",
-#                          "MLI_3G_epc_wireless_baseline_baseline_baseline_baseline_baseline",
-#                          "MLI_4G_epc_fiber_baseline_baseline_baseline_baseline_baseline",
-#                          "MLI_4G_epc_wireless_baseline_baseline_baseline_baseline_baseline",
-#                          "SEN_3G_epc_fiber_baseline_baseline_baseline_baseline_baseline",
-#                          "SEN_3G_epc_wireless_baseline_baseline_baseline_baseline_baseline",
-#                          "SEN_4G_epc_fiber_baseline_baseline_baseline_baseline_baseline",
-#                          "SEN_4G_epc_wireless_baseline_baseline_baseline_baseline_baseline",
-#                          "TZA_3G_epc_fiber_baseline_baseline_baseline_baseline_baseline",
-#                          "TZA_3G_epc_wireless_baseline_baseline_baseline_baseline_baseline",
-#                          "TZA_4G_epc_fiber_baseline_baseline_baseline_baseline_baseline",
-#                          "TZA_4G_epc_wireless_baseline_baseline_baseline_baseline_baseline",
-#                          "UGA_3G_epc_fiber_baseline_baseline_baseline_baseline_baseline",
-#                          "UGA_3G_epc_wireless_baseline_baseline_baseline_baseline_baseline",
-#                          "UGA_4G_epc_fiber_baseline_baseline_baseline_baseline_baseline",
-#                          "UGA_4G_epc_wireless_baseline_baseline_baseline_baseline_baseline"
-#                        ),
-#                        labels=c("Cote D'Ivoire 3G (FB)",
-#                                 "Cote D'Ivoire 3G (W)",
-#                                 "Cote D'Ivoire 4G (FB)",
-#                                 "Cote D'Ivoire 4G (W)",
-#                                 "Mali 3G (FB)",
-#                                 "Mali 3G (W)",
-#                                 "Mali 4G (FB)",
-#                                 "Mali 4G (W)",
-#                                 "Senegal 3G (FB)",
-#                                 "Senegal 3G (W)",
-#                                 "Senegal 4G (FB)",
-#                                 "Senegal 4G (W)",
-#                                 "Kenya 3G (FB)",
-#                                 "Kenya 3G (W)",
-#                                 "Kenya 4G (FB)",
-#                                 "Kenya 4G (W)",
-#                                 "Tanzania 3G (FB)",
-#                                 "Tanzania 3G (W)",
-#                                 "Tanzania 4G (FB)",
-#                                 "Tanzania 4G (W)",
-#                                 "Uganda 3G (FB)",
-#                                 "Uganda 3G (W)",
-#                                 "Uganda 4G (FB)",
-#                                 "Uganda 4G (W)"))
-#
-# data <- gather(data, metric, value, ran:required_state_subsidy)
-#
-# data$metric = factor(data$metric, levels=c("required_state_subsidy",
-#                                            "used_cross_subsidy",
-#                                            "profit_margin",
-#                                            "tax",
-#                                            "spectrum_cost",
-#                                            "administration",
-#                                            "ran",
-#                                            'backhaul_fronthaul',
-#                                            'civils',
-#                                            'core_network'
-# ),
-# labels=c("Required State Subsidy",
-#          "User Cross-Subsidy",
-#          "Profit",
-#          "Tax",
-#          "Spectrum",
-#          "Administration",
-#          "RAN",
-#          "Backhaul",
-#          "Civils",
-#          'Core/Regional Fiber'
-# ))
-#
-# panel <- ggplot(data, aes(x=decile, y=(value/1e9), group=metric, fill=metric)) +
-#   geom_bar(stat = "identity") +
-#   scale_fill_brewer(palette="Spectral", name = NULL, direction=1) +
-#   theme(legend.position = "bottom") +
-#   labs(title = "Decile Cost Composition by Strategy and Country", colour=NULL,
-#        subtitle = "Illustrates required state subsidy under baseline conditions",
-#        x = NULL, y = "Total Cost (Billions $USD)") +
-#   scale_y_continuous(expand = c(0, 0)) +  theme(panel.spacing = unit(0.6, "lines")) +
-#   guides(fill=guide_legend(ncol=6, reverse = TRUE)) +
-#   facet_wrap(~combined, scales = "free", ncol=4)
-#
-# path = file.path(folder, 'figures', 'cost_composition_baseline_decile.png')
-# ggsave(path, units="in", width=10, height=10, dpi=300)
-# print(panel)
-# dev.off()
+###################Efficiency factor
+folder <- dirname(rstudioapi::getSourceEditorContext()$path)
 
-# ################## INTEGRATION RESULTS
-# folder <- dirname(rstudioapi::getSourceEditorContext()$path)
-#
-# #load data
-# data <- read.csv(file.path(folder, '..', 'results', 'decile_results_integration_options.csv'))
-#
-# data <- data[!(data$total_mno_cost == "NA"),]
-# # data <- data[(data$scenario == "baseline_10_10_10"),]
-#
-# names(data)[names(data) == 'GID_0'] <- 'country'
-#
-# sum_of_costs <- select(data, country, strategy, integration, total_mno_cost)
-# sum_of_costs <- sum_of_costs %>%
-#   group_by(country, strategy, integration) %>%
-#   summarize(total_mno_cost_m = round(sum(total_mno_cost) / 1e6, 3))
-#
-# data$combined <- paste(data$country, data$strategy, sep="_")
-#
-# data <- select(data, combined, integration, decile, total_mno_cost)
-#
-# data$combined = factor(data$combined,
-#                        levels=c(
-#                          "CIV_3G_epc_wireless_baseline_baseline_baseline_baseline_integration",
-#                         "CIV_3G_epc_fiber_baseline_baseline_baseline_baseline_integration",
-#                         "CIV_4G_epc_wireless_baseline_baseline_baseline_baseline_integration",
-#                          "CIV_4G_epc_fiber_baseline_baseline_baseline_baseline_integration",
-#                         "KEN_3G_epc_wireless_baseline_baseline_baseline_baseline_integration",
-#                          "KEN_3G_epc_fiber_baseline_baseline_baseline_baseline_integration",
-#                         "KEN_4G_epc_wireless_baseline_baseline_baseline_baseline_integration",
-#                          "KEN_4G_epc_fiber_baseline_baseline_baseline_baseline_integration",
-#                         "MLI_3G_epc_wireless_baseline_baseline_baseline_baseline_integration",
-#                          "MLI_3G_epc_fiber_baseline_baseline_baseline_baseline_integration",
-#                         "MLI_4G_epc_wireless_baseline_baseline_baseline_baseline_integration",
-#                          "MLI_4G_epc_fiber_baseline_baseline_baseline_baseline_integration",
-#                         "SEN_3G_epc_wireless_baseline_baseline_baseline_baseline_integration",
-#                          "SEN_3G_epc_fiber_baseline_baseline_baseline_baseline_integration",
-#                         "SEN_4G_epc_wireless_baseline_baseline_baseline_baseline_integration",
-#                          "SEN_4G_epc_fiber_baseline_baseline_baseline_baseline_integration",
-#                         "TZA_3G_epc_wireless_baseline_baseline_baseline_baseline_integration",
-#                          "TZA_3G_epc_fiber_baseline_baseline_baseline_baseline_integration",
-#                         "TZA_4G_epc_wireless_baseline_baseline_baseline_baseline_integration",
-#                          "TZA_4G_epc_fiber_baseline_baseline_baseline_baseline_integration",
-#                         "UGA_3G_epc_wireless_baseline_baseline_baseline_baseline_integration",
-#                          "UGA_3G_epc_fiber_baseline_baseline_baseline_baseline_integration",
-#                         "UGA_4G_epc_wireless_baseline_baseline_baseline_baseline_integration",
-#                          "UGA_4G_epc_fiber_baseline_baseline_baseline_baseline_integration"
-#                        ),
-#                        labels=c("Cote D'Ivoire 3G (W)",
-#                                 "Cote D'Ivoire 3G (FB)",
-#                                 "Cote D'Ivoire 4G (W)",
-#                                 "Cote D'Ivoire 4G (FB)",
-#                                 "Mali 3G (W)",
-#                                 "Mali 3G (FB)",
-#                                 "Mali 4G (W)",
-#                                 "Mali 4G (FB)",
-#                                 "Senegal 3G (W)",
-#                                 "Senegal 3G (FB)",
-#                                 "Senegal 4G (W)",
-#                                 "Senegal 4G (FB)",
-#                                 "Kenya 3G (W)",
-#                                 "Kenya 3G (FB)",
-#                                 "Kenya 4G (W)",
-#                                 "Kenya 4G (FB)",
-#                                 "Tanzania 3G (W)",
-#                                 "Tanzania 3G (FB)",
-#                                 "Tanzania 4G (W)",
-#                                 "Tanzania 4G (FB)",
-#                                 "Uganda 3G (W)",
-#                                 "Uganda 3G (FB)",
-#                                 "Uganda 4G (W)",
-#                                 "Uganda 4G (FB)"))
-#
-# data$integration = factor(data$integration, levels=c("baseline",
-#                                                "integration"),
-# labels=c("Baseline",
-#          "Regional Integration"
-# ))
-#
-# data <- data[order(data$combined, data$decile, data$integration),]
-#
-# data <- data %>%
-#   group_by(combined, decile, integration) %>%
-#   mutate(cumulative_value_bn = cumsum(round(total_mno_cost / 1e9, 3)))
-#
-# panel <- ggplot(data, aes(x=decile, y=cumulative_value_bn, colour=integration, group=integration)) +
-#   geom_line() +
-#   scale_fill_brewer(palette="Spectral", name = expression('Cost Type'), direction=1) +
-#   theme(axis.text.x = element_text(angle = 45, hjust = 1),legend.position = "bottom") +
-#   labs(title = "Impact of Regional Market Integration by Decile and Country", colour=NULL,
-#        subtitle = "Results reported for all technologies",
-#        x = 'Population Covered (%)', y = "Cumulative Cost (Billions $USD)") +
-#   scale_x_continuous(expand = c(0, 0), breaks = seq(0,100,20)) +
-#   scale_y_continuous(expand = c(0, 0)) +  theme(panel.spacing = unit(0.6, "lines")) +
-#   guides(colour=guide_legend(ncol=2)) +
-#   facet_wrap(~combined, scales = "free", ncol=4)
-#
-# path = file.path(folder, 'figures', 'results_regional_integration_options_wrap.png')
-# ggsave(path, units="in", width=10, height=10, dpi=300)
-# print(panel)
-# dev.off()
-#
-# savings <- spread(sum_of_costs, key = integration, value = total_mno_cost_m)
-# savings$saving_usd <- savings$baseline - savings$integration
-# savings$saving_perc <- (savings$saving_usd / savings$baseline) * 100
-#
-# path = file.path(folder, '..', 'results', 'integration_savings.csv')
-# write.csv(savings, path)
-#
-# business_model_results <- savings %>%
-#   group_by(strategy) %>%
-#   summarise(
-#     raw_min_m = round(min(saving_usd)),
-#     raw_mean_m = round(mean(saving_usd)),
-#     raw_max_m = round(max(saving_usd)),
-#     perc_min_m = round(min(saving_perc)),
-#     perc_mean_m = round(mean(saving_perc)),
-#     perc_max_m = round(max(saving_perc)),
-#   )
-#
+#load data
+data <- read.csv(file.path(folder, '..', 'results', 'national_market_cost_results_technology_options.csv'))
+
+data <- data[!(data$total_market_cost == "NA"),]
+data <- data[(data$confidence == 50),]
+
+names(data)[names(data) == 'GID_0'] <- 'country'
+
+data <- select(data, country, scenario, strategy, required_efficiency_saving)
+
+data$scenario = factor(data$scenario, levels=c("low_10_10_10",
+                                               "baseline_10_10_10",
+                                               "high_10_10_10"),
+                       labels=c("Low",
+                                "Baseline",
+                                "High"))
+
+data$country = factor(data$country, levels=c("CIV",
+                                             'MLI',
+                                             "SEN",
+                                             "KEN",
+                                             "TZA",
+                                             "UGA"),
+                      labels=c("Cote D'Ivoire",
+                               "Mali",
+                               "Senegal",
+                               "Kenya",
+                               "Tanzania",
+                               "Uganda"
+                      ))
+
+data$strategy = factor(data$strategy, levels=c(
+  "3G_epc_wireless_baseline_baseline_baseline_baseline_baseline",
+  "3G_epc_fiber_baseline_baseline_baseline_baseline_baseline",
+  "4G_epc_wireless_baseline_baseline_baseline_baseline_baseline",
+  "4G_epc_fiber_baseline_baseline_baseline_baseline_baseline"),
+  labels=c("3G (W)",
+           "3G (FB)",
+           "4G (W)",
+           "4G (FB)"))
+
+data$required_efficiency_saving[data$required_efficiency_saving < 0] <- 0
+
+min_value = round(min(data$required_efficiency_saving),0)
+max_value = round(max(data$required_efficiency_saving),0)
+
+efficiency_saving = ggplot(data, 
+  aes(x=strategy, y=round(required_efficiency_saving), 
+                              group=scenario, fill=scenario)) +
+  geom_bar(stat = "identity", position=position_dodge()) +
+  geom_text(aes(label = round(required_efficiency_saving,0)), size = 2.5,
+            position = position_dodge(width = 1), hjust=-.25) +
+  coord_flip() +
+  scale_fill_brewer(palette="Dark2", name = NULL, direction=1) +
+  theme(legend.position = "bottom") +
+  labs(title = "Regional Efficiency Saving Required for Viability", colour=NULL,
+       subtitle = "Reported for all scenarios and strategies for 10 Mbps broadband universal service",
+       x = NULL, y = " Required Percentage Saving (%) to Achieve Viability") +
+  scale_y_continuous(expand = c(0, 0), limits = c(min_value-.5, max_value+9),
+                     breaks = seq(0, 100, by = 20)) +  
+  theme(panel.spacing = unit(0.6, "lines")) +
+  guides(fill=guide_legend(ncol=3, reverse = TRUE)) +
+  facet_wrap(~country, scales = "free", ncol=3)
+
+path = file.path(folder, 'figures', 'f_efficiency_saving.png')
+ggsave(path, units="in", width=7, height=5, dpi=300)
+print(efficiency_saving)
+dev.off()
+
+remove(data)
+

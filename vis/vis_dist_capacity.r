@@ -21,13 +21,13 @@ data = ldply(myfiles, read_csv)
 # data = read.csv(lut)
 
 data = data[data$transmittion_type == '1x1' |
-            data$transmittion_type == '2x2' 
+            data$transmittion_type == '2x2'
             ,]
 
 data = data[data$frequency_GHz == 2.1 |
             data$frequency_GHz == 0.8 |
               data$frequency_GHz == 0.7 |
-              data$frequency_GHz == 1.8 
+              data$frequency_GHz == 1.8
 ,]
 
 # data <- data[!(data$generation == "5G"),]
@@ -47,7 +47,7 @@ data$environment = factor(data$environment, levels=c("urban",
 
 data$combined <- paste(data$generation, data$frequency_GHz, sep="_")
 
-data$combined = factor(data$combined, 
+data$combined = factor(data$combined,
                           levels=c("3G_1.8",
                                    "3G_2.1",
                                    "4G_0.7",
@@ -62,18 +62,18 @@ data$combined = factor(data$combined,
                                    "2.1 (4G)"))
 unique(data$combined)
 #subset the data for plotting
-data = select(data, inter_site_distance_m, r_distance, environment, 
+data = select(data, inter_site_distance_m, r_distance, environment,
               combined, spectral_efficiency_bps_hz, capacity_mbps)
 
-se = ggplot(data, aes(x=r_distance/1000, y=spectral_efficiency_bps_hz, 
-                        colour=factor(combined))) + 
+se = ggplot(data, aes(x=r_distance/1000, y=spectral_efficiency_bps_hz,
+                        colour=factor(combined))) +
   # geom_point(size=0.1) +
   geom_smooth(size=0.5) +
-  scale_x_continuous(expand = c(0, 0), limits=c(0,7.5)) + 
+  scale_x_continuous(expand = c(0, 0), limits=c(0,7.5)) +
   scale_y_continuous(expand = c(0, 0), limits=c(0,10.5)) +
   theme(legend.position="bottom") + guides(colour=guide_legend(ncol=7)) +
-  labs(title = 'Mean Spectral Efficiency by Frequency and Technology', 
-       x = 'Cell Radius (km)', y='Spectral Efficiency (Bps/Hz)', 
+  labs(title = 'Mean Spectral Efficiency by Frequency and Technology',
+       x = 'Cell Radius (km)', y='Spectral Efficiency (Bps/Hz)',
        colour='Frequency (GHz)') +
   facet_wrap(~environment)
 
@@ -81,22 +81,3 @@ path = file.path(folder, 'figures', 'se_panel.png')
 ggsave(path, units="in", width=7, height=3.5)
 print(se)
 dev.off()
-
-# capacity = ggplot(data, aes(x=r_distance/1000, y=capacity_mbps, 
-#                       colour=factor(combined))) + 
-#   geom_point(size=0.5) +
-#   geom_smooth(size=0.5) +
-#   scale_x_continuous(expand = c(0, 0)) + scale_y_continuous(expand = c(0, 0)) +
-#   theme(legend.position="bottom") + guides(colour=guide_legend(ncol=7)) +
-#   labs(title = 'Channel Capacity by Frequency and Technology', 
-#        x = NULL, y='Capacity (Mbps)', 
-#        colour='Frequency (GHz)\n(10MHz BW)') +
-#   facet_wrap(~environment)
-# 
-# panel = ggarrange(se, capacity, 
-#         common.legend = TRUE, legend = 'bottom', ncol = 1, nrow = 2)
-
-# path = file.path(folder, 'figures', 'se_panel.png')
-# ggsave(path, units="in", width=7, height=5)
-# print(panel)
-# dev.off()
