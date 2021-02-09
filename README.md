@@ -14,8 +14,8 @@ digital infrastructure strategies.
 Citation
 ---------
 
-- Oughton, E.J. (2021) Policy options for digital infrastructure strategies: A simulation
-  model for broadband universal service in Africa. arXiv:3592803  [cs, econ, q-fin].
+- Oughton, E., 2021. Policy options for digital infrastructure strategies: A simulation model
+  for broadband universal service in Africa. arXiv:2102.03561 [cs, econ, q-fin].
 
 
 Data analytics for broadband strategies
@@ -76,9 +76,9 @@ Activate it (run this each time you switch projects):
 
     conda activate podis
 
-First, install optional packages:
+First, install required packages:
 
-    conda install geopandas rasterio rasterstats
+    conda install geopandas rasterio rasterstats networkx seaborn descartes
 
 Then install podis:
 
@@ -131,9 +131,17 @@ First run the following initial preprocessing script to extract the necessary fi
 
     python scripts/preprocess.py
 
-Then
+Then the following to run the model:
 
-    python scripts/core.py
+    python scripts/run.py
+
+Once we have country results, we then need to prep them to scale to all of Africa:
+
+    python scripts/run.py
+
+Finally, the `vis` folder contains visualization scripts to generate plots:
+
+    python vis/vis.py
 
 
 Acknowledgements
