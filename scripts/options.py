@@ -146,40 +146,6 @@ OPTIONS = {
             'strategy': '4G_epc_wireless_baseline_srn_baseline_baseline_baseline',
         },
     ],
-    'integration_options': [
-        {
-            'scenario': 'baseline_10_10_10',
-            'strategy': '3G_epc_wireless_baseline_baseline_baseline_baseline_baseline',
-        },
-        {
-            'scenario': 'baseline_10_10_10',
-            'strategy': '3G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
-        },
-        {
-            'scenario': 'baseline_10_10_10',
-            'strategy': '4G_epc_wireless_baseline_baseline_baseline_baseline_baseline',
-        },
-        {
-            'scenario': 'baseline_10_10_10',
-            'strategy': '4G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
-        },
-        {
-            'scenario': 'baseline_10_10_10',
-            'strategy': '3G_epc_wireless_baseline_baseline_baseline_baseline_integration',
-        },
-        {
-            'scenario': 'baseline_10_10_10',
-            'strategy': '3G_epc_fiber_baseline_baseline_baseline_baseline_integration',
-        },
-        {
-            'scenario': 'baseline_10_10_10',
-            'strategy': '4G_epc_wireless_baseline_baseline_baseline_baseline_integration',
-        },
-        {
-            'scenario': 'baseline_10_10_10',
-            'strategy': '4G_epc_fiber_baseline_baseline_baseline_baseline_integration',
-        },
-    ]
 }
 
 

@@ -20,7 +20,7 @@ from fiona.crs import from_epsg
 import rasterio
 from rasterio.mask import mask
 from rasterstats import zonal_stats
-# import networkx as nx
+import networkx as nx
 from rtree import index
 import numpy as np
 import random
@@ -121,14 +121,6 @@ def process_country_shapes(country):
     single_country['geometry'] = single_country.apply(
         exclude_small_shapes, axis=1)
 
-    # print('Simplifying geometries')
-    # single_country['geometry'] = single_country.simplify(
-    #     tolerance = 0.0005,
-    #     preserve_topology=True).buffer(0.0001).simplify(
-    #     tolerance = 0.0005,
-    #     preserve_topology=True
-    # )
-
     print('Adding ISO country code and other global information')
     glob_info_path = os.path.join(BASE_PATH, 'global_information.csv')
     load_glob_info = pd.read_csv(glob_info_path, encoding = "ISO-8859-1")
@@ -182,13 +174,6 @@ def process_regions(country):
         print('Excluding small shapes')
         regions['geometry'] = regions.apply(exclude_small_shapes, axis=1)
 
-        # print('Simplifying geometries')
-        # regions['geometry'] = regions.simplify(
-        #     tolerance = 0.0005,
-        #     preserve_topology=True).buffer(0.0001).simplify(
-        #         tolerance = 0.0005,
-        #         preserve_topology=True
-        #     )
         try:
             print('Writing global_regions.shp to file')
             regions.to_file(path_processed, driver='ESRI Shapefile')
@@ -247,10 +232,8 @@ def process_settlement_layer(country):
 
     coords = [json.loads(geo.to_json())['features'][0]['geometry']]
 
-    #chop on coords
     out_img, out_transform = mask(settlements, coords, crop=True)
 
-    # Copy the metadata
     out_meta = settlements.meta.copy()
 
     out_meta.update({"driver": "GTiff",
@@ -590,6 +573,22 @@ def get_regional_data(country):
 
 def estimate_sites(data, iso3, backhaul_lut):
     """
+    Estimate the sites by region.
+
+    Parameters
+    ----------
+    data : dataframe
+        Pandas df with regional data.
+    iso3 : string
+        ISO3 country code.
+    backhaul_lut : dict
+        Lookup table of backhaul composition.
+
+    Returns
+    -------
+    output : list of dicts
+        All regional data with estimated sites.
+
     """
     output = []
 
@@ -700,6 +699,21 @@ def estimate_sites(data, iso3, backhaul_lut):
 
 def estimate_backhaul(iso3, region, year):
     """
+    Get the correct backhaul composition for the region.
+
+    Parameters
+    ----------
+    iso3 : string
+        ISO3 country code.
+    region : string
+        The continent the country is part of.
+    year : int
+        The year of the backhaul composition desired.
+
+    Returns
+    -------
+    output : list of dicts
+        All regional data with estimated sites.
 
     """
     output = []
@@ -720,7 +734,17 @@ def estimate_backhaul(iso3, region, year):
 
 def estimate_backhaul_type(backhaul_lut):
     """
-    Estimate backhaul type.
+    Process the tower backhaul lut.
+
+    Parameters
+    ----------
+    backhaul_lut : dict
+        Lookup table of backhaul composition.
+
+    Returns
+    -------
+    output : dict
+        Tower backhaul lookup table.
 
     """
     output = {}
@@ -746,7 +770,18 @@ def estimate_backhaul_type(backhaul_lut):
 
 def area_of_polygon(geom):
     """
-    Returns the area of a polygon. Assume WGS84 as crs.
+    Returns the area of a polygon. Assume WGS84 before converting
+    to projected crs.
+
+    Parameters
+    ----------
+    geom : shapely geometry
+        A shapely geometry object.
+
+    Returns
+    -------
+    poly_area : int
+        Area of polygon in square kilometers.
 
     """
     geod = pyproj.Geod(ellps="WGS84")
@@ -755,19 +790,29 @@ def area_of_polygon(geom):
         geom
     )
 
-    return abs(poly_area)
+    return abs(int(poly_area))
 
 
 def length_of_line(geom):
     """
     Returns the length of a linestring. Assume WGS84 as crs.
 
+    Parameters
+    ----------
+    geom : shapely geometry
+        A shapely geometry object.
+
+    Returns
+    -------
+    total_length : int
+        Length of the linestring given in kilometers.
+
     """
     geod = pyproj.Geod(ellps="WGS84")
 
     total_length = geod.line_length(*geom.xy)
 
-    return abs(total_length)
+    return abs(int(total_length))
 
 
 def estimate_numers_of_sites(linear_regressor, x_value):
@@ -889,6 +934,7 @@ def estimate_core_nodes(iso3, pop_density_km2, settlement_size):
     This function identifies settlements which exceed a desired settlement
     size. It is assumed fiber exists at settlements over, for example,
     20,000 inhabitants.
+
     Parameters
     ----------
     iso3 : string
@@ -897,10 +943,12 @@ def estimate_core_nodes(iso3, pop_density_km2, settlement_size):
         Population density threshold for identifying built up areas.
     settlement_size : int
         Overall sittelement size assumption, e.g. 20,000 inhabitants.
+
     Returns
     -------
     output : list of dicts
         Identified major settlements as Geojson objects.
+
     """
     path = os.path.join(DATA_INTERMEDIATE, iso3, 'settlements.tif')
 
@@ -951,16 +999,19 @@ def estimate_core_nodes(iso3, pop_density_km2, settlement_size):
 def get_points_inside_country(nodes, iso3):
     """
     Check settlement locations lie inside target country.
+
     Parameters
     ----------
     nodes : dataframe
         A geopandas dataframe containing settlement nodes.
     iso3 : string
         ISO 3 digit country code.
+
     Returns
     -------
     nodes : dataframe
         A geopandas dataframe containing settlement nodes.
+
     """
     filename = 'national_outline.shp'
     path = os.path.join(DATA_INTERMEDIATE, iso3, filename)
@@ -979,6 +1030,12 @@ def get_points_inside_country(nodes, iso3):
 def generate_agglomeration_lut(country):
     """
     Generate a lookup table of agglomerations.
+
+    Parameters
+    ----------
+    country : dict
+        Contains all country specfic information.
+
     """
     iso3 = country['iso3']
     regional_level = country['regional_level']
@@ -1108,6 +1165,12 @@ def generate_agglomeration_lut(country):
 def process_existing_fiber(country):
     """
     Load and process existing fiber data.
+
+    Parameters
+    ----------
+    country : dict
+        Contains all country specfic information.
+
     """
     iso3 = country['iso3']
     iso2 = country['iso2'].lower()
@@ -1176,6 +1239,12 @@ def find_nodes_on_existing_infrastructure(country):
     """
     Find those agglomerations which are within a buffered zone of
     existing fiber links.
+
+    Parameters
+    ----------
+    country : dict
+        Contains all country specfic information.
+
     """
     iso3 = country['iso3']
 
@@ -1221,6 +1290,21 @@ def find_nodes_on_existing_infrastructure(country):
 def find_nodes(country, regions):
     """
     Find key nodes.
+
+    Parameters
+    ----------
+    country : dict
+        Contains all country specfic information.
+    regions : dataframe
+        All regions to be assessed.
+
+    Returns
+    -------
+    interim : list of dicts
+        Contains geojson dicts for nodes.
+    missing_nodes : list
+        Contains the id of regions with missing nodes.
+
     """
     iso3 = country['iso3']
     regional_level = country['regional_level']
@@ -1303,7 +1387,26 @@ def find_nodes(country, regions):
 
 def get_missing_nodes(country, regions, missing_nodes, threshold, settlement_size):
     """
-    Find any missing nodes
+    Find any missing nodes.
+
+    Parameters
+    ----------
+    country : dict
+        Contains all country specfic information.
+    regions : dataframe
+        All regions to be assessed.
+    missing_nodes : list
+        Contains the id of regions with missing nodes.
+    threshold : int
+        Population density threshold in persons per square kilometer.
+    settlement_size : int
+        Overall settlement size threshold.
+
+    Returns
+    -------
+    interim : list of dicts
+        Contains geojson dicts for nodes.
+
     """
     iso3 = country['iso3']
     regional_level = country['regional_level']
@@ -1380,6 +1483,13 @@ def get_missing_nodes(country, regions, missing_nodes, threshold, settlement_siz
 
 def find_regional_nodes(country):
     """
+    Find the nodes in each region.
+
+    Parameters
+    ----------
+    country : dict
+        Contains all country specfic information.
+
     """
     iso3 = country['iso3']
     regional_level = country['regional_level']
@@ -1507,72 +1617,15 @@ def find_regional_nodes(country):
     return print('Completed regional node estimation')
 
 
-def fit_edges(input_path, output_path):
-    """
-    Fit edges to nodes using a minimum spanning tree.
-    Parameters
-    ----------
-    path : string
-        Path to nodes shapefile.
-    """
-    folder = os.path.dirname(output_path)
-    if not os.path.exists(folder):
-        os.makedirs(folder)
-
-    nodes = gpd.read_file(input_path, crs='epsg:4326')
-    nodes = nodes.to_crs('epsg:3857')
-
-    all_possible_edges = []
-
-    for node1_id, node1 in nodes.iterrows():
-        for node2_id, node2 in nodes.iterrows():
-            if node1_id != node2_id:
-                geom1 = shape(node1['geometry'])
-                geom2 = shape(node2['geometry'])
-                line = LineString([geom1, geom2])
-                all_possible_edges.append({
-                    'type': 'Feature',
-                    'geometry': mapping(line),
-                    'properties':{
-                        # 'network_layer': 'core',
-                        'from': node1_id,
-                        'to':  node2_id,
-                        'length': line.length,
-                        'source': 'new',
-                    }
-                })
-    if len(all_possible_edges) == 0:
-        return
-
-    G = nx.Graph()
-
-    for node_id, node in enumerate(nodes):
-        G.add_node(node_id, object=node)
-
-    for edge in all_possible_edges:
-        G.add_edge(edge['properties']['from'], edge['properties']['to'],
-            object=edge, weight=edge['properties']['length'])
-
-    tree = nx.minimum_spanning_edges(G)
-
-    edges = []
-
-    for branch in tree:
-        link = branch[2]['object']
-        if link['properties']['length'] > 0:
-            edges.append(link)
-
-    edges = gpd.GeoDataFrame.from_features(edges, crs='epsg:3857')
-
-    if len(edges) > 0:
-        edges = edges.to_crs('epsg:4326')
-        edges.to_file(output_path)
-
-    return
-
-
 def prepare_edge_fitting(country):
     """
+    Meta function for fitting edges to nodes using a minimum spanning tree.
+
+    Parameters
+    ----------
+    country : dict
+        Contains all country specfic information.
+
     """
     folder = os.path.join(DATA_INTERMEDIATE, country['iso3'])
     core_edges_path = os.path.join(folder, 'network_existing', 'core_edges_existing.shp')
@@ -1636,8 +1689,83 @@ def prepare_edge_fitting(country):
         output.to_file(path, crs='epsg:4326')
 
 
+def fit_edges(input_path, output_path):
+    """
+    Fit edges to nodes using a minimum spanning tree.
+
+    Parameters
+    ----------
+    input_path : string
+        Path to nodes shapefile.
+    output_path : string
+        Path to write edges to as shapefiles.
+
+    """
+    folder = os.path.dirname(output_path)
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+
+    nodes = gpd.read_file(input_path, crs='epsg:4326')
+    nodes = nodes.to_crs('epsg:3857')
+
+    all_possible_edges = []
+
+    for node1_id, node1 in nodes.iterrows():
+        for node2_id, node2 in nodes.iterrows():
+            if node1_id != node2_id:
+                geom1 = shape(node1['geometry'])
+                geom2 = shape(node2['geometry'])
+                line = LineString([geom1, geom2])
+                all_possible_edges.append({
+                    'type': 'Feature',
+                    'geometry': mapping(line),
+                    'properties':{
+                        # 'network_layer': 'core',
+                        'from': node1_id,
+                        'to':  node2_id,
+                        'length': line.length,
+                        'source': 'new',
+                    }
+                })
+    if len(all_possible_edges) == 0:
+        return
+
+    G = nx.Graph()
+
+    for node_id, node in enumerate(nodes):
+        G.add_node(node_id, object=node)
+
+    for edge in all_possible_edges:
+        G.add_edge(edge['properties']['from'], edge['properties']['to'],
+            object=edge, weight=edge['properties']['length'])
+
+    tree = nx.minimum_spanning_edges(G)
+
+    edges = []
+
+    for branch in tree:
+        link = branch[2]['object']
+        if link['properties']['length'] > 0:
+            edges.append(link)
+
+    edges = gpd.GeoDataFrame.from_features(edges, crs='epsg:3857')
+
+    if len(edges) > 0:
+        edges = edges.to_crs('epsg:4326')
+        edges.to_file(output_path)
+
+    return
+
+
 def fit_regional_edges(country):
     """
+    Fit the regional network edges.
+
+    Parameters
+    ----------
+    country : dict
+        Contains all country specfic information.
+
     """
     iso3 = country['iso3']
     regional_level = country['regional_level']
@@ -1652,14 +1780,17 @@ def fit_regional_edges(country):
     for unique_region in unique_regions:
 
         input_path = os.path.join(folder, 'regional_nodes', unique_region + '.shp')
-        output_path = os.path.join(DATA_INTERMEDIATE, country['iso3'], 'network', 'regional_edges', unique_region + '.shp')
+        output_path = os.path.join(DATA_INTERMEDIATE, country['iso3'],
+            'network', 'regional_edges', unique_region + '.shp')
         fit_edges(input_path, output_path)
 
     output = []
 
     for unique_region in unique_regions:
 
-        path = os.path.join(DATA_INTERMEDIATE, country['iso3'], 'network', 'regional_edges', unique_region + '.shp')
+        path = os.path.join(DATA_INTERMEDIATE, country['iso3'], 'network',
+            'regional_edges', unique_region + '.shp')
+
         if os.path.exists(path):
             regional_edges = gpd.read_file(path, crs='epsg:4326')
 
@@ -1682,6 +1813,12 @@ def fit_regional_edges(country):
 def generate_core_lut(country):
     """
     Generate core lut.
+
+    Parameters
+    ----------
+    country : dict
+        Contains all country specfic information.
+
     """
     iso3 = country['iso3']
     level = country['regional_level']
@@ -1812,144 +1949,15 @@ def generate_core_lut(country):
     return print('Completed core lut')
 
 
-def generate_backhaul_lut(country):
-    """
-    Simulate backhaul distance given a 100km^2 area.
-      Simulations show that for every 10x increase in node density,
-      there is a 3.2x decrease in backhaul length.
-    node_density_km2	average_distance_km
-    0.000001	606.0	10	 3.2
-    0.00001	189.0	10	 3.8
-    0.0001	50.0	10	 3.1
-    0.001	16.0	10	 3.2
-    0.01	5.0	10	 3.2
-    0.1	1.6	10	 3.2
-    1	0.5
-    """
-    filename = 'backhaul_lut.csv'
-    folder = os.path.join(DATA_INTERMEDIATE)
-    path = os.path.join(folder, filename)
-
-    if os.path.exists(path):
-        return print('Backhaul LUT already generated')
-
-    output = []
-
-    number_of_regional_nodes_range = [1, 10, 100, 1000, 10000]
-
-    area_km2 = 1e6
-
-    for number_of_regional_nodes in number_of_regional_nodes_range:
-
-        sites = []
-
-        for i in range(1, int(round(max(number_of_regional_nodes_range) + 1))):
-            x = random.uniform(0, round(math.sqrt(area_km2)))
-            y = random.uniform(0, round(math.sqrt(area_km2)))
-            sites.append({
-                'geometry': {
-                    'type': 'Point',
-                    'coordinates': (x, y)
-                },
-                'properties': {
-                    'id': i
-                }
-            })
-
-        regional_nodes = []
-
-        for i in range(1, number_of_regional_nodes + 1):
-            x = random.uniform(0, round(math.sqrt(area_km2)))
-            y = random.uniform(0, round(math.sqrt(area_km2)))
-            regional_nodes.append({
-                'geometry': {
-                    'type': 'Point',
-                    'coordinates': (x, y)
-                },
-                'properties': {
-                    'id': i
-                }
-            })
-
-        distances = []
-
-        idx = index.Index()
-
-        for regional_node in regional_nodes:
-            idx.insert(
-                regional_node['properties']['id'],
-                shape(regional_node['geometry']).bounds,
-                regional_node)
-
-        for site in sites:
-
-            geom1 = shape(site['geometry'])
-
-            nearest_regional_node = [i for i in idx.nearest((geom1.bounds))][0]
-
-            for regional_node in regional_nodes:
-                if regional_node['properties']['id'] == nearest_regional_node:
-
-                    x1 = site['geometry']['coordinates'][0]
-                    x2 = regional_node['geometry']['coordinates'][0]
-                    y1 = site['geometry']['coordinates'][1]
-                    y2 = regional_node['geometry']['coordinates'][1]
-
-                    distance = math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
-
-                    distances.append(distance)
-
-        output.append({
-            'node_density_km2': round(number_of_regional_nodes / area_km2, 8),
-            'average_distance_km': int(round(sum(distances) / len(distances))),
-        })
-
-    output = pd.DataFrame(output)
-    output.to_csv(path, index=False)
-
-    return print('Completed backhaul LUT processing')
-
-
-def load_subscription_data(path, iso3):
-    """
-    Load in itu cell phone subscription data.
-    Parameters
-    ----------
-    path : string
-        Location of itu data as .csv.
-    country : string
-        ISO3 digital country code.
-    country_lut : list of dicts
-        Lookup table containing country name to ISO3 digit code.
-    Returns
-    -------
-    output :
-        Time series data of cell phone subscriptions.
-    """
-    output = []
-
-    historical_data = pd.read_csv(path, encoding = "ISO-8859-1")
-    historical_data = historical_data.to_dict('records')
-
-    scenarios = ['low', 'baseline', 'high']
-
-    for scenario in scenarios:
-        for year in range(2010, 2021):
-            year = str(year)
-            for item in historical_data:
-                if item['iso3'] == iso3:
-                    output.append({
-                        'scenario': scenario,
-                        'country': iso3,
-                        'penetration': float(item[year]) * 100,
-                        'year':  year,
-                    })
-
-    return output
-
-
 def forecast_subscriptions(country):
     """
+    Forecast the number of unique cellular subscriptions.
+
+    Parameters
+    ----------
+    country : dict
+        Contains all country specfic information.
+
     """
     iso3 = country['iso3']
 
@@ -1983,9 +1991,49 @@ def forecast_subscriptions(country):
     return print('Completed subscription forecast')
 
 
+def load_subscription_data(path, iso3):
+    """
+    Load in itu cell phone subscription data.
+
+    Parameters
+    ----------
+    path : string
+        Location of itu data as .csv.
+    iso3 : string
+        ISO3 digital country code.
+
+    Returns
+    -------
+    output : list of dicts
+        Time series data of cell phone subscriptions.
+
+    """
+    output = []
+
+    historical_data = pd.read_csv(path, encoding = "ISO-8859-1")
+    historical_data = historical_data.to_dict('records')
+
+    scenarios = ['low', 'baseline', 'high']
+
+    for scenario in scenarios:
+        for year in range(2010, 2021):
+            year = str(year)
+            for item in historical_data:
+                if item['iso3'] == iso3:
+                    output.append({
+                        'scenario': scenario,
+                        'country': iso3,
+                        'penetration': float(item[year]) * 100,
+                        'year':  year,
+                    })
+
+    return output
+
+
 def forecast_linear(country, historical_data, start_point, end_point, horizon):
     """
     Forcasts subscription adoption rate.
+
     Parameters
     ----------
     historical_data : list of dicts
@@ -1996,6 +2044,12 @@ def forecast_linear(country, historical_data, start_point, end_point, horizon):
         Final year of forecast period.
     horizon : int
         Number of years to use to estimate mean growth rate.
+
+    Returns
+    -------
+    output : list of dicts
+        Time series data of cell phone subscriptions.
+
     """
     output = []
 
@@ -2036,13 +2090,14 @@ def forecast_smartphones(country):
 
     Parameters
     ----------
-    historical_data : list of dicts
-        Past penetration data.
+    country : dict
+        Contains all country specfic information.
 
     """
     iso3 = country['iso3']
 
-    path = os.path.join(DATA_RAW, 'wb_smartphone_survey', 'wb_smartphone_survey.csv')
+    filename = 'wb_smartphone_survey.csv'
+    path = os.path.join(DATA_RAW, 'wb_smartphone_survey', filename)
     survey_data = load_smartphone_data(path, country)
 
     start_point = 2020
@@ -2118,6 +2173,22 @@ def load_smartphone_data(path, country):
 def forecast_smartphones_linear(data, country, start_point, end_point):
     """
     Forecast smartphone adoption.
+
+    Parameters
+    ----------
+    data : list of dicts
+        Survey data.
+    country : string
+        ISO3 digital country code.
+    start_point : int
+        Starting year of forecast period.
+    end_point : int
+        Final year of forecast period.
+
+    Returns
+    -------
+    output : list of dicts
+        Time series forecast of smartphone penetration.
 
     """
     output = []
@@ -2210,47 +2281,44 @@ if __name__ == '__main__':
 
     for country in countries:
 
-        # print('Processing country boundary')
-        # process_country_shapes(country)
+        print('Processing country boundary')
+        process_country_shapes(country)
 
-        # print('Processing regions')
-        # process_regions(country)
+        print('Processing regions')
+        process_regions(country)
 
-        # print('Processing settlement layer')
-        # process_settlement_layer(country)
+        print('Processing settlement layer')
+        process_settlement_layer(country)
 
-        # print('Processing night lights')
-        # process_night_lights(country)
+        print('Processing night lights')
+        process_night_lights(country)
 
-        # print('Processing coverage shapes')
-        # process_coverage_shapes(country)
+        print('Processing coverage shapes')
+        process_coverage_shapes(country)
 
-        # print('Getting regional data')
-        # get_regional_data(country)
+        print('Getting regional data')
+        get_regional_data(country)
 
-        # print('Generating agglomeration lookup table')
-        # generate_agglomeration_lut(country)
+        print('Generating agglomeration lookup table')
+        generate_agglomeration_lut(country)
 
-        # print('Load existing fiber infrastructure')
-        # process_existing_fiber(country)
+        print('Load existing fiber infrastructure')
+        process_existing_fiber(country)
 
-        # print('Estimate existing nodes')
-        # find_nodes_on_existing_infrastructure(country)
+        print('Estimate existing nodes')
+        find_nodes_on_existing_infrastructure(country)
 
-        # print('Find regional nodes')
-        # find_regional_nodes(country)
+        print('Find regional nodes')
+        find_regional_nodes(country)
 
-        # print('Fit edges')
-        # prepare_edge_fitting(country)
+        print('Fit edges')
+        prepare_edge_fitting(country)
 
-        # print('Fit regional edges')
-        # fit_regional_edges(country)
+        print('Fit regional edges')
+        fit_regional_edges(country)
 
-        # print('Create core lookup table')
-        # generate_core_lut(country)
-
-        # print('Create backhaul lookup table')
-        # generate_backhaul_lut(country)
+        print('Create core lookup table')
+        generate_core_lut(country)
 
         print('Create subscription forcast')
         forecast_subscriptions(country)

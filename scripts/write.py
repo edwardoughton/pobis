@@ -69,6 +69,7 @@ def write_results(regional_results, folder, metric):
         national_results['total_mno_cost'] / national_results['phones_on_network'])
     national_results['cost_per_smartphone_user'] = (
         national_results['total_mno_cost'] / national_results['smartphones_on_network'])
+
     path = os.path.join(folder,'national_mno_results_{}.csv'.format(metric))
     national_results.to_csv(path, index=True)
 
@@ -99,6 +100,10 @@ def write_results(regional_results, folder, metric):
             (national_cost_results['spectrum_cost'] + national_cost_results['tax']))
     national_cost_results['social_cost'] = (
         national_cost_results['private_cost'] + national_cost_results['government_cost'])
+    national_cost_results['required_efficiency_saving'] = (
+        national_cost_results['government_cost'] /
+        national_cost_results['private_cost'] * 100)
+
     path = os.path.join(folder,'national_mno_cost_results_{}.csv'.format(metric))
     national_cost_results.to_csv(path, index=True)
 
@@ -130,6 +135,7 @@ def write_results(regional_results, folder, metric):
         decile_results['total_mno_cost'] / decile_results['phones_on_network'])
     decile_results['cost_per_smartphone_user'] = (
         decile_results['total_mno_cost'] / decile_results['smartphones_on_network'])
+
     path = os.path.join(folder,'decile_mno_results_{}.csv'.format(metric))
     decile_results.to_csv(path, index=True)
 
@@ -158,6 +164,7 @@ def write_results(regional_results, folder, metric):
             (decile_cost_results['spectrum_cost'] + decile_cost_results['tax']))
     decile_cost_results['social_cost'] = (
         decile_cost_results['private_cost'] + decile_cost_results['government_cost'])
+
     path = os.path.join(folder,'decile_mno_cost_results_{}.csv'.format(metric))
     decile_cost_results.to_csv(path, index=True)
 
@@ -177,7 +184,9 @@ def write_results(regional_results, folder, metric):
     regional_mno_results['cost_per_network_user'] = (
         regional_mno_results['total_mno_cost'] / regional_mno_results['phones_on_network'])
     regional_mno_results['cost_per_smartphone_user'] = (
-        regional_mno_results['total_mno_cost'] / regional_mno_results['smartphones_on_network'])
+        regional_mno_results['total_mno_cost'] /
+        regional_mno_results['smartphones_on_network'])
+
     path = os.path.join(folder,'regional_mno_results_{}.csv'.format(metric))
     regional_mno_results.to_csv(path, index=True)
 
@@ -199,9 +208,9 @@ def write_results(regional_results, folder, metric):
         national_results['total_market_cost'] / national_results['total_phones'])
     national_results['cost_per_smartphone_user'] = (
         national_results['total_market_cost'] / national_results['total_smartphones'])
+
     path = os.path.join(folder,'national_market_results_{}.csv'.format(metric))
     national_results.to_csv(path, index=True)
-
 
     #=cost / market share * 100
     print('Writing national market cost composition results')
@@ -232,6 +241,10 @@ def write_results(regional_results, folder, metric):
             (national_cost_results['total_spectrum_cost'] + national_cost_results['total_tax']))
     national_cost_results['social_cost'] = (
         national_cost_results['private_cost'] + national_cost_results['government_cost'])
+    national_cost_results['required_efficiency_saving'] = (
+        national_cost_results['government_cost'] /
+        national_cost_results['private_cost'] * 100)
+
     path = os.path.join(folder,'national_market_cost_results_{}.csv'.format(metric))
     national_cost_results.to_csv(path, index=True)
 
@@ -253,6 +266,7 @@ def write_results(regional_results, folder, metric):
         decile_results['total_market_cost'] / decile_results['total_phones'])
     decile_results['cost_per_smartphone_user'] = (
         decile_results['total_market_cost'] / decile_results['total_smartphones'])
+
     path = os.path.join(folder,'decile_market_results_{}.csv'.format(metric))
     decile_results.to_csv(path, index=True)
 
@@ -279,6 +293,7 @@ def write_results(regional_results, folder, metric):
     decile_cost_results['cost_per_smartphone_user'] = (
         decile_cost_results['total_market_cost'] /
         decile_cost_results['total_smartphones'])
+
     path = os.path.join(folder,'decile_market_cost_results_{}.csv'.format(metric))
     decile_cost_results.to_csv(path, index=True)
 
@@ -300,5 +315,6 @@ def write_results(regional_results, folder, metric):
     regional_market_results['cost_per_smartphone_user'] = (
         regional_market_results['total_market_cost'] /
         regional_market_results['total_smartphones'])
+
     path = os.path.join(folder,'regional_market_results_{}.csv'.format(metric))
     regional_market_results.to_csv(path, index=True)
