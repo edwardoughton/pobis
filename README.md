@@ -60,6 +60,17 @@ estimate the required state subsidy needed to achieve universal broadband.
   <img src="/figures/government_cost.png" />
 </p>
 
+The strength of the codebase is that once the detailed country modeling has been undertaken, it
+is possible to use those results to develop costs based on population density. This means that
+insights can be developed for the costs of serving all countries across the African continent
+at the sub-national level, as illustrated in the graphic below.
+
+## Estimating the sub-national cost for universal broadband across all countries
+
+<p align="center">
+  <img src="/figures/sub_national_cost_per_square_km.png" />
+</p>
+
 
 Using conda
 ==========
