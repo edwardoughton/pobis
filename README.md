@@ -76,8 +76,7 @@ Using conda
 ==========
 
 The recommended installation method is to use conda, which handles packages and virtual
-environments, along with the conda-forge channel which has a host of pre-built libraries and
-packages.
+environments, along with the conda-forge channel which has a host of pre-built libraries and packages.
 
 Create a conda environment called podis:
 
@@ -138,17 +137,25 @@ Once complete, run the following to preprocess all data:
 Using the model
 ===============
 
-First run the following initial preprocessing script to extract the necessary files:
+First, if you have site data, run the following initial preprocessing script:
 
-    python scripts/preprocess.py
+    python scripts/prep1.py
 
-Then the following to run the model:
+Then run the second preprocessing script, as follows:
+
+    python scripts/prep2.py
+
+You can then run the model for the countries selected for detailed modeling:
 
     python scripts/run.py
 
-Once we have country results, we then need to prep them to scale to all of Africa:
+Next, we then need to prep data for all African countries before scaling the results:
 
-    python scripts/run.py
+    python scripts/prep_uba.py
+
+And now we can estimate the costs of all African countries:
+
+    python scripts/user_costs.py
 
 Finally, the `vis` folder contains visualization scripts to generate plots:
 
