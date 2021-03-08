@@ -288,24 +288,21 @@ if __name__ == '__main__':
         'equipment': 40000,
         'site_build': 30000,
         'installation': 30000,
-        'site_rental_urban': 15000,
-        'site_rental_suburban': 9900,
-        'site_rental_rural': 2000,
         'operation_and_maintenance': 7400,
-        'power': 2200,
-        'wireless_small': 10000,
-        'wireless_medium': 20000,
-        'wireless_large': 40000,
+        'power': 3000,
+        'site_rental_urban': 10000,
+        'site_rental_suburban': 5000,
+        'site_rental_rural': 3000,
         'fiber_urban_m': 25,
         'fiber_suburban_m': 15,
         'fiber_rural_m': 10,
+        'wireless_small': 15000,
+        'wireless_medium': 20000,
+        'wireless_large': 45000,
         'core_node_epc': 500000,
-        'core_edge': 20,
+        'core_edge': 25,
         'regional_node_epc': 200000,
-        'regional_edge': 20,
-        # 'per_site_spectrum_acquisition_cost': 500,
-        # 'per_site_administration_cost': 500,
-        # 'per_site_facilities_cost': 500,
+        'regional_edge': 25,
     }
 
     GLOBAL_PARAMETERS = {
@@ -314,7 +311,7 @@ if __name__ == '__main__':
         'discount_rate': 5,
         'opex_percentage_of_capex': 10,
         'confidence': [50],#[5, 50, 95]
-        'regional_integration_factor': 20,
+        # 'regional_integration_factor': 20,
         }
 
     path = os.path.join(DATA_RAW, 'pysim5g', 'capacity_lut_by_frequency.csv')
@@ -326,11 +323,9 @@ if __name__ == '__main__':
         {'iso3': 'CIV', 'iso2': 'CI', 'regional_level': 2, 'regional_nodes_level': 1},
         {'iso3': 'KEN', 'iso2': 'KE', 'regional_level': 3, 'regional_nodes_level': 2},
         {'iso3': 'MLI', 'iso2': 'ML', 'regional_level': 2, 'regional_nodes_level': 2},
-        # {'iso3': 'SEN-MLI-CIV', 'iso2': 'SN-ML-CI', 'regional_level': 2, 'regional_nodes_level': 2},
         {'iso3': 'SEN', 'iso2': 'SN', 'regional_level': 2, 'regional_nodes_level': 2},
         {'iso3': 'TZA', 'iso2': 'TZ', 'regional_level': 2, 'regional_nodes_level': 1},
         {'iso3': 'UGA', 'iso2': 'UG', 'regional_level': 2, 'regional_nodes_level': 2},
-        # {'iso3': 'KEN-TZA-UGA', 'iso2': 'KE-TZ-UG', 'regional_level': 2, 'regional_nodes_level': 2},
         ]
 
     decision_options = [
@@ -377,7 +372,7 @@ if __name__ == '__main__':
             print('Working on {} in {}'.format(decision_option, iso3))
             print(' ')
 
-            for option in options:#[:3]:
+            for option in options:#[:1]:
 
                 print('Working on {} and {}'.format(option['scenario'], option['strategy']))
 
