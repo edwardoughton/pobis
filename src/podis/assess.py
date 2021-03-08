@@ -216,9 +216,16 @@ def calculate_profit(region, country_parameters):
     """
     Estimate npv profit.
 
+    This is treated as the Net Operating Profit After
+    Taxes Margin (NOPAT).
+
+    NOPAT ranges from ~5-15% depending on the context:
+    https://static1.squarespace.com/static/54922abde4b0afbec1351c14/t/583c49c8bebafb758437374e
+
     """
     investment = (
         region['network_cost'] +
+        region['administration'] +
         region['spectrum_cost'] +
         region['tax']
     )

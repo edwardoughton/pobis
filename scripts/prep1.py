@@ -11,7 +11,7 @@ import csv
 import configparser
 import pandas as pd
 import geopandas as gpd
-import xlrd
+import openpyxl
 import numpy as np
 from shapely.geometry import MultiPolygon
 from shapely.ops import transform, unary_union
@@ -35,8 +35,6 @@ def process_country_shape(country):
         Three digit ISO country code.
 
     """
-    print('----')
-
     iso3 = country['iso3']
 
     path = os.path.join(DATA_INTERMEDIATE, iso3)
@@ -45,28 +43,23 @@ def process_country_shape(country):
         return 'Completed national outline processing'
 
     if not os.path.exists(path):
-        print('Creating directory {}'.format(path))
         os.makedirs(path)
+
     shape_path = os.path.join(path, 'national_outline.shp')
 
-    print('Loading all country shapes')
     path = os.path.join(DATA_RAW, '..', 'gadm36_levels_shp', 'gadm36_0.shp')
     countries = gpd.read_file(path)
 
-    print('Getting specific country shape for {}'.format(iso3))
     single_country = countries[countries.GID_0 == iso3]
 
-    print('Excluding small shapes')
     single_country['geometry'] = single_country.apply(
         exclude_small_shapes, axis=1)
 
-    print('Adding ISO country code and other global information')
     glob_info_path = os.path.join(BASE_PATH, 'global_information.csv')
     load_glob_info = pd.read_csv(glob_info_path, encoding = "ISO-8859-1")
     single_country = single_country.merge(
         load_glob_info,left_on='GID_0', right_on='ISO_3digit')
 
-    print('Exporting processed country shape')
     single_country.to_file(shape_path, driver='ESRI Shapefile')
 
     return print('Processing country shape complete')
@@ -97,9 +90,6 @@ def process_regions(country):
         if os.path.exists(path_processed):
             continue
 
-        print('----')
-        print('Working on {} level {}'.format(iso3, regional_level))
-
         if not os.path.exists(folder):
             os.mkdir(folder)
 
@@ -107,22 +97,19 @@ def process_regions(country):
         path_regions = os.path.join(DATA_RAW, '..',  'gadm36_levels_shp', filename)
         regions = gpd.read_file(path_regions)
 
-        print('Subsetting {} level {}'.format(iso3, regional_level))
         regions = regions[regions.GID_0 == iso3]
 
-        print('Excluding small shapes')
         regions['geometry'] = regions.apply(exclude_small_shapes, axis=1)
 
         try:
-            print('Writing global_regions.shp to file')
             regions.to_file(path_processed, driver='ESRI Shapefile')
         except:
             print('Unable to write {}'.format(filename))
             pass
 
-    print('Completed processing of regional shapes level {}'.format(level))
+        print('Completed processing of regional shapes level {}'.format(level))
 
-    return print('complete')
+    return
 
 
 def exclude_small_shapes(x):
@@ -333,17 +320,26 @@ def process_kenya():
     path = os.path.join(DATA_INTERMEDIATE, 'KEN', 'regions', 'regions_2_KEN.shp')
     regions = load_regions(path)
 
-    path = os.path.join(DATA_RAW, 'KEN', 'Telkom Data.xlsx')
-    sites_2G = load_2G_kenya(path, regions, folder)
+    path = os.path.join(DATA_RAW, 'KEN', 'Operators_Mobile_Transmitters_Data.csv')
+    df = pd.read_csv(path)
 
-    path = os.path.join(DATA_RAW, 'KEN', 'Telkom Data.xlsx')
-    sites_3G = load_3G_kenya(path, regions, folder)
+    df = df[['SiteID', 'LONGITUDE', 'LATITUDE']]
+    df = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.LONGITUDE, df.LATITUDE), crs='epsg:4326')
+    df = df.loc[df['LONGITUDE'] < 100]
 
-    path = os.path.join(DATA_RAW, 'KEN', 'Telkom Data.xlsx')
-    sites_4G = load_4G_kenya(path, regions, folder)
+    df = df.dropna()
+    print('Unique cells in Kenya: {}'.format(len(df)))
 
-    sites = [sites_2G, sites_3G, sites_4G]
-    sites = pd.concat(sites)
+    df = df.drop_duplicates(['SiteID'])
+    print('Unique cell sites in Kenya: {}'.format(len(df)))
+
+    df.to_file(os.path.join(folder, 'sites.shp'), crs='epsg:4326')
+
+    f = lambda x:np.sum(df.intersects(x))
+    regions['sites'] = regions['geometry'].apply(f)
+
+    sites = regions[['GID_2', 'sites']].copy()
+    sites['tech'] = '2G'
 
     sites.rename(columns = {'GID_2':'GID_id'}, inplace = True)
     sites['GID_level'] = 2
@@ -351,127 +347,7 @@ def process_kenya():
     sites = sites[['GID_id', 'sites']]
     sites = sites.groupby(['GID_id'], as_index=False).sum()
 
-    print('Writing Kenya csv data')
     sites.to_csv(os.path.join(folder, 'sites.csv'), index=False)
-
-
-def load_2G_kenya(path, regions, folder):
-    """
-    Load the 2G sites for Kenya.
-
-    Parameters
-    ---------
-    path : string
-        Path to site data.
-    regions : dataframe
-        All regional data.
-    folder : string
-        Output folder.
-
-    Returns
-    -------
-    sites_2G : dataframe
-        All sites.
-
-    """
-    print('Loading 2G')
-    df_2G = pd.read_excel(path, '2G TRXs 2019_2020')
-    df_2G = df_2G[['CELL ID', 'SITE ID', 'LAT', 'LON']]
-    df_2G = gpd.GeoDataFrame(
-        df_2G, geometry=gpd.points_from_xy(df_2G.LON, df_2G.LAT))
-    df_2G = df_2G.dropna()
-    df_2G = df_2G.drop_duplicates(['SITE ID'])
-
-    print('Writing 2G shapes')
-    df_2G.to_file(os.path.join(folder, '2G.shp'), crs='epsg:4326')
-
-    f = lambda x:np.sum(df_2G.intersects(x))
-    regions['sites'] = regions['geometry'].apply(f)
-
-    sites_2G = regions[['GID_2', 'sites']]
-    sites_2G['tech'] = '2G'
-
-    return sites_2G
-
-
-def load_3G_kenya(path, regions, folder):
-    """
-    Load the 3G sites for Kenya.
-
-    Parameters
-    ---------
-    path : string
-        Path to site data.
-    regions : dataframe
-        All regional data.
-    folder : string
-        Output folder.
-
-    Returns
-    -------
-    sites_3G : dataframe
-        All sites.
-
-    """
-    print('Loading 3G')
-    df_3G = pd.read_excel(path, '3G TRX 2019_2020')
-    df_3G = df_3G[['CELL ID', 'SITE ID', 'LAT', 'LON']]
-    df_3G = gpd.GeoDataFrame(
-        df_3G, geometry=gpd.points_from_xy(df_3G.LON, df_3G.LAT))
-    df_3G = df_3G.dropna()
-    df_3G = df_3G.drop_duplicates(['SITE ID'])
-
-    print('Writing 3G shapes')
-    df_3G.to_file(os.path.join(folder, '3G.shp'), crs='epsg:4326')
-
-    f = lambda x:np.sum(df_3G.intersects(x))
-    regions['sites'] = regions['geometry'].apply(f)
-
-    sites_3G = regions[['GID_2', 'sites']]
-    sites_3G['tech'] = '3G'
-
-    return sites_3G
-
-
-def load_4G_kenya(path, regions, folder):
-    """
-    Load the 4G sites for Kenya.
-
-    Parameters
-    ---------
-    path : string
-        Path to site data.
-    regions : dataframe
-        All regional data.
-    folder : string
-        Output folder.
-
-    Returns
-    -------
-    sites_4G : dataframe
-        All sites.
-
-    """
-    print('Loading 4G')
-    df_4G = pd.read_excel(path, '4G TRX 2019_2020')
-    df_4G = df_4G[['CELL ID', 'SITE ID', 'LAT', 'LON']]
-    df_4G = df_4G.dropna()
-
-    df_4G = gpd.GeoDataFrame(
-        df_4G, geometry=gpd.points_from_xy(df_4G.LON, df_4G.LAT))
-
-    df_4G = df_4G.drop_duplicates(['SITE ID'])
-
-    print('Writing 4G shapes')
-    df_4G.to_file(os.path.join(folder, '4G.shp'), crs='epsg:4326')
-
-    f = lambda x:np.sum(df_4G.intersects(x))
-    regions['sites'] = regions['geometry'].apply(f)
-
-    sites_4G = regions[['GID_2', 'sites']]
-    sites_4G['tech'] = '4G'
-
-    return sites_4G
 
 
 def process_senegal():
@@ -495,7 +371,26 @@ def process_senegal():
 
 def load_senegal(path, regions, folder):
     """
-    Load all data for Senegal.
+    Load all data for Senegal and process.
+
+    The data are for Orange Sonatel, therefore are not a complete
+    national dataset. In liaison with Sonatel, the company state
+    they have:
+
+    - Total sites: 2545
+    - Total 2G cells: 11,626
+    - Total 3G cells: 26,196
+    - Total 4G cells: 7,069
+
+    However, we don't have geographic data for these estimates.
+
+    The data available here yields only 15,302 cells, equating to
+    1,711 sites when dropping duplicates of the site name. Given
+    Sonatel has a ~54% market share, the number of sites per region
+    are increased to provide a national picture, based on the spatial
+    distribution of this geospatial data. This results in approximately
+    3,170 sites, which is very close to the 3,151 estimated by
+    TowerXchange.
 
     Parameters
     ---------
@@ -529,6 +424,9 @@ def load_senegal(path, regions, folder):
     regions.rename(columns = {'GID_2':'GID_id'}, inplace = True)
     regions['GID_level'] = 2
 
+    #Increase counts to obtain representive nation picture
+    regions['sites'] = round(regions['sites'].copy() / 54 * 100)
+
     print('Writing Senegal csv data')
     folder = os.path.join(DATA_INTERMEDIATE, 'SEN', 'sites')
     regions.to_csv(os.path.join(folder, 'sites.csv'), index=False)
@@ -536,75 +434,11 @@ def load_senegal(path, regions, folder):
     return
 
 
-def process_albania():
-    """
-    Process Albania.
-
-    """
-    print('Processing Albania data')
-    folder = os.path.join(DATA_INTERMEDIATE, 'ALB', 'sites')
-    if not os.path.exists(folder):
-        os.makedirs(folder)
-
-    path = os.path.join(DATA_INTERMEDIATE, 'ALB', 'regions', 'regions_2_ALB.shp')
-    regions = load_regions(path)
-
-    filename = 'all_data.csv'
-    path = os.path.join(DATA_RAW, 'ALB', filename)
-
-    sites = load_albania(path, regions, folder)
-    sites.to_csv(os.path.join(folder, 'sites.csv'), index=False)
-
-
-def load_albania(path, regions, folder):
-    """
-    Load site data for Albania.
-
-    Parameters
-    ---------
-    path : string
-        Path to site data.
-    regions : dataframe
-        All regional data.
-    folder : string
-        Output folder.
-
-    Returns
-    -------
-    sites : dataframe
-        All sites.
-
-    """
-    print('Reading Albania data')
-    sites = pd.read_csv(path, encoding = "ISO-8859-1")
-    sites = sites[['LATITUDE', 'LONGITUDE']]
-
-    #get sites not cells
-    sites = sites.drop_duplicates()
-    sites = gpd.GeoDataFrame(
-        sites, geometry=gpd.points_from_xy(sites.LONGITUDE, sites.LATITUDE))
-    sites = sites.dropna()
-
-    print('Writing 2G')
-    sites.to_file(os.path.join(folder, 'sites.shp'), crs='epsg:4326')
-
-    f = lambda x:np.sum(sites.intersects(x))
-    regions['sites'] = regions['geometry'].apply(f)
-
-    sites = regions[['GID_2', 'sites']]
-    sites['tech'] = '4G'
-    sites.rename(columns = {'GID_2':'GID_id'}, inplace = True)
-    sites['GID_level'] = 2
-
-    return sites
-
-
 if __name__ == "__main__":
 
     countries = [
         {'iso3': 'KEN', 'iso2': 'KE', 'regional_level': 2},
         {'iso3': 'SEN', 'iso2': 'SN', 'regional_level': 2},
-        {'iso3': 'ALB', 'iso2': 'AL', 'regional_level': 2},
     ]
 
     for country in countries:
@@ -623,6 +457,3 @@ if __name__ == "__main__":
 
         if country['iso3'] == 'SEN':
             process_senegal()
-
-        if country['iso3'] == 'ALB':
-            process_albania()

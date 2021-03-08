@@ -260,203 +260,6 @@ def process_settlement_layer(country):
     return print('Completed processing of settlement layer')
 
 
-# def process_night_lights(country):
-#     """
-#     Clip the nightlights layer to the chosen country boundary and place in
-#     desired country folder.
-
-#     Parameters
-#     ----------
-#     country : string
-#         Three digit ISO country code.
-
-#     """
-#     iso3 = country['iso3']
-
-#     folder = os.path.join(DATA_INTERMEDIATE, iso3)
-#     path_output = os.path.join(folder,'night_lights.tif')
-
-#     if os.path.exists(path_output):
-#         return print('Completed processing of nightlight layer')
-
-#     path_country = os.path.join(folder, 'national_outline.shp')
-
-#     filename = 'F182013.v4c_web.stable_lights.avg_vis.tif'
-#     path_night_lights = os.path.join(DATA_RAW, 'nightlights', '2013',
-#         filename)
-
-#     country = gpd.read_file(path_country)
-
-#     bbox = country.envelope
-
-#     geo = gpd.GeoDataFrame()
-#     geo = gpd.GeoDataFrame({'geometry': bbox}, crs=from_epsg('4326'))
-
-#     coords = [json.loads(geo.to_json())['features'][0]['geometry']]
-
-#     night_lights = rasterio.open(path_night_lights, "r+")
-#     night_lights.nodata = 0
-
-#     out_img, out_transform = mask(night_lights, coords, crop=True)
-
-#     out_meta = night_lights.meta.copy()
-
-#     out_meta.update({"driver": "GTiff",
-#                     "height": out_img.shape[1],
-#                     "width": out_img.shape[2],
-#                     "transform": out_transform,
-#                     "crs": 'epsg:4326'})
-
-#     with rasterio.open(path_output, "w", **out_meta) as dest:
-#             dest.write(out_img)
-
-#     return print('Completed processing of night lights layer')
-
-
-# def process_coverage_shapes(country):
-#     """
-#     Load in coverage maps, process and export for each country.
-
-#     Parameters
-#     ----------
-#     country : string
-#         Three digit ISO country code.
-
-#     """
-#     iso3 = country['iso3']
-#     iso2 = country['iso2']
-
-#     technologies = [
-#         'GSM',
-#         '3G',
-#         '4G'
-#     ]
-
-#     for tech in technologies:
-
-#         folder_coverage = os.path.join(DATA_INTERMEDIATE, iso3, 'coverage')
-#         filename = 'coverage_{}.shp'.format(tech)
-#         path_output = os.path.join(folder_coverage, filename)
-
-#         if os.path.exists(path_output):
-#             continue
-
-#         print('Working on {} in {}'.format(tech, iso3))
-
-#         filename = 'Inclusions_201812_{}.shp'.format(tech)
-#         folder = os.path.join(DATA_RAW, 'mobile_coverage_explorer',
-#             'Data_MCE')
-#         inclusions = gpd.read_file(os.path.join(folder, filename))
-
-#         if iso2 in inclusions['CNTRY_ISO2']:
-
-#             filename = 'MCE_201812_{}.shp'.format(tech)
-#             folder = os.path.join(DATA_RAW, 'mobile_coverage_explorer',
-#                 'Data_MCE')
-#             coverage = gpd.read_file(os.path.join(folder, filename))
-
-#             coverage = coverage.loc[coverage['CNTRY_ISO3'] == iso3]
-
-#         else:
-
-#             filename = 'OCI_201812_{}.shp'.format(tech)
-#             folder = os.path.join(DATA_RAW, 'mobile_coverage_explorer',
-#                 'Data_OCI')
-#             coverage = gpd.read_file(os.path.join(folder, filename))
-
-#             coverage = coverage.loc[coverage['CNTRY_ISO3'] == iso3]
-
-#         if len(coverage) > 0:
-
-#             print('Dissolving polygons')
-#             coverage['dissolve'] = 1
-#             coverage = coverage.dissolve(by='dissolve', aggfunc='sum')
-
-#             coverage = coverage.to_crs({'init': 'epsg:3857'})
-
-#             print('Excluding small shapes')
-#             coverage['geometry'] = coverage.apply(clean_coverage,axis=1)
-
-#             print('Removing empty and null geometries')
-#             coverage = coverage[~(coverage['geometry'].is_empty)]
-#             coverage = coverage[coverage['geometry'].notnull()]
-
-#             print('Simplifying geometries')
-#             coverage['geometry'] = coverage.simplify(
-#                 tolerance = 0.005,
-#                 preserve_topology=True).buffer(0.0001).simplify(
-#                 tolerance = 0.005,
-#                 preserve_topology=True
-#             )
-
-#             coverage = coverage.to_crs({'init': 'epsg:4326'})
-
-#             if not os.path.exists(folder_coverage):
-#                 os.makedirs(folder_coverage)
-
-#             coverage.to_file(path_output, driver='ESRI Shapefile')
-
-#     print('Completed processing of coverage shapes')
-
-
-# def process_regional_coverage(country):
-#     """
-#     This functions estimates the area covered by each cellular
-#     technology.
-
-#     Parameters
-#     ----------
-#     country : dict
-#         Contains specific country parameters.
-
-#     Returns
-#     -------
-#     output : dict
-#         Results for cellular coverage by each technology for
-#         each region.
-
-#     """
-#     level = country['regional_level']
-#     iso3 = country['iso3']
-#     gid_level = 'GID_{}'.format(level)
-
-#     filename = 'regions_{}_{}.shp'.format(level, iso3)
-#     folder = os.path.join(DATA_INTERMEDIATE, iso3, 'regions')
-#     path = os.path.join(folder, filename)
-#     regions = gpd.read_file(path)
-
-#     technologies = [
-#         'GSM',
-#         '3G',
-#         '4G'
-#     ]
-
-#     output = {}
-
-#     for tech in technologies:
-
-#         folder = os.path.join(DATA_INTERMEDIATE, iso3, 'coverage')
-#         path =  os.path.join(folder, 'coverage_{}.shp'.format(tech))
-
-#         if os.path.exists(path):
-
-#             coverage = gpd.read_file(path)
-
-#             segments = gpd.overlay(regions, coverage, how='intersection')
-
-#             tech_coverage = {}
-
-#             for idx, region in segments.iterrows():
-
-#                 area_km2 = round(area_of_polygon(region['geometry']) / 1e6)
-
-#                 tech_coverage[region[gid_level]] = area_km2
-
-#             output[tech] = tech_coverage
-
-#     return output
-
-
 def get_regional_data(country):
     """
     Extract regional data including luminosity and population.
@@ -471,7 +274,7 @@ def get_regional_data(country):
     level = country['regional_level']
     gid_level = 'GID_{}'.format(level)
 
-    path_output = os.path.join(DATA_INTERMEDIATE, iso3, 'regional_data.csv')
+    path_output = os.path.join(DATA_INTERMEDIATE, iso3, 'regional_data_uba.csv')
 
     # if os.path.exists(path_output):
     #     return print('Regional data already exists')
@@ -479,7 +282,7 @@ def get_regional_data(country):
     path_country = os.path.join(DATA_INTERMEDIATE, iso3,
         'national_outline.shp')
 
-    coverage = process_regional_coverage(country)
+    # coverage = process_regional_coverage(country)
 
     single_country = gpd.read_file(path_country)
 
@@ -1245,12 +1048,6 @@ if __name__ == '__main__':
         print('Processing settlement layer')
         process_settlement_layer(country)
 
-        # print('Processing night lights')
-        # process_night_lights(country)
-
-        # print('Processing coverage shapes')
-        # process_coverage_shapes(country)
-
         print('Getting regional data')
         get_regional_data(country)
 
@@ -1261,7 +1058,7 @@ if __name__ == '__main__':
         print('----')
         print('-- Working on {}'.format(country['country_name']))
 
-        path = os.path.join(DATA_INTERMEDIATE, country['iso3'], 'regional_data.csv')
+        path = os.path.join(DATA_INTERMEDIATE, country['iso3'], 'regional_data_uba.csv')
         data = pd.read_csv(path, keep_default_na=False)
         data = data.to_dict('records')
         all_regional_data = all_regional_data + data

@@ -318,3 +318,53 @@ def write_results(regional_results, folder, metric):
 
     path = os.path.join(folder,'regional_market_results_{}.csv'.format(metric))
     regional_market_results.to_csv(path, index=True)
+
+    print('Writing regional cost results')
+    regional_mno_cost_results = pd.DataFrame(regional_results)
+    regional_mno_cost_results = define_deciles(regional_mno_cost_results)
+    regional_mno_cost_results = regional_mno_cost_results[[
+        'GID_0', 'GID_id', 'scenario', 'strategy',
+        'decile', 'confidence', 'population', 'area_km2',
+        'phones_on_network', 'smartphones_on_network', 'total_mno_revenue',
+        'ran', 'backhaul_fronthaul', 'civils', 'core_network',
+        'administration', 'spectrum_cost', 'tax', 'profit_margin',
+        'total_mno_cost', 'available_cross_subsidy', 'deficit',
+        'used_cross_subsidy', 'required_state_subsidy',
+    ]]
+
+    regional_mno_cost_results = regional_mno_cost_results.drop_duplicates()
+    regional_mno_cost_results['private_cost'] = regional_mno_cost_results['total_mno_cost']
+    regional_mno_cost_results['government_cost'] = (
+    regional_mno_cost_results['required_state_subsidy'] -
+        (regional_mno_cost_results['spectrum_cost'] +
+        regional_mno_cost_results['tax']))
+    regional_mno_cost_results['social_cost'] = (
+        regional_mno_cost_results['private_cost'] +
+        regional_mno_cost_results['government_cost'])
+
+    regional_mno_cost_results['private_cost_per_network_user'] = (
+        regional_mno_cost_results['total_mno_cost'] /
+        regional_mno_cost_results['phones_on_network'])
+    regional_mno_cost_results['government_cost_per_network_user'] = (
+        regional_mno_cost_results['government_cost'] /
+        regional_mno_cost_results['phones_on_network'])
+    regional_mno_cost_results['social_cost_per_network_user'] = (
+        regional_mno_cost_results['social_cost'] /
+        regional_mno_cost_results['phones_on_network'])
+
+    regional_mno_cost_results['private_cost_per_smartphone_user'] = (
+        regional_mno_cost_results['total_mno_cost'] /
+        regional_mno_cost_results['smartphones_on_network'])
+    regional_mno_cost_results['government_cost_per_smartphone_user'] = (
+        regional_mno_cost_results['government_cost'] /
+        regional_mno_cost_results['smartphones_on_network'])
+    regional_mno_cost_results['social_cost_per_smartphone_user'] = (
+        regional_mno_cost_results['social_cost'] /
+        regional_mno_cost_results['smartphones_on_network'])
+
+    regional_mno_cost_results['required_efficiency_saving'] = (
+        regional_mno_cost_results['government_cost'] /
+        regional_mno_cost_results['private_cost'] * 100)
+
+    path = os.path.join(folder,'regional_mno_cost_results_{}.csv'.format(metric))
+    regional_mno_cost_results.to_csv(path, index=True)

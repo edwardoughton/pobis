@@ -35,57 +35,6 @@ DATA_INTERMEDIATE = os.path.join(BASE_PATH, 'intermediate')
 DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
 
 
-def find_country_list(continent_list):
-    """
-    This function produces country information by continent.
-
-    Parameters
-    ----------
-    continent_list : list
-        Contains the name of the desired continent, e.g. ['Africa']
-
-    Returns
-    -------
-    countries : list of dicts
-        Contains all desired country information for countries in
-        the stated continent.
-
-    """
-    print('----')
-    print('Loading all countries')
-    path = os.path.join(DATA_RAW, 'gadm36_levels_shp', 'gadm36_0.shp')
-    countries = gpd.read_file(path)
-
-    print('Adding continent information to country shapes')
-    glob_info_path = os.path.join(BASE_PATH, 'global_information.csv')
-    load_glob_info = pd.read_csv(glob_info_path, encoding = "ISO-8859-1")
-    countries = countries.merge(load_glob_info, left_on='GID_0',
-        right_on='ISO_3digit')
-
-    subset = countries.loc[countries['continent'].isin(continent_list)]
-
-    countries = []
-
-    for index, country in subset.iterrows():
-
-        if country['GID_0'] in ['LBY', 'ESH']:
-            continue
-
-        if country['GID_0'] in ['LBY', 'ESH'] :
-            regional_level =  1
-        else:
-            regional_level = 2
-
-        countries.append({
-            'country_name': country['country'],
-            'iso3': country['GID_0'],
-            'iso2': country['ISO_2digit'],
-            'regional_level': regional_level,
-        })
-
-    return countries
-
-
 def process_country_shapes(country):
     """
     Creates a single national boundary for the desired country.
@@ -640,7 +589,7 @@ def estimate_sites(data, iso3, backhaul_lut):
             else:
                 sites_estimated_km2 = 0
 
-        #or if we don't have data estimate sites per area
+        #or if we don't have data estimates of sites per area
         else:
             if covered_pop_so_far < population_covered:
                 sites_estimated_total = region['population'] * towers_per_pop
@@ -2216,8 +2165,8 @@ def forecast_smartphones_linear(data, country, start_point, end_point):
 
                         penetration = penetration * (1 + (smartphone_growth/100))
 
-                    if penetration > 90:
-                        penetration = 90
+                    if penetration > 95:
+                        penetration = 95
 
                     output.append({
                         'scenario': scenario,
@@ -2232,51 +2181,49 @@ def forecast_smartphones_linear(data, country, start_point, end_point):
 
 if __name__ == '__main__':
 
-    # countries = find_country_list(['Africa'])
-
     countries = [
-        {'iso3': 'SEN', 'iso2': 'SN', 'regional_level': 2, 'regional_nodes_level': 2,
-            'region': 'SSA', 'pop_density_km2': 500, 'settlement_size': 1000,
-            'subs_growth_low': 1, 'subs_growth_baseline': 2, 'subs_growth_high': 3,
-            'sp_growth_low_urban': 4.5, 'sp_growth_baseline_urban': 6.5, 'sp_growth_high_urban': 8.5,
-            'sp_growth_low_rural': 8, 'sp_growth_baseline_rural': 10, 'sp_growth_high_rural': 12,
-            'cluster': 'C2',
-        },
+        # {'iso3': 'SEN', 'iso2': 'SN', 'regional_level': 2, 'regional_nodes_level': 2,
+        #     'region': 'SSA', 'pop_density_km2': 500, 'settlement_size': 1000,
+        #     'subs_growth_low': 2, 'subs_growth_baseline': 3, 'subs_growth_high': 4,
+        #     'sp_growth_low_urban': 5, 'sp_growth_baseline_urban': 7, 'sp_growth_high_urban': 9,
+        #     'sp_growth_low_rural': 11, 'sp_growth_baseline_rural': 13, 'sp_growth_high_rural': 15,
+        #     'cluster': 'C2',
+        # },
         {'iso3': 'MLI', 'iso2': 'ML', 'regional_level': 2, 'regional_nodes_level': 2,
             'region': 'SSA', 'pop_density_km2': 500, 'settlement_size': 1000,
-            'subs_growth_low': 1, 'subs_growth_baseline': 2, 'subs_growth_high': 3,
-            'sp_growth_low_urban': 2, 'sp_growth_baseline_urban': 4, 'sp_growth_high_urban': 6,
-            'sp_growth_low_rural': 15, 'sp_growth_baseline_rural': 18, 'sp_growth_high_rural': 21,
+            'subs_growth_low': 2, 'subs_growth_baseline': 3, 'subs_growth_high': 4,
+            'sp_growth_low_urban': 6, 'sp_growth_baseline_urban': 8, 'sp_growth_high_urban': 10,
+            'sp_growth_low_rural': 16, 'sp_growth_baseline_rural': 18, 'sp_growth_high_rural': 20,
             'cluster': 'C1',
         },
-        {'iso3': 'CIV', 'iso2': 'CI', 'regional_level': 2, 'regional_nodes_level': 2,
-            'region': 'SSA', 'pop_density_km2': 500, 'settlement_size': 1000,
-            'subs_growth_low': 1, 'subs_growth_baseline': 2, 'subs_growth_high': 3,
-            'sp_growth_low_urban': 3, 'sp_growth_baseline_urban': 6, 'sp_growth_high_urban': 9,
-            'sp_growth_low_rural': 15, 'sp_growth_baseline_rural': 18, 'sp_growth_high_rural': 21,
-            'cluster': 'C1',
-        },
-        {'iso3': 'UGA', 'iso2': 'UG', 'regional_level': 2, 'regional_nodes_level': 2,
-            'region': 'S&SE Asia', 'pop_density_km2': 500, 'settlement_size': 1000,
-            'subs_growth_low': 1, 'subs_growth_baseline': 2, 'subs_growth_high': 3,
-            'sp_growth_low_urban': 2.5, 'sp_growth_baseline_urban': 5.5, 'sp_growth_high_urban': 7.5,
-            'sp_growth_low_rural': 15, 'sp_growth_baseline_rural': 18, 'sp_growth_high_rural': 21,
-            'cluster': 'C1',
-        },
-        {'iso3': 'KEN', 'iso2': 'KE', 'regional_level': 2, 'regional_nodes_level': 2,
-            'region': 'SSA', 'pop_density_km2': 500, 'settlement_size': 1000,
-            'subs_growth_low': 1, 'subs_growth_baseline': 2, 'subs_growth_high': 3,
-            'sp_growth_low_urban': 2, 'sp_growth_baseline_urban': 4, 'sp_growth_high_urban': 6,
-            'sp_growth_low_rural': 10, 'sp_growth_baseline_rural': 12, 'sp_growth_high_rural': 14,
-            'cluster': 'C2',
-        },
-        {'iso3': 'TZA', 'iso2': 'TZ', 'regional_level': 2, 'regional_nodes_level': 2,
-            'region': 'Europe', 'pop_density_km2': 500, 'settlement_size': 1000,
-            'subs_growth_low': 1, 'subs_growth_baseline': 2, 'subs_growth_high': 3,
-            'sp_growth_low_urban': 4, 'sp_growth_baseline_urban': 6, 'sp_growth_high_urban': 8,
-            'sp_growth_low_rural': 15, 'sp_growth_baseline_rural': 18, 'sp_growth_high_rural': 21,
-            'cluster': 'C1',
-        },
+        # {'iso3': 'CIV', 'iso2': 'CI', 'regional_level': 2, 'regional_nodes_level': 2,
+        #     'region': 'SSA', 'pop_density_km2': 500, 'settlement_size': 1000,
+        #     'subs_growth_low': 2, 'subs_growth_baseline': 3, 'subs_growth_high': 4,
+        #     'sp_growth_low_urban': 5, 'sp_growth_baseline_urban': 8, 'sp_growth_high_urban': 11,
+        #     'sp_growth_low_rural': 18, 'sp_growth_baseline_rural': 20, 'sp_growth_high_rural': 22,
+        #     'cluster': 'C1',
+        # },
+        # {'iso3': 'UGA', 'iso2': 'UG', 'regional_level': 2, 'regional_nodes_level': 2,
+        #     'region': 'S&SE Asia', 'pop_density_km2': 500, 'settlement_size': 1000,
+        #     'subs_growth_low': 2, 'subs_growth_baseline': 3, 'subs_growth_high': 4,
+        #     'sp_growth_low_urban': 4, 'sp_growth_baseline_urban': 6, 'sp_growth_high_urban': 8,
+        #     'sp_growth_low_rural': 18, 'sp_growth_baseline_rural': 20, 'sp_growth_high_rural': 22,
+        #     'cluster': 'C1',
+        # },
+        # {'iso3': 'KEN', 'iso2': 'KE', 'regional_level': 2, 'regional_nodes_level': 2,
+        #     'region': 'SSA', 'pop_density_km2': 500, 'settlement_size': 1000,
+        #     'subs_growth_low': 2, 'subs_growth_baseline': 3, 'subs_growth_high': 4,
+        #     'sp_growth_low_urban': 4, 'sp_growth_baseline_urban': 5, 'sp_growth_high_urban': 6,
+        #     'sp_growth_low_rural': 14, 'sp_growth_baseline_rural': 16, 'sp_growth_high_rural': 18,
+        #     'cluster': 'C2',
+        # },
+        # {'iso3': 'TZA', 'iso2': 'TZ', 'regional_level': 2, 'regional_nodes_level': 2,
+        #     'region': 'Europe', 'pop_density_km2': 500, 'settlement_size': 1000,
+        #     'subs_growth_low': 2, 'subs_growth_baseline': 3, 'subs_growth_high': 4,
+        #     'sp_growth_low_urban': 6, 'sp_growth_baseline_urban': 8, 'sp_growth_high_urban': 10,
+        #     'sp_growth_low_rural': 18, 'sp_growth_baseline_rural': 20, 'sp_growth_high_rural': 22,
+        #     'cluster': 'C1',
+        # },
     ]
 
     for country in countries:
