@@ -16,9 +16,9 @@ myfiles = list.files(path=full_tables, pattern="*.csv", full.names=TRUE)
 
 #import data for all files in file list
 data = ldply(myfiles, read_csv)
-
+unique(data$inter_site_distance_m)
 #select the ISD of 10000m to plot
-data = data[data$inter_site_distance_m == 10000,]
+data = data[data$inter_site_distance_m == 4800,]
 
 data = data[data$frequency_GHz != 1.8 & data$frequency_GHz != 3.7 ,]
 
@@ -72,7 +72,8 @@ pysim5g_plot_capacity_km2 = ggplot(data, aes(x=r_distance/1000, y=capacity_mbps_
 panel = ggarrange(pysim5g_plot_se, pysim5g_plot_capacity, pysim5g_plot_capacity_km2,  
                   common.legend = TRUE, legend = 'bottom', ncol = 1, nrow = 3)
 
-path = file.path(folder, 'figures', 'pysim5g_panel.png', dpi=300)
+path = file.path(folder, 'figures', 'pysim5g_panel.png')
 ggsave(path, units="in", width=8, height=10)
 print(panel)
 dev.off()
+

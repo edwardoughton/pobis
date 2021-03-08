@@ -56,41 +56,18 @@ subscriptions = ggplot(data, aes(x=year, y=penetration, group=country)) +
   guides(shape=guide_legend(ncol=6), colour=guide_legend(ncol=6)) +
   facet_grid(~scenario)
 
-####################smartphones
+#get folder directory
 folder <- dirname(rstudioapi::getSourceEditorContext()$path)
+folder_inputs = file.path(folder, 'smartphones', "data_inputs")
 
-data <- read.csv(file.path(folder, '..', 'results', 'regional_annual_demand_technology_options.csv'))
+files = list.files(path=folder_inputs, pattern="*.csv")
 
-data <- data[(data$confidence == 50),]
-names(data)[names(data) == 'GID_0'] <- 'country'
-
-data = data[(
-    data$strategy == '4G_epc_wireless_baseline_baseline_baseline_baseline_baseline'
-),]
-
-data <- select(data, country, scenario, geotype, year, 
-               population, population_with_smartphones)
-
-data$geotype[data$geotype == 'suburban'] <- 'urban'
-
-data = data %>%
-  group_by(country, scenario, geotype, year) %>%
-  summarize(population = sum(population),
-            smartphones = sum(population_with_smartphones))
-
-data$geotype = factor(data$geotype,
-                      levels=c("urban",
-                               "rural"),
-                      labels=c("Urban",
-                               "Rural"))
-
-data$scenario = factor(data$scenario,
-                      levels=c("low_10_10_10",
-                               "baseline_10_10_10",
-                               "high_10_10_10"),
-                      labels=c("Low",
-                               "Baseline",
-                               "High"))
+data <- 
+  do.call("rbind", 
+          lapply(files, 
+                 function(x) 
+                   read.csv(file.path(folder_inputs, x), 
+                            stringsAsFactors = FALSE)))
 
 data$country = factor(data$country, levels=c("CIV",
                                              'MLI',
@@ -106,8 +83,22 @@ data$country = factor(data$country, levels=c("CIV",
                                "Uganda"
                       ))
 
-data$penetration = round(data$smartphones /
-                              data$population * 100, 2) 
+data$scenario = factor(data$scenario, levels=c("low",
+                                               'baseline',
+                                               "high"
+),
+labels=c("Low",
+         "Baseline",
+         "High"
+))
+
+data$settlement_type = factor(data$settlement_type,
+                      levels=c("urban",
+                               "rural"),
+                      labels=c("Urban",
+                               "Rural"))
+
+data = data[complete.cases(data),]
 
 smartphones = ggplot(data, aes(x=year, y=penetration, group=country)) +
   geom_point(aes(shape=country, color=country), size=1) +
@@ -116,14 +107,15 @@ smartphones = ggplot(data, aes(x=year, y=penetration, group=country)) +
   scale_color_manual(values=c("#009E73", "#F0E442","#E69F00", "#56B4E9","#D55E00", "#0072B2")) + 
   scale_x_continuous(expand = c(0, 0.25), limits = c(2020,2030), 
                      breaks = seq(2020,2030,2)) +
-  scale_y_continuous(expand = c(0, 0), limits = c(0,67)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(0,100)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1), 
         legend.position = "bottom", legend.title=element_blank()) +
   labs(title = "(B) Smartphone Penetration by Country", 
        x = NULL, y = "Smartphones (%)") +
   guides(shape=guide_legend(ncol=6), colour=guide_legend(ncol=6)) +
   # facet_wrap(settlement_type~scenario, ncol=3, scales='free_y')
-  facet_grid(geotype~scenario)
+  facet_grid(settlement_type~scenario)
+
 
 combined <- ggarrange(subscriptions, smartphones, 
                       ncol = 1, nrow = 2,
@@ -143,6 +135,7 @@ folder <- dirname(rstudioapi::getSourceEditorContext()$path)
 
 data <- read.csv(file.path(folder, '..', 'results', 'decile_market_results_technology_options.csv'))
 
+data <- data[grep("10_10_10", data$scenario), ]
 data <- data[!(data$total_market_cost == "NA"),]
 # data <- data[(data$integration == "baseline"),]
 
@@ -229,20 +222,23 @@ data <- data %>%
   group_by(combined, country, scenario, strategy) %>%
   mutate(cumulative_value_bn = cumsum(round(value / 1e9, 3)))
 
-panel <- ggplot(data, aes(x=decile, y=cumulative_value_bn, colour=strategy, group=strategy)) +
-  geom_line() +
+panel <- ggplot(data, aes(x=decile, y=cumulative_value_bn, group=strategy)) +
+  geom_line(aes(linetype=strategy, colour=strategy, size=strategy)) +
+  scale_linetype_manual(values=c(1,2,3,4,5,6)) +
   scale_fill_brewer(palette="Spectral", name = expression('Cost Type'), direction=1) +
+  scale_size_manual(values=c(.5,.5,.5,.5,.5))+
   theme(axis.text.x = element_text(angle = 0, hjust = 1), legend.position = "bottom") +
-  labs(title = "Cumulative Private Cost for Broadband Universal Service", colour=NULL,
+  labs(title = "Cumulative Private Cost for Broadband Universal Service", 
+       colour=NULL, linetype=NULL, size=NULL,
        subtitle = "Reported by population coverage for 10 Mbps broadband universal service",
        x = "Population Covered (%)", y = "Cumulative Cost (Billions $USD)") +
   scale_x_continuous(expand = c(0, 0), breaks = seq(0,100,20)) +
   scale_y_continuous(expand = c(0, 0)) +
   theme(panel.spacing = unit(0.6, "lines")) + expand_limits(y=0) +
-  guides(colour=guide_legend(ncol=5)) +
+  guides(colour=guide_legend(ncol=5), linetype=guide_legend(ncol=5)) +
   facet_wrap(~combined, scales = "free", ncol=3)
 
-path = file.path(folder, 'figures', 'b_technology_cumulative_cost_wrap.png')
+path = file.path(folder, 'figures', 'b_technology_cumulative_cost_wrap_10mbps.png')
 ggsave(path, units="in", width=7, height=8.5, dpi=300)
 print(panel)
 dev.off()
@@ -293,6 +289,7 @@ folder <- dirname(rstudioapi::getSourceEditorContext()$path)
 #load data
 data <- read.csv(file.path(folder, '..', 'results', 'national_market_cost_results_technology_options.csv'))
 
+data <- data[grep("10_10_10", data$scenario), ]
 data <- data[!(data$total_market_cost == "NA"),]
 data <- data[(data$confidence == 50),]
 
@@ -397,7 +394,7 @@ network <- ggplot(network_costs, aes(x=strategy, y=(value/1e9), fill=metric)) +
   guides(fill=guide_legend(ncol=8, reverse = TRUE)) +
   facet_wrap(~combined, scales = "free", ncol=3)
 
-path = file.path(folder, 'figures', 'c_cost_composition_baseline_national.png')
+path = file.path(folder, 'figures', 'c_cost_composition_baseline_national_10mbps.png')
 ggsave(path, units="in", width=7, height=7.5, dpi=300)
 print(network)
 dev.off()
@@ -432,6 +429,7 @@ folder <- dirname(rstudioapi::getSourceEditorContext()$path)
 #load data
 data <- read.csv(file.path(folder, '..', 'results', 'national_market_cost_results_technology_options.csv'))
 
+data <- data[grep("10_10_10", data$scenario), ]
 data <- data[!(data$total_market_cost == "NA"),]
 data <- data[(data$confidence == 50),]
 
@@ -481,13 +479,14 @@ social_cost = ggplot(data, aes(x=strategy, y=round(social_cost/1e9),
   coord_flip() +
   scale_fill_brewer(palette="Dark2", name = NULL, direction=1) +
   theme(legend.position = "bottom") +
-  labs(title = "(A) Total Social Cost of Broadband Universal Service", colour=NULL,
-       subtitle = "Reported for all scenarios and strategies for 10 Mbps broadband universal service",
+  labs(title = "(A) Total Social Cost of Broadband Universal Service (10 Mbps Per User)", colour=NULL,
+       subtitle = "Reported for all scenarios and strategies",
        x = NULL, y = "Total Social Cost (Billions $USD)") +
   scale_y_continuous(expand = c(0, 0), limits = c(0, max_value+15)) +  
   theme(panel.spacing = unit(0.6, "lines")) +
   guides(fill=guide_legend(ncol=3, reverse = TRUE)) +
   facet_wrap(~country, scales = "free", ncol=3)
+
 
 ###################Cost to Government
 folder <- dirname(rstudioapi::getSourceEditorContext()$path)
@@ -495,6 +494,7 @@ folder <- dirname(rstudioapi::getSourceEditorContext()$path)
 #load data
 data <- read.csv(file.path(folder, '..', 'results', 'national_market_cost_results_technology_options.csv'))
 
+data <- data[grep("10_10_10", data$scenario), ]
 data <- data[!(data$government_cost == "NA"),]
 data <- data[(data$confidence == 50),]
 # data <- data[(data$integration == "baseline"),]
@@ -547,8 +547,8 @@ govt_costs = ggplot(data, aes(x=strategy, y=round(government_cost/1e9,1),
   coord_flip() +
   scale_fill_brewer(palette="Dark2", name = NULL, direction=1) +
   theme(legend.position = "bottom") +
-  labs(title = "(B) Net Government Cost for Broadband Universal Service", colour=NULL,
-       subtitle = "Reported for all scenarios and strategies for 10 Mbps broadband universal service",
+  labs(title = "(B) Net Government Cost for Broadband Universal Service (10 Mbps Per User)", colour=NULL,
+       subtitle = "Reported for all scenarios and strategies",
        x = NULL, y = "Total Cost (Billions $USD)") +
   scale_y_continuous(expand = c(0, 0), limits = c(min_value-.5, max_value+15)) +  
   theme(panel.spacing = unit(0.6, "lines")) +
@@ -558,7 +558,7 @@ govt_costs = ggplot(data, aes(x=strategy, y=round(government_cost/1e9,1),
 combined <- ggarrange(social_cost, govt_costs,   
                       ncol = 1, nrow = 2)
 
-path = file.path(folder, 'figures', 'd_social_and_govt_cost.png')
+path = file.path(folder, 'figures', 'd_social_and_govt_cost_10mbps.png')
 ggsave(path, units="in", width=8, height=11, dpi=300)
 print(combined)
 dev.off()
@@ -570,6 +570,7 @@ remove(data)
 folder <- dirname(rstudioapi::getSourceEditorContext()$path)
 data <- read.csv(file.path(folder, '..', 'results', 'decile_market_results_business_model_options.csv'))
 
+data <- data[grep("10_10_10", data$scenario), ]
 data <- data[!(data$total_market_cost == "NA"),]
 data <- data[!(data$strategy == "4G_epc_wireless_cns_baseline_baseline_baseline_baseline"),]
 
@@ -649,11 +650,14 @@ data <- data %>%
   group_by(combined, country, strategy, scenario) %>%
   mutate(cumulative_value_bn = cumsum(round(value / 1e9, 3)))
 
-panel <- ggplot(data, aes(x=decile, y=cumulative_value_bn, colour=strategy, group=strategy)) +
-  geom_line() +
+panel <- ggplot(data, aes(x=decile, y=cumulative_value_bn, group=strategy)) +
+  geom_line(aes(linetype=strategy, colour=strategy, size=strategy)) +
+  scale_linetype_manual(values=c(1,2,3,4,5,6)) +
   scale_fill_brewer(palette="Spectral", name = expression('Cost Type'), direction=1) +
+  scale_size_manual(values=c(.5,.5,.5,.5,.5,.5))+
   theme(axis.text.x = element_text(angle = 0, hjust = 1),legend.position = "bottom") +
-  labs(title = "Impact of Infrastructure Sharing on Cumulative Private Cost", colour=NULL,
+  labs(title = "Impact of Infrastructure Sharing on Cumulative Private Cost",
+       linetype=NULL, colour=NULL, size=NULL,
        subtitle = "Reported using 4G (W) to provide 10 Mbps broadband universal service",
        x = 'Population Covered (%)', y = "Cumulative Cost (Billions $USD)") +
   scale_x_continuous(expand = c(0, 0), breaks = seq(0,100,20)) +
@@ -661,7 +665,7 @@ panel <- ggplot(data, aes(x=decile, y=cumulative_value_bn, colour=strategy, grou
   guides(colour=guide_legend(ncol=4)) +
   facet_wrap(~combined, scales = "free", ncol=3)
 
-path = file.path(folder, 'figures', 'e_results_business_model_options_wrap.png')
+path = file.path(folder, 'figures', 'e_results_business_model_options_wrap_10mbps.png')
 ggsave(path, units="in", width=7, height=8.5, dpi=300)
 print(panel)
 dev.off()
@@ -741,6 +745,7 @@ folder <- dirname(rstudioapi::getSourceEditorContext()$path)
 #load data
 data <- read.csv(file.path(folder, '..', 'results', 'national_market_cost_results_technology_options.csv'))
 
+data <- data[grep("10_10_10", data$scenario), ]
 data <- data[!(data$total_market_cost == "NA"),]
 data <- data[(data$confidence == 50),]
 
@@ -802,10 +807,155 @@ efficiency_saving = ggplot(data,
   guides(fill=guide_legend(ncol=3, reverse = TRUE)) +
   facet_wrap(~country, scales = "free", ncol=3)
 
-path = file.path(folder, 'figures', 'f_efficiency_saving.png')
+path = file.path(folder, 'figures', 'f_efficiency_saving_10mbps.png')
 ggsave(path, units="in", width=7, height=5, dpi=300)
 print(efficiency_saving)
 dev.off()
 
 remove(data)
+
+###################Social cost 10 Mbps
+folder <- dirname(rstudioapi::getSourceEditorContext()$path)
+
+#load data
+data <- read.csv(file.path(folder, '..', 'results', 'national_market_cost_results_technology_options.csv'))
+
+data <- data[grep("10_10_10", data$scenario), ]
+data <- data[!(data$total_market_cost == "NA"),]
+data <- data[(data$confidence == 50),]
+
+names(data)[names(data) == 'GID_0'] <- 'country'
+
+data <- select(data, country, scenario, strategy, social_cost)
+
+data$scenario = factor(data$scenario, levels=c("low_10_10_10",
+                                               "baseline_10_10_10",
+                                               "high_10_10_10"),
+                       labels=c("Low",
+                                "Baseline",
+                                "High"))
+
+data$country = factor(data$country, levels=c("CIV",
+                                             'MLI',
+                                             "SEN",
+                                             "KEN",
+                                             "TZA",
+                                             "UGA"),
+                      labels=c("Cote D'Ivoire",
+                               "Mali",
+                               "Senegal",
+                               "Kenya",
+                               "Tanzania",
+                               "Uganda"
+                      ))
+
+data$strategy = factor(data$strategy, levels=c(
+  "3G_epc_wireless_baseline_baseline_baseline_baseline_baseline",
+  "3G_epc_fiber_baseline_baseline_baseline_baseline_baseline",
+  "4G_epc_wireless_baseline_baseline_baseline_baseline_baseline",
+  "4G_epc_fiber_baseline_baseline_baseline_baseline_baseline"),
+  labels=c("3G (W)",
+           "3G (FB)",
+           "4G (W)",
+           "4G (FB)"))
+
+min_value = round(min(data$social_cost)/1e9,0)
+max_value = round(max(data$social_cost)/1e9,0)
+
+social_cost = ggplot(data, aes(x=strategy, y=round(social_cost/1e9), 
+                               group=scenario, fill=scenario)) +
+  geom_bar(stat = "identity", position=position_dodge()) +
+  geom_text(aes(label = round(social_cost/1e9)), size = 2.5,
+            position = position_dodge(width = 1), hjust=-.25) + 
+  coord_flip() +
+  scale_fill_brewer(palette="Dark2", name = NULL, direction=1) +
+  theme(legend.position = "bottom") +
+  labs(title = "(A) Total Social Cost of Broadband Universal Service (10 Mbps Per User)", colour=NULL,
+       subtitle = "Reported for all scenarios and strategies",
+       x = NULL, y = "Total Social Cost (Billions $USD)") +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, max_value+17)) +  
+  theme(panel.spacing = unit(0.6, "lines")) +
+  guides(fill=guide_legend(ncol=3, reverse = TRUE)) +
+  facet_wrap(~country, scales = "free", ncol=3)
+
+###################Cost to Government
+folder <- dirname(rstudioapi::getSourceEditorContext()$path)
+
+#load data
+data <- read.csv(file.path(folder, '..', 'results', 'national_market_cost_results_technology_options.csv'))
+
+data <- data[grep("10_10_10", data$scenario), ]
+data <- data[!(data$government_cost == "NA"),]
+data <- data[(data$confidence == 50),]
+# data <- data[(data$integration == "baseline"),]
+
+names(data)[names(data) == 'GID_0'] <- 'country'
+
+# data$combined <- paste(data$country, data$scenario, sep="_")
+
+data <- select(data, country, scenario, strategy, government_cost)
+
+data$scenario = factor(data$scenario, levels=c("low_10_10_10",
+                                               "baseline_10_10_10",
+                                               "high_10_10_10"),
+                       labels=c("Low",
+                                "Baseline",
+                                "High"))
+
+data$country = factor(data$country, levels=c("CIV",
+                                             'MLI',
+                                             "SEN",
+                                             "KEN",
+                                             "TZA",
+                                             "UGA"),
+                      labels=c("Cote D'Ivoire",
+                               "Mali",
+                               "Senegal",
+                               "Kenya",
+                               "Tanzania",
+                               "Uganda"
+                      ))
+
+data$strategy = factor(data$strategy, levels=c(
+  "3G_epc_wireless_baseline_baseline_baseline_baseline_baseline",
+  "3G_epc_fiber_baseline_baseline_baseline_baseline_baseline",
+  "4G_epc_wireless_baseline_baseline_baseline_baseline_baseline",
+  "4G_epc_fiber_baseline_baseline_baseline_baseline_baseline"),
+  labels=c("3G (W)",
+           "3G (FB)",
+           "4G (W)",
+           "4G (FB)"))
+
+min_value = round(min(data$government_cost)/1e9,2)
+max_value = round(max(data$government_cost)/1e9, 2)
+
+govt_costs = ggplot(data, aes(x=strategy, y=round(government_cost/1e9,1), 
+                              group=scenario, fill=scenario)) +
+  geom_bar(stat = "identity", position=position_dodge()) +
+  geom_text(aes(label = round(government_cost/1e9)), size = 2.5,
+            position = position_dodge(width = 1), hjust=-.25) + 
+  coord_flip() +
+  scale_fill_brewer(palette="Dark2", name = NULL, direction=1) +
+  theme(legend.position = "bottom") +
+  labs(title = "(B) Net Government Cost for Broadband Universal Service (10 Mbps Per User)", colour=NULL,
+       subtitle = "Reported for all scenarios and strategies",
+       x = NULL, y = "Total Cost (Billions $USD)") +
+  scale_y_continuous(expand = c(0, 0), 
+                     limits = c(min_value-.5, max_value+15)) +  
+  theme(panel.spacing = unit(0.6, "lines")) +
+  guides(fill=guide_legend(ncol=3, reverse = TRUE)) +
+  facet_wrap(~country, scales = "free", ncol=3)
+
+combined <- ggarrange(social_cost, govt_costs,   
+                      ncol = 1, nrow = 2)
+
+path = file.path(folder, 'figures', 'd_social_and_govt_cost_10mbps.png')
+ggsave(path, units="in", width=8, height=11, dpi=300)
+print(combined)
+dev.off()
+
+remove(data)
+
+
+
 
