@@ -164,8 +164,8 @@ def setup_costs():
         'core_edge': 20,
         'regional_node_epc': 100000,
         'regional_edge': 10,
-        'per_site_spectrum_acquisition_cost': 1000,
-        'per_site_administration_cost': 100,
+        # 'per_site_spectrum_acquisition_cost': 1000,
+        # 'per_site_administration_cost': 100,
     }
 
 

@@ -50,10 +50,11 @@ def test_calculate_tax(setup_region, setup_option, setup_country_parameters):
 def test_calculate_profit(setup_region, setup_country_parameters):
 
     setup_region[0]['network_cost'] = 1e6
+    setup_region[0]['administration'] = 1e6*0.1
     setup_region[0]['spectrum_cost'] = 6e4
     setup_region[0]['tax'] = 265e3
 
-    assert calculate_profit(setup_region[0], setup_country_parameters) == 265e3
+    assert calculate_profit(setup_region[0], setup_country_parameters) == 285000
 
 
 def test_estimate_subsidies():
@@ -158,21 +159,21 @@ def test_assess(setup_option, setup_global_parameters,
     assert answer1['network_cost'] == 5000
     assert answer1['spectrum_cost'] == 40000
     assert answer1['tax'] == 1250
-    assert answer1['profit_margin'] == 9250.0
-    assert answer1['total_mno_cost'] == 56000.0
+    assert answer1['profit_margin'] == 9350.0
+    assert answer1['total_mno_cost'] == 56100.0
     assert answer1['available_cross_subsidy'] == 0
     assert answer1['used_cross_subsidy'] == 0
-    assert answer1['required_state_subsidy'] == 36000.0
+    assert answer1['required_state_subsidy'] == 36100.0
 
     assert answer2['total_mno_revenue'] == 12000
     assert answer2['network_cost'] == 8000
     assert answer2['spectrum_cost'] == 20000
     assert answer2['tax'] == 2000
-    assert answer2['profit_margin'] == 6000
-    assert answer2['total_mno_cost'] == 36800.0
+    assert answer2['profit_margin'] == 6160
+    assert answer2['total_mno_cost'] == 36960.0
     assert answer2['available_cross_subsidy'] == 0
     assert answer2['used_cross_subsidy'] == 0
-    assert answer2['required_state_subsidy'] == 24800.0
+    assert answer2['required_state_subsidy'] == 24960.0
 
     regions = [
         {
@@ -202,10 +203,10 @@ def test_assess(setup_option, setup_global_parameters,
 
     assert answer[0]['available_cross_subsidy'] == 0
     assert answer[0]['used_cross_subsidy'] == 0
-    assert answer[0]['required_state_subsidy'] == 36320.0
+    assert answer[0]['required_state_subsidy'] == 36424
     assert answer[1]['available_cross_subsidy'] == 0
     assert answer[1]['used_cross_subsidy'] == 0
-    assert answer[1]['required_state_subsidy'] == 53820.0
+    assert answer[1]['required_state_subsidy'] == 53924.0
 
 
 def test_allocate_available_excess():
