@@ -71,6 +71,54 @@ OPTIONS = {
             'scenario': 'high_10_10_10',
             'strategy': '4G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
         },
+        {
+            'scenario': 'low_2_2_2',
+            'strategy': '3G_epc_wireless_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'low_2_2_2',
+            'strategy': '3G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'low_2_2_2',
+            'strategy': '4G_epc_wireless_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'low_2_2_2',
+            'strategy': '4G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'baseline_2_2_2',
+            'strategy': '3G_epc_wireless_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'baseline_2_2_2',
+            'strategy': '3G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'baseline_2_2_2',
+            'strategy': '4G_epc_wireless_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'baseline_2_2_2',
+            'strategy': '4G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'high_2_2_2',
+            'strategy': '3G_epc_wireless_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'high_2_2_2',
+            'strategy': '3G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'high_2_2_2',
+            'strategy': '4G_epc_wireless_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'high_2_2_2',
+            'strategy': '4G_epc_fiber_baseline_baseline_baseline_baseline_baseline',
+        },
     ],
     'business_model_options': [
         {
@@ -94,7 +142,7 @@ OPTIONS = {
             'strategy': '4G_epc_wireless_cns_baseline_baseline_baseline_baseline',
         },
         {
-            'scenario': 'low_10_10_10', #single shared core network
+            'scenario': 'low_10_10_10',
             'strategy': '4G_epc_wireless_baseline_srn_baseline_baseline_baseline',
         },
         {
@@ -118,7 +166,7 @@ OPTIONS = {
             'strategy': '4G_epc_wireless_cns_baseline_baseline_baseline_baseline',
         },
         {
-            'scenario': 'baseline_10_10_10', #single shared core network
+            'scenario': 'baseline_10_10_10',
             'strategy': '4G_epc_wireless_baseline_srn_baseline_baseline_baseline',
         },
         {
@@ -142,7 +190,7 @@ OPTIONS = {
             'strategy': '4G_epc_wireless_cns_baseline_baseline_baseline_baseline',
         },
         {
-            'scenario': 'high_10_10_10', #single shared core network
+            'scenario': 'high_10_10_10',
             'strategy': '4G_epc_wireless_baseline_srn_baseline_baseline_baseline',
         },
     ],
@@ -297,8 +345,6 @@ COUNTRY_PARAMETERS = {
             'profit_margin': 10,
             'spectrum_coverage_baseline_usd_mhz_pop': 0.04,
             'spectrum_capacity_baseline_usd_mhz_pop': 0.03,
-            'spectrum_cost_low': 50,
-            'spectrum_cost_high': 50,
             'tax_low': 10,
             'tax_baseline': 30,
             'tax_high': 40,
@@ -399,8 +445,6 @@ COUNTRY_PARAMETERS = {
         'financials': {
             'wacc': 15,
             'profit_margin': 10,
-            'subsidy_low': 10,
-            'subsidy_high': 40,
             'spectrum_coverage_baseline_usd_mhz_pop': 0.1,
             'spectrum_capacity_baseline_usd_mhz_pop': 0.08,
             'tax_low': 10,
@@ -452,8 +496,6 @@ COUNTRY_PARAMETERS = {
         'financials': {
             'wacc': 15,
             'profit_margin': 10,
-            'subsidy_low': 10,
-            'subsidy_high': 40,
             'spectrum_coverage_baseline_usd_mhz_pop': 0.1,
             'spectrum_capacity_baseline_usd_mhz_pop': 0.08,
             'tax_low': 10,
