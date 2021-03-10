@@ -311,7 +311,6 @@ if __name__ == '__main__':
         'discount_rate': 5,
         'opex_percentage_of_capex': 10,
         'confidence': [50],#[5, 50, 95]
-        # 'regional_integration_factor': 20,
         }
 
     path = os.path.join(DATA_RAW, 'pysim5g', 'capacity_lut_by_frequency.csv')
@@ -331,7 +330,6 @@ if __name__ == '__main__':
     decision_options = [
         'technology_options',
         'business_model_options',
-        # 'integration_options',
     ]
 
     scenarios = [
