@@ -1,5 +1,9 @@
 """
-Visualize data
+Visualize data for the whole of the African continent.
+
+Written by Ed Oughton
+
+September 2020
 
 """
 import os
@@ -22,6 +26,7 @@ VIS = os.path.join(BASE_PATH, '..', 'vis', 'figures')
 
 def get_regional_shapes():
     """
+    Load regional shapes.
 
     """
     output = []
@@ -63,6 +68,7 @@ def get_regional_shapes():
 
 def plot_regions_by_geotype(data, regions, path):
     """
+    Plot regions by geotype.
 
     """
     n = len(regions)
@@ -93,7 +99,7 @@ def plot_regions_by_geotype(data, regions, path):
         regions[metric],
         bins=bins,
         labels=labels
-    )#.fillna('<20')
+    )
 
     sns.set(font_scale=0.9)
     fig, ax = plt.subplots(1, 1, figsize=(10, 10))
@@ -102,26 +108,27 @@ def plot_regions_by_geotype(data, regions, path):
     ax.set_xlim(minx+7, maxx-12)
     ax.set_ylim(miny+5, maxy)
 
-    regions.plot(column='bin', ax=ax, cmap='inferno_r', linewidth=0.2, legend=True, edgecolor='grey')
+    regions.plot(column='bin', ax=ax, cmap='inferno_r', linewidth=0.2,
+    legend=True, edgecolor='grey')
 
     handles, labels = ax.get_legend_handles_labels()
 
-    fig.legend(handles[::-1], labels[::-1]) #, title='Population Density (km^2)'
+    fig.legend(handles[::-1], labels[::-1])
 
-    #we probably need to fine tune the zoom level to bump up the resolution of the tiles
     ctx.add_basemap(ax, crs=regions.crs, source=ctx.providers.CartoDB.Voyager)
 
-    # plt.subplots_adjust(top=1.5)
-    fig.suptitle('Population Density Deciles for Sub-National Regions (n={})'.format(n))
+    name = 'Population Density Deciles for Sub-National Regions (n={})'.format(n)
+    fig.suptitle(name)
 
     fig.tight_layout()
     fig.savefig(path)
-    # fig.savefig(os.path.join(VIS, 'region_by_pop_density.pdf'))
+
     plt.close(fig)
 
 
 def plot_sub_national_cost_per_square_km(data, regions, capacity, cost_type):
     """
+    Plot sub national cost per square km.
 
     """
     n = len(regions)
@@ -131,7 +138,7 @@ def plot_sub_national_cost_per_square_km(data, regions, capacity, cost_type):
 
     data['cost_per_km2'] = (data[cost_type[1]] / data['area_km2']) / 1e3
     data = data[['GID_id', 'cost_per_km2']]
-    regions = regions[['GID_id', 'geometry']]#[:1000]
+    regions = regions[['GID_id', 'geometry']]
 
     regions = regions.merge(data, left_on='GID_id', right_on='GID_id')
     regions.reset_index(drop=True, inplace=True)
@@ -162,8 +169,7 @@ def plot_sub_national_cost_per_square_km(data, regions, capacity, cost_type):
         regions[metric],
         bins=bins,
         labels=labels
-    )#.fillna('<20')
-
+    )
 
     fig, ax = plt.subplots(1, 1, figsize=(10,10))
 
@@ -178,84 +184,16 @@ def plot_sub_national_cost_per_square_km(data, regions, capacity, cost_type):
         legend=True, edgecolor='grey')
 
     handles, labels = ax.get_legend_handles_labels()
-    fig.legend(handles[::-1], labels[::-1]) #, title='Population Density (km^2)'
+    fig.legend(handles[::-1], labels[::-1])
 
-    #we probably need to fine tune the zoom level to bump up the resolution of the tiles
     ctx.add_basemap(ax, crs=regions.crs, source=ctx.providers.CartoDB.Voyager)
 
-    # plt.subplots_adjust(top=1.5)
     fig.suptitle(
         '{} Cost for 4G (Wireless) Universal Broadband ({} Mbps) (n={})'.format(
             cost_type[0].split(' ')[0], capacity, n))
 
     fig.tight_layout()
     filename = 'sub_national_{}_cost_per_square_km_{}_mbps.png'.format(
-        cost_type[0].split(' ')[0], capacity)
-    fig.savefig(os.path.join(VIS, filename))
-
-    plt.close(fig)
-
-
-def plot_sub_national_gross_cost(data, regions, capacity, cost_type):
-    """
-
-    """
-    n = len(regions)
-    data = data.loc[data['scenario'] == 'Baseline']
-    data = data.loc[data['strategy'] == '4G(W)']
-    data = data.loc[data['confidence'] == 50]
-
-    metric = cost_type[1]
-
-    data[cost_type] = data[metric] / 1e6
-    data = data[['GID_id', metric]]
-    regions = regions[['GID_id', 'geometry']]#[:1000]
-
-    regions = regions.merge(data, left_on='GID_id', right_on='GID_id')
-    regions.reset_index(drop=True, inplace=True)
-
-    # bins = [-1, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 100000]
-    bins = [-1,100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 100000]
-    labels = [
-        '<0.1 Bn USD',
-        '<0.2 Bn USD',
-        '<0.3 Bn USD',
-        '<0.4 Bn USD',
-        '<0.5 Bn USD',
-        '<0.6 Bn USD',
-        '<0.7 Bn USD',
-        '<0.8 Bn USD',
-        '<0.9 Bn USD',
-        '<1 Bn USD',
-        '>1 Bn USD',
-        ]
-    regions['bin'] = pd.cut(
-        regions[metric],
-        bins=bins,
-        labels=labels
-    )#.fillna('<20')
-
-    fig, ax = plt.subplots(1, 1, figsize=(10,10))
-
-    minx, miny, maxx, maxy = regions.total_bounds
-    ax.set_xlim(minx+7, maxx-12)
-    ax.set_ylim(miny+5, maxy)
-
-    regions.plot(column='bin', ax=ax, cmap='inferno_r', linewidth=0.2,
-        legend=True, edgecolor='grey')
-
-    handles, labels = ax.get_legend_handles_labels()
-    fig.legend(handles[::-1], labels[::-1]) #, title='Population Density (km^2)'
-
-    #we probably need to fine tune the zoom level to bump up the resolution of the tiles
-    ctx.add_basemap(ax, crs=regions.crs, source=ctx.providers.CartoDB.Voyager)
-
-    fig.suptitle(
-        'Total {} Cost for 4G (Wireless) Universal Broadband ({} Mbps) (n={})'.format(
-            cost_type[0].split(' ')[0], capacity, n))
-
-    fig.tight_layout()
-    filename = 'sub_national_{}_total_cost_per_square_km_{}_mbps.png'.format(
         cost_type[0].split(' ')[0], capacity)
     fig.savefig(os.path.join(VIS, filename))
 
@@ -276,7 +214,6 @@ if __name__ == '__main__':
     ]
 
     for capacity in capacities:
-
         for cost_type in cost_types:
 
             print('Working on {} ({} Mbps)'.format(cost_type[0], capacity))
