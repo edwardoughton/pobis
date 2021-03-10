@@ -193,6 +193,78 @@ OPTIONS = {
             'scenario': 'high_10_10_10',
             'strategy': '4G_epc_wireless_baseline_srn_baseline_baseline_baseline',
         },
+        {
+            'scenario': 'low_2_2_2',
+            'strategy': '4G_epc_wireless_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'low_2_2_2',
+            'strategy': '4G_epc_wireless_pss_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'low_2_2_2',
+            'strategy': '4G_epc_wireless_psb_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'low_2_2_2',
+            'strategy': '4G_epc_wireless_moran_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'low_2_2_2',
+            'strategy': '4G_epc_wireless_cns_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'low_2_2_2',
+            'strategy': '4G_epc_wireless_baseline_srn_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'baseline_2_2_2',
+            'strategy': '4G_epc_wireless_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'baseline_2_2_2',
+            'strategy': '4G_epc_wireless_pss_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'baseline_2_2_2',
+            'strategy': '4G_epc_wireless_psb_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'baseline_2_2_2',
+            'strategy': '4G_epc_wireless_moran_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'baseline_2_2_2',
+            'strategy': '4G_epc_wireless_cns_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'baseline_2_2_2',
+            'strategy': '4G_epc_wireless_baseline_srn_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'high_2_2_2',
+            'strategy': '4G_epc_wireless_baseline_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'high_2_2_2',
+            'strategy': '4G_epc_wireless_pss_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'high_2_2_2',
+            'strategy': '4G_epc_wireless_psb_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'high_2_2_2',
+            'strategy': '4G_epc_wireless_moran_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'high_2_2_2',
+            'strategy': '4G_epc_wireless_cns_baseline_baseline_baseline_baseline',
+        },
+        {
+            'scenario': 'high_2_2_2',
+            'strategy': '4G_epc_wireless_baseline_srn_baseline_baseline_baseline',
+        },
     ],
 }
 
@@ -260,11 +332,11 @@ COUNTRY_PARAMETERS = {
             'low': 2,
         },
         'networks': {
-            'baseline_urban': 3,
-            'baseline_suburban': 3,
-            'baseline_rural': 3,
-            'srn_urban': 3,
-            'srn_suburban': 3,
+            'baseline_urban': 2,
+            'baseline_suburban': 2,
+            'baseline_rural': 2,
+            'srn_urban': 2,
+            'srn_suburban': 2,
             'srn_rural': 1,
         },
         'frequencies': {
@@ -461,108 +533,6 @@ COUNTRY_PARAMETERS = {
         'arpu': {
             'high': 8,
             'medium': 3,
-            'low': 2,
-        },
-        'networks': {
-            'baseline_urban': 3,
-            'baseline_suburban': 3,
-            'baseline_rural': 3,
-            'srn_urban': 3,
-            'srn_suburban': 3,
-            'srn_rural': 1,
-        },
-        'frequencies': {
-            '3G': [
-                {
-                    'frequency': 1800,
-                    'bandwidth': '2x10',
-                },
-                {
-                    'frequency': 2100,
-                    'bandwidth': '2x10',
-                },
-            ],
-            '4G': [
-                {
-                    'frequency': 800,
-                    'bandwidth': '2x10',
-                },
-                {
-                    'frequency': 1800,
-                    'bandwidth': '2x10',
-                },
-            ],
-        },
-        'financials': {
-            'wacc': 15,
-            'profit_margin': 10,
-            'spectrum_coverage_baseline_usd_mhz_pop': 0.1,
-            'spectrum_capacity_baseline_usd_mhz_pop': 0.08,
-            'tax_low': 10,
-            'tax_baseline': 30,
-            'tax_high': 40,
-            'administration_percentage_of_network_cost': 10,
-            },
-        },
-    'SEN-MLI-CIV': {
-        'luminosity': {
-            'high': 5,
-            'medium': 1,
-        },
-        'arpu': {
-            'high': 8,
-            'medium': 6,
-            'low': 2,
-        },
-        'networks': {
-            'baseline_urban': 3,
-            'baseline_suburban': 3,
-            'baseline_rural': 3,
-            'srn_urban': 3,
-            'srn_suburban': 3,
-            'srn_rural': 1,
-        },
-        'frequencies': {
-            '3G': [
-                {
-                    'frequency': 1800,
-                    'bandwidth': '2x10',
-                },
-                {
-                    'frequency': 2100,
-                    'bandwidth': '2x10',
-                },
-            ],
-            '4G': [
-                {
-                    'frequency': 800,
-                    'bandwidth': '2x10',
-                },
-                {
-                    'frequency': 1800,
-                    'bandwidth': '2x10',
-                },
-            ],
-        },
-        'financials': {
-            'wacc': 15,
-            'profit_margin': 10,
-            'spectrum_coverage_baseline_usd_mhz_pop': 0.04,
-            'spectrum_capacity_baseline_usd_mhz_pop': 0.03,
-            'tax_low': 10,
-            'tax_baseline': 30,
-            'tax_high': 40,
-            'administration_percentage_of_network_cost': 10,
-            },
-        },
-    'KEN-TZA-UGA': {
-        'luminosity': {
-            'high': 5,
-            'medium': 1,
-        },
-        'arpu': {
-            'high': 8,
-            'medium': 4,
             'low': 2,
         },
         'networks': {

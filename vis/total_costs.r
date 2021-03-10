@@ -34,7 +34,7 @@ data$Capacity = factor(data$Capacity, levels=c("2 Mbps Per User",
 totals <- data %>%
   group_by(Scenario, Strategy, Capacity) %>%
   summarize(social_cost = round(
-    (Private.Cost...Bn. + Government.Cost...Bn.)/1000, 2))
+    (Private.Cost...Bn. + Government.Cost...Bn.)/1000, 1))
 
 colnames(data)[colnames(data) == 'Private.Cost...Bn.'] <- 'Private Cost ($USD)'
 colnames(data)[colnames(data) == 'Government.Cost...Bn.'] <- 'Government Cost ($USD)'
@@ -53,14 +53,14 @@ data$value = round(data$value/1e3, 2)
 ggplot(data, aes(y=value, x=Strategy, fill=Cost_Type)) + 
   geom_bar(position="stack", stat="identity") +
   geom_text(aes(Strategy, social_cost, label = social_cost, fill = NULL), 
-            size = 2.5, data = totals, hjust=-.2) + 
+            size = 2.5, data = totals, hjust=-.3) + 
   coord_flip() +
   scale_fill_brewer(palette="Dark2", name = NULL, direction=1) +
   theme(legend.position = "bottom") +
   labs(title = "Total Social Cost of Universal Broadband Across Africa", colour=NULL,
        subtitle = "Reported for all scenarios and strategies",
        x = NULL, y = "Total Social Cost (Trillions $USD)") +
-  scale_y_continuous(expand = c(0, 0), limits = c(-min_value, max_value+0.4)) + 
+  scale_y_continuous(expand = c(0, 0), limits = c(-min_value, max_value+0.5)) + 
   theme(panel.spacing = unit(0.6, "lines")) +
   guides(fill=guide_legend(ncol=3, reverse = TRUE)) +
  facet_grid(Capacity~Scenario)

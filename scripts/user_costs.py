@@ -103,18 +103,23 @@ def summarize_data(data, capacity):
         'government_cost_per_network_user'
     ]]
 
-    #get the median value
-    data = data.groupby(['scenario', 'strategy', 'confidence', 'decile'])[
-        [
-            'private_cost_per_user',
-            'government_cost_per_network_user',
-            'social_cost_per_user',
-            ]].median().reset_index()
+    data = data.groupby(['scenario', 'strategy', 'confidence', 'decile'], as_index=False).agg(
+            private_cost_per_user_median = ('private_cost_per_user','median'),
+            private_cost_per_user_mean = ('private_cost_per_user','mean'),
+            government_cost_per_network_user = ('government_cost_per_network_user','median'),
+            government_cost_per_network_user_mean = ('government_cost_per_network_user','mean'),
+            social_cost_per_user = ('social_cost_per_user','median'),
+            social_cost_per_user_mean = ('social_cost_per_user','mean'),
+        )
 
     data.columns = [
         'Scenario', 'Strategy', 'Confidence', 'Decile',
-        'Private Cost Per User ($USD)', 'Government Cost Per User ($USD)',
-        'Social Cost Per User ($USD)'
+        'private_median_cpu',
+        'private_mean_cpu',
+        'govt_median_cpu',
+        'govt_mean_cpu',
+        'social_median_cpu',
+        'social_mean_cpu'
     ]
 
     return data
@@ -195,9 +200,8 @@ def get_costs(data, costs):
         handle = '{}_{}_{}_{}'.format(scenario, strategy, ci, decile)
 
         lookup[handle] = {
-            'Private Cost Per User ($USD)': item['Private Cost Per User ($USD)'],
-            'Government Cost Per User ($USD)': item['Government Cost Per User ($USD)'],
-            # 'Social Cost Per User ($USD)': item['Social Cost Per User ($USD)'],
+            'Private Cost Per User ($USD)': item['private_median_cpu'],
+            'Government Cost Per User ($USD)': item['govt_median_cpu'],
         }
 
         scenarios.add(scenario)
@@ -331,15 +335,15 @@ if __name__ == '__main__':
 
         #Writing regional per user cost data to .csv
         filename = 'regional_per_user_cost_{}.csv'.format(capacity)
-        path = os.path.join(DATA_INTERMEDIATE, filename)
+        path = os.path.join(RESULTS, filename)
         data.to_csv(path, index=False)
 
         #Summarizing data
         costs = summarize_data(data, capacity)
 
         #Writing summarized data to .csv
-        filename = 'median_per_user_cost_by_pop_density_{}.csv'.format(capacity)
-        path = os.path.join(DATA_INTERMEDIATE, filename)
+        filename = 'per_user_cost_by_pop_density_{}.csv'.format(capacity)
+        path = os.path.join(RESULTS, filename)
         costs.to_csv(path, index=False)
 
         #Loading regional data by pop density geotype

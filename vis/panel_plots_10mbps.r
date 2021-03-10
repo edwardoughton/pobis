@@ -133,7 +133,8 @@ remove(subscriptions, smartphones, combined, data)
 ####Technology costs
 folder <- dirname(rstudioapi::getSourceEditorContext()$path)
 
-data <- read.csv(file.path(folder, '..', 'results', 'decile_market_results_technology_options.csv'))
+data <- read.csv(file.path(folder, '..', 'results', 
+                           'decile_market_results_technology_options.csv'))
 
 data <- data[grep("10_10_10", data$scenario), ]
 data <- data[!(data$total_market_cost == "NA"),]
@@ -142,7 +143,8 @@ data <- data[!(data$total_market_cost == "NA"),]
 names(data)[names(data) == 'GID_0'] <- 'country'
 
 #select desired columns
-data <- select(data, country, scenario, strategy, confidence, decile, area_km2, population,
+data <- select(data, country, scenario, strategy, confidence, decile, 
+               area_km2, population,
                total_market_cost, total_market_revenue, total_phones)
 
 data <- data[(data$confidence == 50),]
@@ -228,9 +230,9 @@ panel <- ggplot(data, aes(x=decile, y=cumulative_value_bn, group=strategy)) +
   scale_fill_brewer(palette="Spectral", name = expression('Cost Type'), direction=1) +
   scale_size_manual(values=c(.5,.5,.5,.5,.5))+
   theme(axis.text.x = element_text(angle = 0, hjust = 1), legend.position = "bottom") +
-  labs(title = "Cumulative Private Cost for Broadband Universal Service", 
+  labs(title = "Cumulative Private Cost for Universal Broadband", 
        colour=NULL, linetype=NULL, size=NULL,
-       subtitle = "Reported by population coverage for 10 Mbps broadband universal service",
+       subtitle = "Reported by population coverage for 10 Mbps universal broadband",
        x = "Population Covered (%)", y = "Cumulative Cost (Billions $USD)") +
   scale_x_continuous(expand = c(0, 0), breaks = seq(0,100,20)) +
   scale_y_continuous(expand = c(0, 0)) +
@@ -385,9 +387,9 @@ network <- ggplot(network_costs, aes(x=strategy, y=(value/1e9), fill=metric)) +
   scale_fill_brewer(palette="Spectral", name = NULL, direction=1) +
   # geom_text(aes(strategy, value, label=value, fill=NULL), size=2, data=totals) +
   theme(legend.position = "bottom") +
-  labs(title = "Private Cost Composition for Broadband Universal Service", 
+  labs(title = "Private Cost Composition for Universal Broadband", 
        colour=NULL,
-       subtitle = "Reported for a representative MNO delivering 10 Mbps broadband universal service",
+       subtitle = "Reported for a representative MNO delivering 10 Mbps universal broadband",
        x = NULL, y = "Total Cost (Billions $USD)") +
   scale_y_continuous(expand = c(0, 0)) +  
   theme(panel.spacing = unit(0.6, "lines")) +
@@ -479,7 +481,7 @@ social_cost = ggplot(data, aes(x=strategy, y=round(social_cost/1e9),
   coord_flip() +
   scale_fill_brewer(palette="Dark2", name = NULL, direction=1) +
   theme(legend.position = "bottom") +
-  labs(title = "(A) Total Social Cost of Broadband Universal Service (10 Mbps Per User)", colour=NULL,
+  labs(title = "(A) Total Social Cost of Universal Broadband (10 Mbps Per User)", colour=NULL,
        subtitle = "Reported for all scenarios and strategies",
        x = NULL, y = "Total Social Cost (Billions $USD)") +
   scale_y_continuous(expand = c(0, 0), limits = c(0, max_value+15)) +  
@@ -547,7 +549,7 @@ govt_costs = ggplot(data, aes(x=strategy, y=round(government_cost/1e9,1),
   coord_flip() +
   scale_fill_brewer(palette="Dark2", name = NULL, direction=1) +
   theme(legend.position = "bottom") +
-  labs(title = "(B) Net Government Cost for Broadband Universal Service (10 Mbps Per User)", colour=NULL,
+  labs(title = "(B) Net Government Cost for Universal Broadband (10 Mbps Per User)", colour=NULL,
        subtitle = "Reported for all scenarios and strategies",
        x = NULL, y = "Total Cost (Billions $USD)") +
   scale_y_continuous(expand = c(0, 0), limits = c(min_value-.5, max_value+15)) +  
@@ -658,7 +660,7 @@ panel <- ggplot(data, aes(x=decile, y=cumulative_value_bn, group=strategy)) +
   theme(axis.text.x = element_text(angle = 0, hjust = 1),legend.position = "bottom") +
   labs(title = "Impact of Infrastructure Sharing on Cumulative Private Cost",
        linetype=NULL, colour=NULL, size=NULL,
-       subtitle = "Reported using 4G (W) to provide 10 Mbps broadband universal service",
+       subtitle = "Reported using 4G (W) to provide 10 Mbps universal broadband",
        x = 'Population Covered (%)', y = "Cumulative Cost (Billions $USD)") +
   scale_x_continuous(expand = c(0, 0), breaks = seq(0,100,20)) +
   scale_y_continuous(expand = c(0, 0)) +  theme(panel.spacing = unit(0.6, "lines")) +
@@ -799,7 +801,7 @@ efficiency_saving = ggplot(data,
   scale_fill_brewer(palette="Dark2", name = NULL, direction=1) +
   theme(legend.position = "bottom") +
   labs(title = "Regional Efficiency Saving Required for Viability", colour=NULL,
-       subtitle = "Reported for all scenarios and strategies for 10 Mbps broadband universal service",
+       subtitle = "Reported for all scenarios and strategies for 10 Mbps universal broadband",
        x = NULL, y = " Required Percentage Saving (%) to Achieve Viability") +
   scale_y_continuous(expand = c(0, 0), limits = c(min_value-.5, max_value+9),
                      breaks = seq(0, 100, by = 20)) +  
@@ -870,7 +872,7 @@ social_cost = ggplot(data, aes(x=strategy, y=round(social_cost/1e9),
   coord_flip() +
   scale_fill_brewer(palette="Dark2", name = NULL, direction=1) +
   theme(legend.position = "bottom") +
-  labs(title = "(A) Total Social Cost of Broadband Universal Service (10 Mbps Per User)", colour=NULL,
+  labs(title = "(A) Total Social Cost of Universal Broadband (10 Mbps Per User)", colour=NULL,
        subtitle = "Reported for all scenarios and strategies",
        x = NULL, y = "Total Social Cost (Billions $USD)") +
   scale_y_continuous(expand = c(0, 0), limits = c(0, max_value+17)) +  
@@ -937,7 +939,7 @@ govt_costs = ggplot(data, aes(x=strategy, y=round(government_cost/1e9,1),
   coord_flip() +
   scale_fill_brewer(palette="Dark2", name = NULL, direction=1) +
   theme(legend.position = "bottom") +
-  labs(title = "(B) Net Government Cost for Broadband Universal Service (10 Mbps Per User)", colour=NULL,
+  labs(title = "(B) Net Government Cost for Universal Broadband (10 Mbps Per User)", colour=NULL,
        subtitle = "Reported for all scenarios and strategies",
        x = NULL, y = "Total Cost (Billions $USD)") +
   scale_y_continuous(expand = c(0, 0), 

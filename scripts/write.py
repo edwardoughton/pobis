@@ -200,6 +200,7 @@ def write_results(regional_results, folder, metric):
         'total_upgraded_sites',
         'total_new_sites',
         'total_market_revenue', 'total_market_cost',
+        'total_required_state_subsidy', 'total_spectrum_cost', 'total_tax',
     ]]
     national_results = national_results.drop_duplicates()
     national_results = national_results.groupby([
@@ -208,6 +209,13 @@ def write_results(regional_results, folder, metric):
         national_results['total_market_cost'] / national_results['total_phones'])
     national_results['cost_per_smartphone_user'] = (
         national_results['total_market_cost'] / national_results['total_smartphones'])
+    national_results['private_cost'] = (
+        national_results['total_market_cost'])
+    national_results['government_cost'] = (
+        national_results['total_required_state_subsidy'] -
+            (national_results['total_spectrum_cost'] + national_results['total_tax']))
+    national_results['social_cost'] = (
+        national_results['private_cost'] + national_results['government_cost'])
 
     path = os.path.join(folder,'national_market_results_{}.csv'.format(metric))
     national_results.to_csv(path, index=True)

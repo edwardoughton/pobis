@@ -442,6 +442,9 @@ def get_regional_data(country):
 
     for index, region in regions.iterrows():
 
+        if region[gid_level] in country['regions_to_skip']:
+            continue
+
         with rasterio.open(path_night_lights) as src:
 
             affine = src.transform
@@ -562,7 +565,7 @@ def estimate_sites(data, iso3, backhaul_lut):
     path = os.path.join(DATA_RAW, 'wb_mobile_coverage', 'wb_population_coverage.csv')
     coverage = pd.read_csv(path)
     coverage = coverage.loc[coverage['Country ISO3'] == iso3]
-    coverage = coverage['2016'].values[0]
+    coverage = 70 #coverage['2016'].values[0]
 
     population_covered = population * (coverage / 100)
 
@@ -1466,6 +1469,10 @@ def find_regional_nodes(country):
     interim = []
 
     for unique_region in unique_regions:
+
+        if unique_region in country['regions_to_skip']:
+            continue
+
         agglomerations = []
         for idx, region in regions.iterrows():
             if unique_region == region[GID_level]:
@@ -2187,42 +2194,44 @@ if __name__ == '__main__':
         #     'subs_growth_low': 2, 'subs_growth_baseline': 3, 'subs_growth_high': 4,
         #     'sp_growth_low_urban': 5, 'sp_growth_baseline_urban': 7, 'sp_growth_high_urban': 9,
         #     'sp_growth_low_rural': 11, 'sp_growth_baseline_rural': 13, 'sp_growth_high_rural': 15,
-        #     'cluster': 'C2',
+        #     'cluster': 'C2', 'regions_to_skip': [],
         # },
         {'iso3': 'MLI', 'iso2': 'ML', 'regional_level': 2, 'regional_nodes_level': 2,
             'region': 'SSA', 'pop_density_km2': 500, 'settlement_size': 1000,
             'subs_growth_low': 2, 'subs_growth_baseline': 3, 'subs_growth_high': 4,
             'sp_growth_low_urban': 6, 'sp_growth_baseline_urban': 8, 'sp_growth_high_urban': 10,
             'sp_growth_low_rural': 16, 'sp_growth_baseline_rural': 18, 'sp_growth_high_rural': 20,
-            'cluster': 'C1',
+            'cluster': 'C1', 'regions_to_skip': ['MLI.4.3_1', 'MLI.9.2_1', 'MLI.9.5_1'
+            'MLI.2.4_1', 'MLI.2.3_1', 'MLI.2.2_1', 'MLI.2.1_1', 'MLI.4.4_1', 'MLI.4.3_1',
+            'MLI.4.2_1', 'MLI.4.1_1']
         },
         # {'iso3': 'CIV', 'iso2': 'CI', 'regional_level': 2, 'regional_nodes_level': 2,
         #     'region': 'SSA', 'pop_density_km2': 500, 'settlement_size': 1000,
         #     'subs_growth_low': 2, 'subs_growth_baseline': 3, 'subs_growth_high': 4,
         #     'sp_growth_low_urban': 5, 'sp_growth_baseline_urban': 8, 'sp_growth_high_urban': 11,
         #     'sp_growth_low_rural': 18, 'sp_growth_baseline_rural': 20, 'sp_growth_high_rural': 22,
-        #     'cluster': 'C1',
+        #     'cluster': 'C1', 'regions_to_skip': [],
         # },
         # {'iso3': 'UGA', 'iso2': 'UG', 'regional_level': 2, 'regional_nodes_level': 2,
         #     'region': 'S&SE Asia', 'pop_density_km2': 500, 'settlement_size': 1000,
         #     'subs_growth_low': 2, 'subs_growth_baseline': 3, 'subs_growth_high': 4,
         #     'sp_growth_low_urban': 4, 'sp_growth_baseline_urban': 6, 'sp_growth_high_urban': 8,
         #     'sp_growth_low_rural': 18, 'sp_growth_baseline_rural': 20, 'sp_growth_high_rural': 22,
-        #     'cluster': 'C1',
+        #     'cluster': 'C1', 'regions_to_skip': [],
         # },
         # {'iso3': 'KEN', 'iso2': 'KE', 'regional_level': 2, 'regional_nodes_level': 2,
         #     'region': 'SSA', 'pop_density_km2': 500, 'settlement_size': 1000,
         #     'subs_growth_low': 2, 'subs_growth_baseline': 3, 'subs_growth_high': 4,
         #     'sp_growth_low_urban': 4, 'sp_growth_baseline_urban': 5, 'sp_growth_high_urban': 6,
         #     'sp_growth_low_rural': 14, 'sp_growth_baseline_rural': 16, 'sp_growth_high_rural': 18,
-        #     'cluster': 'C2',
+        #     'cluster': 'C2', 'regions_to_skip': [],
         # },
         # {'iso3': 'TZA', 'iso2': 'TZ', 'regional_level': 2, 'regional_nodes_level': 2,
         #     'region': 'Europe', 'pop_density_km2': 500, 'settlement_size': 1000,
         #     'subs_growth_low': 2, 'subs_growth_baseline': 3, 'subs_growth_high': 4,
         #     'sp_growth_low_urban': 6, 'sp_growth_baseline_urban': 8, 'sp_growth_high_urban': 10,
         #     'sp_growth_low_rural': 18, 'sp_growth_baseline_rural': 20, 'sp_growth_high_rural': 22,
-        #     'cluster': 'C1',
+        #     'cluster': 'C1', 'regions_to_skip': [],
         # },
     ]
 

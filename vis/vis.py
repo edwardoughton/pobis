@@ -20,75 +20,6 @@ DATA_INTERMEDIATE = os.path.join(BASE_PATH, 'intermediate')
 VIS = os.path.join(BASE_PATH, '..', 'vis', 'figures')
 
 
-def plot_cost_per_user(data, capacity):
-    """
-
-    """
-    print(data)
-    n = len(data)
-    sns.set(font_scale=1.5)
-    data['Population Density Decile (km^2)'] = data['Decile']
-
-    data = data[[
-        'Scenario', 'Strategy', 'Confidence', 'Population Density Decile (km^2)',
-        'Private Cost Per User ($USD)', 'Government Cost Per User ($USD)',
-    ]]
-
-    data = pd.melt(data,
-        id_vars=['Scenario', 'Strategy', 'Confidence', 'Population Density Decile (km^2)'],
-        var_name='Cost Type', value_name='Cost')
-
-    # plot = sns.histplot(data, x='Population Density Decile (km^2)',
-    #     hue='Cost Type', weights='percentage',
-    #         multiple='stack', palette='tab20c', shrink=0.8)
-
-    g = sns.FacetGrid(data, col="Scenario")
-    g.map(sns.histplot, "tip")
-
-    # plot = sns.catplot(
-    #     x='Population Density Decile (km^2)', y=cost_type, col="Scenario",
-    #     col_order=['Low', 'Baseline', 'High'],
-    #     row="Strategy", kind='bar', data=data, sharex=False
-    # )
-
-    # title = 'Cost Per User by Universal Broadband Technology Strategy ({} Mbps) (n={})'.format(
-    #     capacity, n)
-    # plot.fig.suptitle(title)
-    # plot.set_xticklabels(rotation=70)
-    # plt.tight_layout()
-    # filename = 'per_user_{}_cost_{}.png'.format(cost_type.split(' ')[0], capacity)
-    # plot.savefig(os.path.join(VIS, filename), dpi=300)
-    # plt.close()
-    # sns.set(font_scale=1)
-
-    return 'Complete'
-
-
-def plot_median_per_user_cost(data, capacity, cost_type):
-    """
-
-    """
-    n = len(data)
-    sns.set(font_scale=1.5)
-    data['Population Density Decile (km^2)'] = data['Decile']
-    plot = sns.catplot(
-        x='Population Density Decile (km^2)', y=cost_type, col="Scenario",
-        col_order=['Low', 'Baseline', 'High'],
-        row="Strategy", kind='bar', data=data, sharex=False
-    )
-    title = 'Median {} by Universal Broadband Technology Strategy ({} Mbps) (n={})'.format(
-        cost_type, capacity, n)
-    plot.fig.suptitle(title)
-    plot.set_xticklabels(rotation=70)
-    plt.tight_layout()
-    filename = 'per_user_{}_cost_{}.png'.format(cost_type.split(' ')[0], capacity)
-    plot.savefig(os.path.join(VIS, filename), dpi=300)
-    plt.close()
-    sns.set(font_scale=1)
-
-    return 'Complete'
-
-
 def get_regional_shapes():
     """
 
@@ -208,8 +139,14 @@ def plot_sub_national_cost_per_square_km(data, regions, capacity, cost_type):
     metric = 'cost_per_km2'
 
     bins = [-1e9, 0, 5, 10, 20, 30, 40, 50, 60, 70, 80, 1e9]
+
+    if cost_type[1] == 'total_government_cost':
+        bottom_label = '0 (Viable)'
+    else:
+        bottom_label = '0 '
+
     labels = [
-        '0 (Viable)',
+        bottom_label,
         '<5k USD $\mathregular{km^2}$',
         '<10k USD $\mathregular{km^2}$',
         '<20k USD $\mathregular{km^2}$',
@@ -325,73 +262,6 @@ def plot_sub_national_gross_cost(data, regions, capacity, cost_type):
     plt.close(fig)
 
 
-# def plot_national_costs(national_costs):
-#     """
-
-#     """
-#     countries = [
-#         'NGA',
-#         'COD',
-#         'ETH',
-#         'SDN',
-#         'ZAF',
-#         'TZA',
-#         'EGY',
-#         'AGO',
-#         'KEN',
-#         'DZA',
-#         'MOZ',
-#         'ZMB',
-#         'MLI',
-#         'TCD',
-#         'MDG',
-#         'CMR',
-#         'MAR',
-#         'SSD',
-#         'UGA',
-#         'NER',
-#     ]
-#     national_costs['Strategy'] = national_costs['Strategy'].replace(['3G(FB)'], '3G (FB)')
-#     national_costs['Strategy'] = national_costs['Strategy'].replace(['3G(W)'], '3G (W)')
-#     national_costs['Strategy'] = national_costs['Strategy'].replace(['4G(FB)'], '4G (FB)')
-#     national_costs['Strategy'] = national_costs['Strategy'].replace(['4G(W)'], '4G (W)')
-
-#     national_costs = national_costs[national_costs['Country'].isin(countries)]
-#     sns.set(font_scale=0.9)
-#     plot = sns.FacetGrid(
-#         national_costs, row="Strategy", col="Scenario", sharex=False,
-#         row_order=['3G (FB)', '3G (W)', '4G (FB)', '4G (W)'],
-#         col_order=['Low', 'Baseline', 'High'])
-#     plot.map(sns.barplot, 'Country', "Cost ($Bn)", order=countries)
-#     plt.subplots_adjust(top=0.9)
-#     plot.fig.suptitle('Total Cost for Universal Broadband of 10 Mbps Per User')
-#     plot.set_xticklabels(rotation=70)#, fontsize=8)
-#     plot.set(xlabel=None)
-#     plt.tight_layout()
-#     plot.savefig(os.path.join(VIS, 'national_cost_estimates.png')) #, dpi=300
-
-
-# def plot_total_costs(total_costs):
-#     """
-
-#     """
-#     total_costs['Strategy'] = total_costs['Strategy'].replace(['3G(FB)'], '3G (FB)')
-#     total_costs['Strategy'] = total_costs['Strategy'].replace(['3G(W)'], '3G (W)')
-#     total_costs['Strategy'] = total_costs['Strategy'].replace(['4G(FB)'], '4G (FB)')
-#     total_costs['Strategy'] = total_costs['Strategy'].replace(['4G(W)'], '4G (W)')
-
-#     plot = sns.FacetGrid(
-#         total_costs, col="Scenario", height=4, aspect=.5,
-#         col_order=['Low', 'Baseline', 'High'])
-#     plot.map(sns.barplot, "Strategy", "Cost ($Bn)")
-#     plt.subplots_adjust(top=0.9)
-#     plot.fig.suptitle('Total Cost for Universal Broadband of 10 Mbps Per User')
-#     plot.set_xticklabels(rotation=30)
-#     plot.set(xlabel=None)
-#     plt.tight_layout()
-#     plot.savefig(os.path.join(VIS, 'total_cost_estimates.png')) #, dpi=300
-
-
 if __name__ == '__main__':
 
     capacities = [
@@ -407,25 +277,9 @@ if __name__ == '__main__':
 
     for capacity in capacities:
 
-        # #Loading median cost by pop density geotype
-        # filename = 'median_per_user_cost_by_pop_density_{}.csv'.format(capacity)
-        # path = os.path.join(DATA_INTERMEDIATE, filename)
-        # data = pd.read_csv(path)
-
-        # #Plotting using numerically labelled geotypes
-        # plot_cost_per_user(data, capacity)
-
         for cost_type in cost_types:
 
             print('Working on {} ({} Mbps)'.format(cost_type[0], capacity))
-
-            #Loading median cost by pop density geotype
-            filename = 'median_per_user_cost_by_pop_density_{}.csv'.format(capacity)
-            path = os.path.join(DATA_INTERMEDIATE, filename)
-            data = pd.read_csv(path)
-
-            #Plotting using numerically labelled geotypes
-            plot_median_per_user_cost(data, capacity, cost_type[0])
 
             #Loading regional data by pop density geotype
             path = os.path.join(DATA_INTERMEDIATE, 'all_regional_data.csv')
@@ -450,25 +304,7 @@ if __name__ == '__main__':
             regional_costs = pd.read_csv(path)
 
             #Plotting sub-national regions by cost per km^2
-            plot_sub_national_cost_per_square_km(regional_costs, shapes, capacity, cost_type)
-
-            # #Plotting sub-national regions by gross cost
-            # plot_sub_national_gross_cost(regional_costs, shapes, capacity, cost_type)
-
-            # #Loading national results data
-            # filename = 'national_cost_estimates_{}.csv'.format(capacity)
-            # path = os.path.join(BASE_PATH, '..', 'results', filename)
-            # national_costs = pd.read_csv(path)
-
-            # #Plotting cost estimates
-            # plot_national_costs(national_costs)
-
-            # #Loading total results data
-            # filename = 'total_cost_estimates_{}.csv'.format(capacity)
-            # path = os.path.join(BASE_PATH, '..', 'results', filename)
-            # total_costs = pd.read_csv(path)
-
-            # #Plotting cost estimates
-            # plot_total_costs(total_costs)
+            plot_sub_national_cost_per_square_km(regional_costs, shapes,
+                capacity, cost_type)
 
     print('Complete')
