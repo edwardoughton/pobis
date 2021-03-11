@@ -10,17 +10,14 @@ import os
 import configparser
 import numpy as np
 import pandas as pd
-# import matplotlib.pyplot as plt
-# import seaborn as sns
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__), 'script_config.ini'))
 BASE_PATH = CONFIG['file_locations']['base_path']
 
-DATA_RAW = os.path.join(BASE_PATH, 'raw')
 DATA_INTERMEDIATE = os.path.join(BASE_PATH, 'intermediate')
-RESULTS = os.path.join(BASE_PATH, '..', 'results')
-VIS = os.path.join(BASE_PATH, '..', 'vis', 'figures')
+RESULTS = os.path.join(BASE_PATH, '..', 'results', 'model_results')
+OUTPUT = os.path.join(BASE_PATH, '..', 'results', 'user_costs')
 
 
 def process_data(data, capacity):
@@ -263,10 +260,6 @@ def processing_national_costs(regional_data, capacity):
         All combined data.
 
     """
-    #subset for desired capacity
-    regional_data = regional_data[regional_data['scenario'].str.contains(
-        str(capacity))].reset_index()
-
     national_costs = regional_data[[
         'GID_0', 'scenario', 'strategy', 'confidence',
         'population', 'area_km2', 'total_private_cost',
@@ -317,6 +310,9 @@ def processing_total_costs(regional_results):
 
 if __name__ == '__main__':
 
+    if not os.path.exists(OUTPUT):
+        os.makedirs(OUTPUT)
+
     capacities = [
         10,
         2
@@ -327,7 +323,8 @@ if __name__ == '__main__':
         print('Working on {} Mbps per user'.format(capacity))
 
         #Loading PODIS cost estimate data
-        path = os.path.join(RESULTS, 'regional_mno_cost_results_technology_options.csv')
+        filename = 'regional_mno_cost_results_technology_options.csv'
+        path = os.path.join(RESULTS, filename)
         data = pd.read_csv(path)
 
         #Processing PODIS data
@@ -335,7 +332,7 @@ if __name__ == '__main__':
 
         #Writing regional per user cost data to .csv
         filename = 'regional_per_user_cost_{}.csv'.format(capacity)
-        path = os.path.join(RESULTS, filename)
+        path = os.path.join(OUTPUT, filename)
         data.to_csv(path, index=False)
 
         #Summarizing data
@@ -343,11 +340,12 @@ if __name__ == '__main__':
 
         #Writing summarized data to .csv
         filename = 'per_user_cost_by_pop_density_{}.csv'.format(capacity)
-        path = os.path.join(RESULTS, filename)
+        path = os.path.join(OUTPUT, filename)
         costs.to_csv(path, index=False)
 
         #Loading regional data by pop density geotype
-        path = os.path.join(DATA_INTERMEDIATE, 'all_regional_data.csv')
+        filename = 'all_regional_data.csv'
+        path = os.path.join(DATA_INTERMEDIATE, filename)
         regional_data = pd.read_csv(path)
 
         #Processing all regional data
@@ -359,7 +357,7 @@ if __name__ == '__main__':
         #Exporting results
         regional_data = pd.DataFrame(regional_data)
         filename = 'regional_cost_estimates_{}.csv'.format(capacity)
-        path = os.path.join(RESULTS, filename)
+        path = os.path.join(OUTPUT, filename)
         regional_data.to_csv(path, index=False)
 
         #Processing results data
@@ -367,7 +365,7 @@ if __name__ == '__main__':
 
         #Exporting national results
         filename = 'national_cost_estimates_{}.csv'.format(capacity)
-        path = os.path.join(RESULTS, filename)
+        path = os.path.join(OUTPUT, filename)
         national_costs.to_csv(path, index=False)
 
         #Processing total cost data
@@ -375,7 +373,7 @@ if __name__ == '__main__':
 
         #Exporting national results
         filename = 'total_cost_estimates_{}.csv'.format(capacity)
-        path = os.path.join(RESULTS, filename)
+        path = os.path.join(OUTPUT, filename)
         total_costs.to_csv(path, index=False)
 
     print('-- Processing completed')

@@ -135,7 +135,7 @@ folder <- dirname(rstudioapi::getSourceEditorContext()$path)
 
 #load data
 filename = 'national_market_cost_results_technology_options.csv'
-data <- read.csv(file.path(folder, '..', 'results', filename))
+data <- read.csv(file.path(folder, '..', 'results', 'model_results', filename))
 
 data <- data[grep("10_10_10", data$scenario), ]
 data <- data[!(data$total_market_cost == "NA"),]
@@ -184,7 +184,7 @@ social_cost_10mbps = ggplot(data,
       group=scenario, fill=scenario)) +
   geom_bar(stat = "identity", position=position_dodge()) +
   geom_text(aes(label = round(social_cost/1e9)), size = 2.5,
-            position = position_dodge(width = 1), hjust=-.5) + 
+            position = position_dodge(width = 1), hjust=-.25) + 
   coord_flip() +
   scale_fill_manual(values=c("#E1BE6A", "#40B0A6", "#5D3A9B"), name=NULL) +
   theme(legend.position = "bottom") +
@@ -201,7 +201,7 @@ social_cost_10mbps = ggplot(data,
 ############################################################
 #load data
 filename = 'national_market_cost_results_technology_options.csv'
-data <- read.csv(file.path(folder, '..', 'results', filename))
+data <- read.csv(file.path(folder, '..', 'results', 'model_results', filename))
 
 data <- data[grep("2_2_2", data$scenario), ]
 data <- data[!(data$total_market_cost == "NA"),]
@@ -249,11 +249,12 @@ social_cost_2mbps = ggplot(data, aes(x=strategy, y=round(social_cost/1e9),
                                      group=scenario, fill=scenario)) +
   geom_bar(stat = "identity", position=position_dodge()) +
   geom_text(aes(label = round(social_cost/1e9)), size = 2.5,
-            position = position_dodge(width = 1), hjust=-.5) + 
+            position = position_dodge(width = 1), hjust=-.25) + 
   coord_flip() +
   scale_fill_manual(values=c("#E1BE6A", "#40B0A6", "#5D3A9B"), name=NULL) +
   theme(legend.position = "bottom") +
-  labs(title = "(B) Social Cost of Universal Broadband by Technology (2 Mbps Per User)", colour=NULL,
+  labs(title = "(B) Social Cost of Universal Broadband by Technology (2 Mbps Per User)", 
+       colour=NULL,
        subtitle = "Reported for all scenarios and strategies",
        x = NULL, y = "Social Cost (Billions $USD)") +
   scale_y_continuous(expand = c(0, 0), limits = c(0, max_value+17)) +  
@@ -275,7 +276,7 @@ folder <- dirname(rstudioapi::getSourceEditorContext()$path)
 
 #load data
 filename = 'national_market_cost_results_technology_options.csv'
-data <- read.csv(file.path(folder, '..', 'results', filename))
+data <- read.csv(file.path(folder, '..', 'results', 'model_results', filename))
 
 data <- data[grep("10_10_10", data$scenario), ]
 data <- data[!(data$government_cost == "NA"),]
@@ -340,7 +341,7 @@ govt_costs_10mbps = ggplot(data, aes(x=strategy,
 ############################################################
 #load data
 filename = 'national_market_cost_results_technology_options.csv'
-data <- read.csv(file.path(folder, '..', 'results', filename))
+data <- read.csv(file.path(folder, '..', 'results', 'model_results', filename))
 
 data <- data[grep("2_2_2", data$scenario), ]
 data <- data[!(data$government_cost == "NA"),]
@@ -413,7 +414,7 @@ dev.off()
 ###Business model
 folder <- dirname(rstudioapi::getSourceEditorContext()$path)
 filename = 'national_market_results_business_model_options.csv'
-data <- read.csv(file.path(folder, '..', 'results', filename))
+data <- read.csv(file.path(folder, '..', 'results', 'model_results', filename))
 
 data <- data[grep("10_10_10", data$scenario), ]
 data <- data[!(data$total_market_cost == "NA"),]
@@ -482,7 +483,7 @@ cost_10mbps = ggplot(data, aes(x=strategy, y=round(social_cost/1e9),
 ######################################################################
 folder <- dirname(rstudioapi::getSourceEditorContext()$path)
 filename = 'national_market_results_business_model_options.csv'
-data <- read.csv(file.path(folder, '..', 'results', filename))
+data <- read.csv(file.path(folder, '..', 'results', 'model_results', filename))
 
 data <- data[grep("2_2_2", data$scenario), ]
 data <- data[!(data$social_cost == "NA"),]
@@ -562,7 +563,7 @@ folder <- dirname(rstudioapi::getSourceEditorContext()$path)
 
 #load data
 filename = 'national_market_cost_results_technology_options.csv'
-data <- read.csv(file.path(folder, '..', 'results', filename))
+data <- read.csv(file.path(folder, '..', 'results', 'model_results', filename))
 
 data <- data[grep("10_10_10", data$scenario), ]
 data <- data[!(data$total_market_cost == "NA"),]
@@ -618,7 +619,7 @@ efficiency_saving_10mbps = ggplot(data,
   coord_flip() +
   scale_fill_manual(values=c("#E1BE6A", "#40B0A6", "#5D3A9B"), name=NULL) +
   theme(legend.position = "bottom") +
-  labs(title = "(A) Regional Efficiency Saving Required for Viability (10 Mbps Per User)", colour=NULL,
+  labs(title = "(A) Efficiency Saving Required for Viability (10 Mbps Per User)", colour=NULL,
        subtitle = "Reported for all scenarios and strategies",
        x = NULL, y = " Required Percentage Saving (%) to Achieve Viability") +
   scale_y_continuous(expand = c(0, 0), limits = c(min_value-.5, max_value+9),
@@ -630,7 +631,7 @@ efficiency_saving_10mbps = ggplot(data,
 #########################################################################
 #load data
 filename = 'national_market_cost_results_technology_options.csv'
-data <- read.csv(file.path(folder, '..', 'results', filename))
+data <- read.csv(file.path(folder, '..', 'results', 'model_results', filename))
 
 data <- data[grep("2_2_2", data$scenario), ]
 data <- data[!(data$total_market_cost == "NA"),]
@@ -686,7 +687,7 @@ efficiency_saving_2mbps = ggplot(data,
   coord_flip() +
   scale_fill_manual(values=c("#E1BE6A", "#40B0A6", "#5D3A9B"), name=NULL) +
   theme(legend.position = "bottom") +
-  labs(title = "(B) Regional Efficiency Saving Required for Viability (2 Mbps Per User)", colour=NULL,
+  labs(title = "(B) Efficiency Saving Required for Viability (2 Mbps Per User)", colour=NULL,
        subtitle = "Reported for all scenarios and strategies",
        x = NULL, y = " Required Percentage Saving (%) to Achieve Viability") +
   scale_y_continuous(expand = c(0, 0), limits = c(min_value-.5, max_value+9),
@@ -708,7 +709,7 @@ remove(data)
 #########################################################################
 #get folder directory
 folder <- dirname(rstudioapi::getSourceEditorContext()$path)
-folder_inputs = file.path(folder, '..', 'results')
+folder_inputs = file.path(folder, '..', 'results', 'user_costs')
 
 data1 <- read.csv(file.path(folder_inputs, 'total_cost_estimates_2.csv'))
 data1$Capacity = '2 Mbps Per User'
@@ -731,8 +732,8 @@ data$Scenario = factor(data$Scenario, levels=c("Low",
                                                "Baseline",
                                                "High"))
 
-data$Capacity = factor(data$Capacity, levels=c("2 Mbps Per User",
-                                               "10 Mbps Per User"
+data$Capacity = factor(data$Capacity, levels=c("10 Mbps Per User",
+                                               "2 Mbps Per User"
 ))
 
 totals <- data %>%

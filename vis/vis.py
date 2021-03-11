@@ -19,8 +19,8 @@ CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__), '..', 'scripts', 'script_config.ini'))
 BASE_PATH = CONFIG['file_locations']['base_path']
 
-DATA_RAW = os.path.join(BASE_PATH, 'raw')
 DATA_INTERMEDIATE = os.path.join(BASE_PATH, 'intermediate')
+USER_COSTS = os.path.join(BASE_PATH, '..', 'results', 'user_costs')
 VIS = os.path.join(BASE_PATH, '..', 'vis', 'figures')
 
 
@@ -237,7 +237,7 @@ if __name__ == '__main__':
 
             #Loading regional results data
             filename = 'regional_cost_estimates_{}.csv'.format(capacity)
-            path = os.path.join(BASE_PATH, '..', 'results', filename)
+            path = os.path.join(USER_COSTS, filename)
             regional_costs = pd.read_csv(path)
 
             #Plotting sub-national regions by cost per km^2

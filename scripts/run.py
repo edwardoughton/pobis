@@ -26,7 +26,7 @@ BASE_PATH = CONFIG['file_locations']['base_path']
 DATA_RAW = os.path.join(BASE_PATH, 'raw')
 DATA_INTERMEDIATE = os.path.join(BASE_PATH, 'intermediate')
 DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
-
+OUTPUT = os.path.join(BASE_PATH, '..', 'results', 'model_results')
 
 def load_regions(iso3, path):
     """
@@ -278,6 +278,9 @@ def allocate_deciles(data):
 
 if __name__ == '__main__':
 
+    if not os.path.exists(OUTPUT):
+        os.makedirs(OUTPUT)
+
     BASE_YEAR = 2020
     END_YEAR = 2030
     TIMESTEP_INCREMENT = 1
@@ -358,7 +361,7 @@ if __name__ == '__main__':
 
             country_parameters = COUNTRY_PARAMETERS[iso3]
 
-            folder = os.path.join(BASE_PATH, '..', 'vis', 'clustering', 'results')
+            folder = os.path.join(DATA_RAW, 'clustering')
             filename = 'data_clustering_results.csv'
             country['cluster'] = load_cluster(os.path.join(folder, filename), iso3)
 
@@ -378,17 +381,20 @@ if __name__ == '__main__':
 
                 folder = os.path.join(DATA_INTERMEDIATE, iso3, 'subscriptions')
                 filename = 'subs_forecast.csv'
-                penetration_lut = load_penetration(option['scenario'], os.path.join(folder, filename))
+                path = os.path.join(folder, filename)
+                penetration_lut = load_penetration(option['scenario'], path)
 
                 folder = os.path.join(DATA_INTERMEDIATE, iso3, 'smartphones')
                 filename = 'smartphone_forecast.csv'
-                smartphone_lut = load_smartphones(option['scenario'], os.path.join(folder, filename))
+                path = os.path.join(folder, filename)
+                smartphone_lut = load_smartphones(option['scenario'], path)
 
                 for ci in confidence_intervals:
 
                     print('CI: {}'.format(ci))
 
-                    path = os.path.join(DATA_INTERMEDIATE, iso3, 'regional_data.csv')
+                    filename = 'regional_data.csv'
+                    path = os.path.join(DATA_INTERMEDIATE, iso3, filename)
                     data = load_regions(iso3, path)
 
                     data_initial = data.to_dict('records')
@@ -429,13 +435,12 @@ if __name__ == '__main__':
                     regional_annual_demand = regional_annual_demand + annual_demand
                     regional_results = regional_results + final_results
 
-            folder = os.path.join(BASE_PATH, '..', 'results')
-            path = os.path.join(folder, 'regional_annual_demand_{}.csv'.format(decision_option))
-            write_mno_demand(regional_annual_demand, folder, decision_option, path)
+            filename = 'regional_annual_demand_{}.csv'.format(decision_option)
+            path = os.path.join(OUTPUT, filename)
+            write_mno_demand(regional_annual_demand, OUTPUT, decision_option, path)
 
             all_results = all_results + regional_results
 
-        folder = os.path.join(BASE_PATH, '..', 'results')
-        write_results(regional_results, folder, decision_option)
+        write_results(regional_results, OUTPUT, decision_option)
 
         print('Completed model run')
