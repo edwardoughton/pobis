@@ -157,7 +157,16 @@ And now we can estimate the costs of all African countries:
 
     python scripts/user_costs.py
 
-Finally, the `vis` folder contains visualization scripts to generate plots:
+If you want to know the percentage savings between strategies, run:
+
+    python scripts/percentages.py
+
+
+Plotting results
+===============
+
+The `vis` folder contains visualization scripts to generate plots in R (`plots.r`).
+To plot the maps for the African continent the following script can be executed:
 
     python vis/vis.py
 
