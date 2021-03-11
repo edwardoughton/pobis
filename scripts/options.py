@@ -127,10 +127,6 @@ OPTIONS = {
         },
         {
             'scenario': 'low_10_10_10',
-            'strategy': '4G_epc_wireless_pss_baseline_baseline_baseline_baseline',
-        },
-        {
-            'scenario': 'low_10_10_10',
             'strategy': '4G_epc_wireless_psb_baseline_baseline_baseline_baseline',
         },
         {
@@ -139,19 +135,11 @@ OPTIONS = {
         },
         {
             'scenario': 'low_10_10_10',
-            'strategy': '4G_epc_wireless_cns_baseline_baseline_baseline_baseline',
-        },
-        {
-            'scenario': 'low_10_10_10',
             'strategy': '4G_epc_wireless_baseline_srn_baseline_baseline_baseline',
         },
         {
             'scenario': 'baseline_10_10_10',
             'strategy': '4G_epc_wireless_baseline_baseline_baseline_baseline_baseline',
-        },
-        {
-            'scenario': 'baseline_10_10_10',
-            'strategy': '4G_epc_wireless_pss_baseline_baseline_baseline_baseline',
         },
         {
             'scenario': 'baseline_10_10_10',
@@ -163,19 +151,11 @@ OPTIONS = {
         },
         {
             'scenario': 'baseline_10_10_10',
-            'strategy': '4G_epc_wireless_cns_baseline_baseline_baseline_baseline',
-        },
-        {
-            'scenario': 'baseline_10_10_10',
             'strategy': '4G_epc_wireless_baseline_srn_baseline_baseline_baseline',
         },
         {
             'scenario': 'high_10_10_10',
             'strategy': '4G_epc_wireless_baseline_baseline_baseline_baseline_baseline',
-        },
-        {
-            'scenario': 'high_10_10_10',
-            'strategy': '4G_epc_wireless_pss_baseline_baseline_baseline_baseline',
         },
         {
             'scenario': 'high_10_10_10',
@@ -187,19 +167,11 @@ OPTIONS = {
         },
         {
             'scenario': 'high_10_10_10',
-            'strategy': '4G_epc_wireless_cns_baseline_baseline_baseline_baseline',
-        },
-        {
-            'scenario': 'high_10_10_10',
             'strategy': '4G_epc_wireless_baseline_srn_baseline_baseline_baseline',
         },
         {
             'scenario': 'low_2_2_2',
             'strategy': '4G_epc_wireless_baseline_baseline_baseline_baseline_baseline',
-        },
-        {
-            'scenario': 'low_2_2_2',
-            'strategy': '4G_epc_wireless_pss_baseline_baseline_baseline_baseline',
         },
         {
             'scenario': 'low_2_2_2',
@@ -211,19 +183,11 @@ OPTIONS = {
         },
         {
             'scenario': 'low_2_2_2',
-            'strategy': '4G_epc_wireless_cns_baseline_baseline_baseline_baseline',
-        },
-        {
-            'scenario': 'low_2_2_2',
             'strategy': '4G_epc_wireless_baseline_srn_baseline_baseline_baseline',
         },
         {
             'scenario': 'baseline_2_2_2',
             'strategy': '4G_epc_wireless_baseline_baseline_baseline_baseline_baseline',
-        },
-        {
-            'scenario': 'baseline_2_2_2',
-            'strategy': '4G_epc_wireless_pss_baseline_baseline_baseline_baseline',
         },
         {
             'scenario': 'baseline_2_2_2',
@@ -235,10 +199,6 @@ OPTIONS = {
         },
         {
             'scenario': 'baseline_2_2_2',
-            'strategy': '4G_epc_wireless_cns_baseline_baseline_baseline_baseline',
-        },
-        {
-            'scenario': 'baseline_2_2_2',
             'strategy': '4G_epc_wireless_baseline_srn_baseline_baseline_baseline',
         },
         {
@@ -247,19 +207,11 @@ OPTIONS = {
         },
         {
             'scenario': 'high_2_2_2',
-            'strategy': '4G_epc_wireless_pss_baseline_baseline_baseline_baseline',
-        },
-        {
-            'scenario': 'high_2_2_2',
             'strategy': '4G_epc_wireless_psb_baseline_baseline_baseline_baseline',
         },
         {
             'scenario': 'high_2_2_2',
             'strategy': '4G_epc_wireless_moran_baseline_baseline_baseline_baseline',
-        },
-        {
-            'scenario': 'high_2_2_2',
-            'strategy': '4G_epc_wireless_cns_baseline_baseline_baseline_baseline',
         },
         {
             'scenario': 'high_2_2_2',
