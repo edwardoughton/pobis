@@ -308,6 +308,43 @@ def processing_total_costs(regional_results):
     return total_costs
 
 
+def process_total_cost_data(data, capacity):
+    """
+    Process total cost data.
+
+    Parameters
+    ----------
+    data : pandas df
+        Data to be processed.
+    capacity : int
+        The capacity to be processed.
+
+    Returns
+    -------
+    data : pandas df
+        Processed data.
+
+    """
+    data = data[['Scenario', 'Strategy', 'Confidence',
+                'Social Cost ($Bn)']].copy()
+
+    baseline = data.loc[data['Strategy'] == '4G(W)']
+
+    data = pd.merge(data, baseline,
+                how='left',
+                left_on=['Scenario', 'Confidence'],
+                right_on = ['Scenario', 'Confidence']
+            )
+
+    data['perc_against_4G_W'] = ((abs(data['Social Cost ($Bn)_x'] -
+                                    data['Social Cost ($Bn)_y'])) /
+                                    data['Social Cost ($Bn)_x']) * 100
+
+    data['perc_against_4G_W'] = round(data['perc_against_4G_W'], 1)
+
+    return data
+
+
 if __name__ == '__main__':
 
     if not os.path.exists(OUTPUT):
@@ -375,5 +412,13 @@ if __name__ == '__main__':
         filename = 'total_cost_estimates_{}.csv'.format(capacity)
         path = os.path.join(OUTPUT, filename)
         total_costs.to_csv(path, index=False)
+
+        #Estimate the percentage savings by technology
+        percentages = process_total_cost_data(total_costs, capacity)
+
+        #Writing regional per user cost data to .csv
+        filename = 'percentages_total_cost_{}.csv'.format(capacity)
+        path = os.path.join(OUTPUT, '..', 'percentages', filename)
+        percentages.to_csv(path, index=False)
 
     print('-- Processing completed')
