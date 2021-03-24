@@ -82,7 +82,9 @@ def estimate_demand(regions, option, global_parameters,
             #cell_penetration : float
             #Number of cell phones per member of the population.
             region['population_with_phones'] = (
-                region['population'] * (region['penetration'] / 100))
+                (region['population'] - region['pop_under_10_pop'])*
+                (region['penetration'] / 100)
+            )
 
             #phones : int
             #Total number of phones on the network being modeled.
