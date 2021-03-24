@@ -10,6 +10,8 @@ import os
 import configparser
 import json
 import csv
+import math
+import glob
 import pandas as pd
 import geopandas as gpd
 import pyproj
@@ -24,7 +26,6 @@ import networkx as nx
 from rtree import index
 import numpy as np
 import random
-import math
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__), 'script_config.ini'))
@@ -193,6 +194,75 @@ def process_settlement_layer(country):
 
     with rasterio.open(shape_path, "w", **out_meta) as dest:
             dest.write(out_img)
+
+    return print('Completed processing of settlement layer')
+
+
+def process_under_10_layers(country):
+    """
+    Clip the settlement layer to the chosen country boundary and place in
+    desired country folder.
+
+    Parameters
+    ----------
+    country : string
+        Three digit ISO country code.
+
+    """
+    iso3 = country['iso3']
+    regional_level = country['regional_level']
+
+    path = os.path.join(DATA_RAW,'settlement_layer', 'under_10')
+    all_paths = glob.glob(path + '/*.tif')
+
+    for path in all_paths:
+
+        directory_out = os.path.join(DATA_INTERMEDIATE, iso3, 'under_10')
+
+        if not os.path.exists(directory_out):
+            os.makedirs(directory_out)
+
+        filename = os.path.basename(path)
+        path_out = os.path.join(directory_out, filename)
+
+        if os.path.exists(path_out):
+            continue
+
+        settlements = rasterio.open(path, 'r+')
+        settlements.nodata = 255
+        settlements.crs = {"init": "epsg:4326"}
+
+        filename = 'national_outline.shp'
+        path_country = os.path.join(DATA_INTERMEDIATE, iso3, filename)
+
+        if os.path.exists(path_country):
+            country = gpd.read_file(path_country)
+        else:
+            print('Must generate national_outline.shp first' )
+
+        print('Working on {} level {}'.format(iso3, regional_level))
+
+        bbox = country.envelope
+        geo = gpd.GeoDataFrame()
+
+        geo = gpd.GeoDataFrame({'geometry': bbox})
+
+        coords = [json.loads(geo.to_json())['features'][0]['geometry']]
+
+        #chop on coords
+        out_img, out_transform = mask(settlements, coords, crop=True)
+
+        # Copy the metadata
+        out_meta = settlements.meta.copy()
+
+        out_meta.update({"driver": "GTiff",
+                        "height": out_img.shape[1],
+                        "width": out_img.shape[2],
+                        "transform": out_transform,
+                        "crs": 'epsg:4326'})
+
+        with rasterio.open(path_out, "w", **out_meta) as dest:
+                dest.write(out_img)
 
     return print('Completed processing of settlement layer')
 
@@ -455,6 +525,7 @@ def get_regional_data(country):
                 region['geometry'],
                 array,
                 stats=['sum'],
+                nodata=0,
                 affine=affine)][0]
 
         with rasterio.open(path_settlements) as src:
@@ -464,12 +535,22 @@ def get_regional_data(country):
             array[array <= 0] = 0
 
             population_summation = [d['sum'] for d in zonal_stats(
-                region['geometry'], array, stats=['sum'], affine=affine)][0]
+                region['geometry'],
+                array,
+                stats=['sum'],
+                nodata=0,
+                affine=affine)][0]
+
+        pop_under_10_pop = find_pop_under_10(region, iso3)
 
         area_km2 = round(area_of_polygon(region['geometry']) / 1e6)
 
         if luminosity_summation == None:
             luminosity_summation = 0
+        if population_summation is None:
+            population_summation = 0
+        if pop_under_10_pop is None:
+            pop_under_10_pop = 0
 
         if 'GSM' in [c for c in coverage.keys()]:
             if region[gid_level] in coverage['GSM']:
@@ -501,8 +582,11 @@ def get_regional_data(country):
             'GID_level': gid_level,
             'mean_luminosity_km2': luminosity_summation / area_km2 if luminosity_summation else 0,
             'population': population_summation,
+            'pop_under_10_pop': pop_under_10_pop,
             'area_km2': area_km2,
             'population_km2': population_summation / area_km2 if population_summation else 0,
+            'pop_adults_km2': ((population_summation - pop_under_10_pop) /
+                area_km2 if pop_under_10_pop else 0),
             'coverage_GSM_percent': round(coverage_GSM_km2 / area_km2 * 100 if coverage_GSM_km2 else 0, 1),
             'coverage_3G_percent': round(coverage_3G_km2 / area_km2 * 100 if coverage_3G_km2 else 0, 1),
             'coverage_4G_percent': round(coverage_4G_km2 / area_km2 * 100 if coverage_4G_km2 else 0, 1),
@@ -521,6 +605,48 @@ def get_regional_data(country):
     print('Completed {}'.format(single_country.NAME_0.values[0]))
 
     return print('Completed night lights data querying')
+
+
+def find_pop_under_10(region, iso3):
+    """
+    Find the estimated population under 10 years old.
+
+    Parameters
+    ----------
+    region : pandas series
+        The region being modeled.
+    iso3 : string
+        ISO3 country code.
+
+    Returns
+    -------
+    population : int
+        Population sum under 10 years of age.
+
+    """
+    path = os.path.join(DATA_INTERMEDIATE, iso3, 'under_10')
+    all_paths = glob.glob(path + '/*.tif')
+
+    population = []
+
+    for path in all_paths:
+        with rasterio.open(path) as src:
+
+            affine = src.transform
+            array = src.read(1)
+            array[array <= 0] = 0
+
+            population_summation = [d['sum'] for d in zonal_stats(
+                region['geometry'],
+                array,
+                stats=['sum'],
+                nodata=0,
+                affine=affine)][0]
+
+            if population_summation is not None:
+                population.append(population_summation)
+
+    return sum(population)
 
 
 def estimate_sites(data, iso3, backhaul_lut):
@@ -626,8 +752,10 @@ def estimate_sites(data, iso3, backhaul_lut):
                 'GID_level': region['GID_level'],
                 'mean_luminosity_km2': region['mean_luminosity_km2'],
                 'population': region['population'],
+                'pop_under_10_pop': region['pop_under_10_pop'],
                 'area_km2': region['area_km2'],
                 'population_km2': region['population_km2'],
+                'pop_adults_km2': region['pop_adults_km2'],
                 'coverage_GSM_percent': region['coverage_GSM_percent'],
                 'coverage_3G_percent': region['coverage_3G_percent'],
                 'coverage_4G_percent': region['coverage_4G_percent'],
@@ -1676,7 +1804,6 @@ def fit_edges(input_path, output_path):
                     'type': 'Feature',
                     'geometry': mapping(line),
                     'properties':{
-                        # 'network_layer': 'core',
                         'from': node1_id,
                         'to':  node2_id,
                         'length': line.length,
@@ -1702,11 +1829,11 @@ def fit_edges(input_path, output_path):
     for branch in tree:
         link = branch[2]['object']
         if link['properties']['length'] > 0:
-            edges.append(link)
-
-    edges = gpd.GeoDataFrame.from_features(edges, crs='epsg:3857')
+            if 'geometry' in link:
+                edges.append(link)
 
     if len(edges) > 0:
+        edges = gpd.GeoDataFrame.from_features(edges, crs='epsg:3857')
         edges = edges.to_crs('epsg:4326')
         edges.to_file(output_path)
 

@@ -139,8 +139,13 @@ def process_all_regional_data(data):
 
     """
     data = data[[
-        'GID_0','GID_id','GID_level','population',
-        'population_km2','area_km2'
+        'GID_0','GID_id','GID_level',
+        # 'population',
+        # 'pop_under_10_pop',
+        'pop_adults',
+        # 'population_km2',
+        'area_km2',
+        'pop_adults_km2'
     ]].copy()
 
     bins = [
@@ -153,7 +158,7 @@ def process_all_regional_data(data):
     ]
 
     data['decile'] = pd.cut(
-        data['population_km2'],
+        data['pop_adults_km2'],
         bins=bins,
         labels=labels
     )
@@ -227,16 +232,16 @@ def get_costs(data, costs):
                         'scenario': scenario,
                         'strategy': strategy,
                         'confidence': ci,
-                        'population': item['population'],
-                        'population_km2': item['population_km2'],
+                        'pop_adults': item['pop_adults'],
+                        'pop_adults_km2': item['pop_adults_km2'],
                         'area_km2': item['area_km2'],
                         'decile': item['decile'],
                         'private_cost_per_user': private_cost_per_user,
                         'govt_cost_per_user': govt_cost_per_user,
                         'social_cost_per_user': private_cost_per_user + govt_cost_per_user,
-                        'total_private_cost': item['population'] * private_cost_per_user,
-                        'total_government_cost': item['population'] * govt_cost_per_user,
-                        'total_social_cost': (item['population'] *
+                        'total_private_cost': item['pop_adults'] * private_cost_per_user,
+                        'total_government_cost': item['pop_adults'] * govt_cost_per_user,
+                        'total_social_cost': (item['pop_adults'] *
                         (private_cost_per_user + govt_cost_per_user)),
                     })
 
@@ -262,7 +267,7 @@ def processing_national_costs(regional_data, capacity):
     """
     national_costs = regional_data[[
         'GID_0', 'scenario', 'strategy', 'confidence',
-        'population', 'area_km2', 'total_private_cost',
+        'pop_adults', 'area_km2', 'total_private_cost',
         'total_government_cost', 'total_social_cost'
     ]]
 
@@ -275,7 +280,7 @@ def processing_national_costs(regional_data, capacity):
 
     national_costs.columns = [
         'Country', 'Scenario', 'Strategy', 'Confidence',
-        'Population', 'Area (Km2)', 'Private Cost ($Bn)',
+        'Population (>10 Years)', 'Area (Km2)', 'Private Cost ($Bn)',
         'Government Cost ($Bn)', 'Social Cost ($Bn)'
     ]
 
@@ -287,7 +292,7 @@ def processing_total_costs(regional_results):
 
     """
     total_costs = regional_results[[
-        'scenario', 'strategy', 'confidence', 'population',
+        'scenario', 'strategy', 'confidence', 'pop_adults',
         'area_km2', 'total_private_cost',
         'total_government_cost', 'total_social_cost'
     ]]
@@ -301,7 +306,7 @@ def processing_total_costs(regional_results):
 
     total_costs.columns = [
         'Scenario', 'Strategy', 'Confidence',
-        'Population', 'Area (Km2)', 'Private Cost ($Bn)',
+        'Population (>10 Years)', 'Area (Km2)', 'Private Cost ($Bn)',
         'Government Cost ($Bn)', 'Social Cost ($Bn)'
     ]
 
