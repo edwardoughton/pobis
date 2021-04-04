@@ -251,7 +251,7 @@ def plot_sub_national_cost_per_user(data, regions, capacity, cost_type):
     ctx.add_basemap(ax, crs=regions.crs, source=ctx.providers.CartoDB.Voyager)
 
     fig.suptitle(
-        '{} Cost for 4G (Wireless) Universal Broadband ({} Mbps) (n={})'.format(
+        '{} Per User Cost for 4G (Wireless) Universal Broadband ({} Mbps) (n={})'.format(
             cost_type[0].split(' ')[0], capacity, n))
 
     fig.tight_layout()
@@ -341,9 +341,9 @@ if __name__ == '__main__':
     ]
 
     cost_types = [
-        # ('Private Median Cost Per User ($USD)', 'total_private_cost', 'private_cost_per_user'),
-        ('Government Median Cost Per User ($USD)', 'total_government_cost', 'govt_cost_per_user'),
-        ('Social Median Cost Per User ($USD)', 'total_social_cost', 'social_cost_per_user'),
+        ('Private Median Cost Per User ($USD)', 'total_private_cost', 'private_cost_per_user'),
+        # ('Government Median Cost Per User ($USD)', 'total_government_cost', 'govt_cost_per_user'),
+        # ('Social Median Cost Per User ($USD)', 'total_social_cost', 'social_cost_per_user'),
     ]
 
     for capacity in capacities:
