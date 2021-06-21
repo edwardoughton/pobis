@@ -112,7 +112,7 @@ venv.bak/
 /vis/spectrum/*
 /vis/subscriptions/data_inputs/*
 /vis/subscriptions/figures/*
-/vis/figures/*
+/vis/figures_tables/*
 
 /results/*
 /clustering/data_inputs/*
