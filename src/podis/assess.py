@@ -318,7 +318,8 @@ def calculate_total_market_costs(regions, option, country_parameters):
 
         geotype = region['geotype'].split(' ')[0]
 
-        net_handle = network_strategy + '_' + geotype
+        # net_handle = network_strategy + '_' + geotype
+        net_handle = 'baseline' + '_' + geotype
         networks = country_parameters['networks'][net_handle]
 
         ms = 100 / networks
@@ -342,7 +343,8 @@ def calculate_total_market_costs(regions, option, country_parameters):
         region['total_deficit'] = calc(region, 'deficit', ms)
         region['total_used_cross_subsidy'] = calc(region, 'used_cross_subsidy', ms)
         region['total_required_state_subsidy'] = calc(region, 'required_state_subsidy', ms)
-
+        # print(network_strategy, geotype, round(region['total_mno_cost']/1e6), round(ms,1),
+        #     round(region['total_market_cost']/1e6), round(((region['total_mno_cost']/1e6) / ms) * 100))
         output.append(region)
 
     return output
