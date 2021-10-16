@@ -1,7 +1,8 @@
 import pytest
 from podis.assess import (get_spectrum_costs, calculate_tax,
     calculate_profit, assess,
-    estimate_subsidies, allocate_available_excess)
+    estimate_subsidies, allocate_available_excess,
+    calculate_total_market_costs, calc)
 
 def test_get_spectrum_costs(setup_region, setup_option, setup_global_parameters,
     setup_country_parameters):
@@ -230,3 +231,82 @@ def test_allocate_available_excess():
 
     assert answer['available_cross_subsidy'] == 0
     assert answer['deficit'] == 5000
+
+
+def test_calculate_total_market_costs(setup_option, setup_country_parameters):
+    """
+    Unit test.
+    """
+    regions = [
+        {
+            'GID_id': 'a',
+            # 'GID_0': 'MEX',
+            # 'scenario': 'test',
+            # 'strategy': 'test',
+            # 'confidence': 50,
+            'geotype': 'rural 1',
+            'population': 0,
+            'population_km2': 0,
+            'total_mno_revenue': 33.3,
+            'network_cost': 0,
+            'smartphones_on_network': 0,
+            'phones_on_network': 0,
+            'administration': 33.3,
+            'spectrum_cost': 33.3,
+            'tax': 33.3,
+            'profit_margin': 33.3,
+            'cost': 33.3,
+            'available_cross_subsidy': 33.3,
+            'deficit': 33.3,
+            'used_cross_subsidy': 33.3,
+            'required_state_subsidy': 33.3,
+            'total_mno_cost': 33.3
+        },
+    ]
+
+    answer = calculate_total_market_costs(regions, setup_option, setup_country_parameters)
+
+    assert answer[0]['total_market_revenue'] == 100
+    assert answer[0]['total_administration'] == 100
+    assert answer[0]['total_spectrum_cost'] == 100
+    assert answer[0]['total_market_cost'] == 100
+    assert answer[0]['total_available_cross_subsidy'] == 100
+    assert answer[0]['total_used_cross_subsidy'] == 100
+
+    setup_option['scenario'] == '4G_epc_wireless_srn_srn_baseline_baseline'
+    regions[0]['geotype'] == 'rural'
+
+    answer = calculate_total_market_costs(regions, setup_option, setup_country_parameters)
+
+    assert answer[0]['total_market_revenue'] == 100
+    assert answer[0]['total_administration'] == 100
+    assert answer[0]['total_spectrum_cost'] == 100
+    assert answer[0]['total_market_cost'] == 100
+    assert answer[0]['total_available_cross_subsidy'] == 100
+    assert answer[0]['total_used_cross_subsidy'] == 100
+
+
+# def test_calc():
+
+#     region = {
+#             'network_cost': 50,
+#             'smartphones_on_network': 33,
+#         }
+
+#     #$50 dollars
+#     metric = 'network_cost'
+
+#     #50% market share (2 MNOs)
+#     ms = 50
+
+#     #100 dollars for the whole market
+#     assert calc(region, metric, ms) == 100
+
+#     #$33 dollars
+#     metric = 'smartphones_on_network'
+
+#     #33% market share (3 MNOs)
+#     ms = 33
+
+#     #100 dollars for the whole market
+#     assert calc(region, metric, ms) == 100

@@ -108,7 +108,7 @@ def test_estimate_demand(
 
     setup_region[0]['geotype'] = 'rural'
     setup_region[0]['mean_luminosity_km2'] = 2
-    setup_option['strategy'] = '4G_epc_microwave_baseline_shared_baseline_baseline'
+    setup_option['strategy'] = '4G_epc_microwave_baseline_srn_baseline_baseline'
     setup_country_parameters['arpu']['medium'] = 7
 
     #iterate through years to create annual lookup
