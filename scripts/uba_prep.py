@@ -118,14 +118,6 @@ def process_country_shapes(country):
     single_country['geometry'] = single_country.apply(
         exclude_small_shapes, axis=1)
 
-    # print('Simplifying geometries')
-    # single_country['geometry'] = single_country.simplify(
-    #     tolerance = 0.0005,
-    #     preserve_topology=True).buffer(0.0001).simplify(
-    #     tolerance = 0.0005,
-    #     preserve_topology=True
-    # )
-
     # print('Adding ISO country code and other global information')
     glob_info_path = os.path.join(BASE_PATH, 'global_information.csv')
     load_glob_info = pd.read_csv(glob_info_path, encoding = "ISO-8859-1", keep_default_na=False)
@@ -178,13 +170,6 @@ def process_regions(country):
         print('Excluding small shapes')
         regions['geometry'] = regions.apply(exclude_small_shapes, axis=1)
 
-        # print('Simplifying geometries')
-        # regions['geometry'] = regions.simplify(
-        #     tolerance = 0.0005,
-        #     preserve_topology=True).buffer(0.0001).simplify(
-        #         tolerance = 0.0005,
-        #         preserve_topology=True
-        #     )
         try:
             print('Writing global_regions.shp to file')
             regions.to_file(path_processed, driver='ESRI Shapefile')
@@ -320,7 +305,12 @@ def get_regional_data(country):
             array[array <= 0] = 0
 
             population_summation = [d['sum'] for d in zonal_stats(
-                region['geometry'], array, stats=['sum'], affine=affine)][0]
+                region['geometry'],
+                array,
+                stats=['sum'],
+                affine=affine,
+                nodata=0,
+                )][0]
 
         area_km2 = round(area_of_polygon(region['geometry']) / 1e6)
 
