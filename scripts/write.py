@@ -8,6 +8,7 @@ Written by Ed Oughton
 """
 import os
 import pandas as pd
+import datetime
 
 
 def define_deciles(regions):
@@ -69,7 +70,6 @@ def write_results(regional_results, folder, metric):
         national_results['total_mno_cost'] / national_results['phones_on_network'])
     national_results['cost_per_smartphone_user'] = (
         national_results['total_mno_cost'] / national_results['smartphones_on_network'])
-
     path = os.path.join(folder,'national_mno_results_{}.csv'.format(metric))
     national_results.to_csv(path, index=True)
 
@@ -93,12 +93,12 @@ def write_results(regional_results, folder, metric):
     national_cost_results['cost_per_smartphone_user'] = (
         national_cost_results['total_mno_cost'] /
         national_cost_results['smartphones_on_network'])
-    #Calculate private, govt and social costs
+    #Calculate private, govt and financial costs
     national_cost_results['private_cost'] = national_cost_results['total_mno_cost']
     national_cost_results['government_cost'] = (
         national_cost_results['required_state_subsidy'] -
             (national_cost_results['spectrum_cost'] + national_cost_results['tax']))
-    national_cost_results['social_cost'] = (
+    national_cost_results['financial_cost'] = (
         national_cost_results['private_cost'] + national_cost_results['government_cost'])
     national_cost_results['required_efficiency_saving'] = (
         national_cost_results['government_cost'] /
@@ -162,7 +162,7 @@ def write_results(regional_results, folder, metric):
     decile_cost_results['government_cost'] = (
         decile_cost_results['required_state_subsidy'] -
             (decile_cost_results['spectrum_cost'] + decile_cost_results['tax']))
-    decile_cost_results['social_cost'] = (
+    decile_cost_results['financial_cost'] = (
         decile_cost_results['private_cost'] + decile_cost_results['government_cost'])
 
     path = os.path.join(folder,'decile_mno_cost_results_{}.csv'.format(metric))
@@ -214,7 +214,7 @@ def write_results(regional_results, folder, metric):
     national_results['government_cost'] = (
         national_results['total_required_state_subsidy'] -
             (national_results['total_spectrum_cost'] + national_results['total_tax']))
-    national_results['social_cost'] = (
+    national_results['financial_cost'] = (
         national_results['private_cost'] + national_results['government_cost'])
 
     path = os.path.join(folder,'national_market_results_{}.csv'.format(metric))
@@ -241,13 +241,13 @@ def write_results(regional_results, folder, metric):
         national_cost_results['total_market_cost'] / national_cost_results['total_phones'])
     national_cost_results['cost_per_smartphone_user'] = (
         national_cost_results['total_market_cost'] / national_cost_results['total_smartphones'])
-    #Calculate private, govt and social costs
+    #Calculate private, govt and financial costs
     national_cost_results['private_cost'] = (
         national_cost_results['total_market_cost'])
     national_cost_results['government_cost'] = (
         national_cost_results['total_required_state_subsidy'] -
             (national_cost_results['total_spectrum_cost'] + national_cost_results['total_tax']))
-    national_cost_results['social_cost'] = (
+    national_cost_results['financial_cost'] = (
         national_cost_results['private_cost'] + national_cost_results['government_cost'])
     national_cost_results['required_efficiency_saving'] = (
         national_cost_results['government_cost'] /
@@ -311,7 +311,7 @@ def write_results(regional_results, folder, metric):
     regional_market_results = define_deciles(regional_market_results)
     regional_market_results = regional_market_results[[
         'GID_0', 'GID_id', 'scenario', 'strategy', 'decile',
-        'confidence', 'population', 'area_km2',
+        'confidence', 'population', 'area_km2', 'geotype',
         'total_phones', 'total_smartphones',
         'total_upgraded_sites','total_new_sites',
         'total_market_revenue', 'total_market_cost',
@@ -332,7 +332,7 @@ def write_results(regional_results, folder, metric):
     regional_mno_cost_results = define_deciles(regional_mno_cost_results)
     regional_mno_cost_results = regional_mno_cost_results[[
         'GID_0', 'GID_id', 'scenario', 'strategy',
-        'decile', 'confidence', 'population', 'area_km2',
+        'decile', 'confidence', 'population', 'area_km2', 'geotype',
         'phones_on_network', 'smartphones_on_network', 'total_mno_revenue',
         'ran', 'backhaul_fronthaul', 'civils', 'core_network',
         'administration', 'spectrum_cost', 'tax', 'profit_margin',
@@ -346,7 +346,7 @@ def write_results(regional_results, folder, metric):
     regional_mno_cost_results['required_state_subsidy'] -
         (regional_mno_cost_results['spectrum_cost'] +
         regional_mno_cost_results['tax']))
-    regional_mno_cost_results['social_cost'] = (
+    regional_mno_cost_results['financial_cost'] = (
         regional_mno_cost_results['private_cost'] +
         regional_mno_cost_results['government_cost'])
 
@@ -356,8 +356,8 @@ def write_results(regional_results, folder, metric):
     regional_mno_cost_results['government_cost_per_network_user'] = (
         regional_mno_cost_results['government_cost'] /
         regional_mno_cost_results['phones_on_network'])
-    regional_mno_cost_results['social_cost_per_network_user'] = (
-        regional_mno_cost_results['social_cost'] /
+    regional_mno_cost_results['financial_cost_per_network_user'] = (
+        regional_mno_cost_results['financial_cost'] /
         regional_mno_cost_results['phones_on_network'])
 
     regional_mno_cost_results['private_cost_per_smartphone_user'] = (
@@ -366,8 +366,8 @@ def write_results(regional_results, folder, metric):
     regional_mno_cost_results['government_cost_per_smartphone_user'] = (
         regional_mno_cost_results['government_cost'] /
         regional_mno_cost_results['smartphones_on_network'])
-    regional_mno_cost_results['social_cost_per_smartphone_user'] = (
-        regional_mno_cost_results['social_cost'] /
+    regional_mno_cost_results['financial_cost_per_smartphone_user'] = (
+        regional_mno_cost_results['financial_cost'] /
         regional_mno_cost_results['smartphones_on_network'])
 
     regional_mno_cost_results['required_efficiency_saving'] = (
@@ -376,3 +376,63 @@ def write_results(regional_results, folder, metric):
 
     path = os.path.join(folder,'regional_mno_cost_results_{}.csv'.format(metric))
     regional_mno_cost_results.to_csv(path, index=True)
+
+
+def write_inputs(folder, country, country_parameters, global_parameters,
+    costs, decision_option):
+    """
+    Write model inputs.
+
+    """
+    country_folder = os.path.join(folder, country['iso3'])
+
+    if not os.path.exists(country_folder):
+        os.makedirs(country_folder)
+
+    country_info = pd.DataFrame(country.items(),
+        columns=['parameter', 'value'])
+    country_info['source'] = 'country_info'
+
+    country_params = pd.DataFrame(
+        country_parameters['financials'].items(),
+        columns=['parameter', 'value'])
+    country_params['source'] = 'country_parameters'
+
+    global_parameters = pd.DataFrame(global_parameters.items(),
+        columns=['parameter', 'value'])
+    global_parameters['source'] = 'global_parameters'
+
+    costs = pd.DataFrame(costs.items(),
+        columns=['parameter', 'value'])
+    costs['source'] = 'costs'
+
+    parameters = country_info.append(country_params)
+    parameters = parameters.append(global_parameters)
+    parameters = parameters.append(costs)
+    parameters = parameters[['source', 'parameter', 'value']]
+
+    timenow = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+
+    filename = 'parameters_{}_{}.csv'.format(decision_option, timenow)
+    path = os.path.join(country_folder, filename)
+    parameters.to_csv(path, index=False)
+
+    ###write out spectrum frequencies
+    frequencies = country_parameters['frequencies']
+    generations = ['3G', '4G', '5G']
+    all_frequencies = []
+    for generation in generations:
+        for key, item in frequencies.items():
+            if generation == key:
+                all_frequencies.append({
+                    'generation': generation,
+                    'frequency': item[0]['frequency'],
+                    'bandwidth': item[0]['bandwidth'],
+                })
+    frequency_lut = pd.DataFrame(all_frequencies)
+
+    timenow = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+
+    filename = 'parameters_frequencies_{}_{}.csv'.format(decision_option, timenow)
+    path = os.path.join(country_folder, filename)
+    frequency_lut.to_csv(path, index=False)

@@ -17,7 +17,7 @@ from options import OPTIONS, COUNTRY_PARAMETERS
 from podis.demand import estimate_demand
 from podis.supply import estimate_supply
 from podis.assess import assess
-from write import define_deciles, write_mno_demand, write_results
+from write import define_deciles, write_mno_demand, write_results, write_inputs
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__), 'script_config.ini'))
@@ -27,6 +27,8 @@ DATA_RAW = os.path.join(BASE_PATH, 'raw')
 DATA_INTERMEDIATE = os.path.join(BASE_PATH, 'intermediate')
 DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
 OUTPUT = os.path.join(BASE_PATH, '..', 'results', 'model_results')
+PARAMETERS = os.path.join(BASE_PATH, '..', 'results', 'model_parameters')
+
 
 def load_regions(iso3, path):
     """
@@ -440,6 +442,9 @@ if __name__ == '__main__':
             write_mno_demand(regional_annual_demand, OUTPUT, decision_option, path)
 
             all_results = all_results + regional_results
+
+            write_inputs(PARAMETERS, country, country_parameters,
+                GLOBAL_PARAMETERS, COSTS, decision_option)
 
         write_results(regional_results, OUTPUT, decision_option)
 
