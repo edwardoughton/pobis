@@ -77,9 +77,9 @@ def setup_country_parameters():
             'baseline_urban': 3,
             'baseline_suburban': 3,
             'baseline_rural': 3,
-            'shared_urban': 3,
-            'shared_suburban': 3,
-            'shared_rural': 1,
+            'srn_urban': 3,
+            'srn_suburban': 3,
+            'srn_rural': 1,
         },
         'frequencies': {
             '4G': [

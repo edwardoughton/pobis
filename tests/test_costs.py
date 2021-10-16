@@ -129,7 +129,107 @@ def test_find_network_cost(setup_region, setup_costs,
         setup_core_lut
     )
 
-    assert answer['network_cost'] == 875055.6999999998
+    assert answer['network_cost'] == 737603.0999999999
+
+
+def test_find_network_cost_for_sharing_strategies(setup_region, setup_costs,
+    setup_global_parameters, setup_country_parameters,
+    setup_core_lut):
+    """
+    Integration test for sharing strategies.
+
+    """
+    setup_region[0]['sites_4G'] = 0
+    setup_region[0]['new_mno_sites'] = 1
+    setup_region[0]['upgraded_mno_sites'] = 0
+    setup_region[0]['site_density'] = 0.5
+    setup_region[0]['backhaul_new'] = 0
+
+    ####Test different sharing strategies - urban area
+    setup_region[0]['geotype'] = 'urban'
+
+    answer = find_network_cost(  #baseline
+        setup_region[0],
+        {'strategy': '4G_epc_wireless_baseline_baseline_baseline_baseline'},
+        setup_costs,
+        setup_global_parameters,
+        setup_country_parameters,
+        setup_core_lut
+    )
+    assert answer['network_cost'] == 460504.85
+
+    answer = find_network_cost(  #passive sharing
+        setup_region[0],
+        {'strategy': '4G_epc_wireless_psb_baseline_baseline_baseline'},
+        setup_costs,
+        setup_global_parameters,
+        setup_country_parameters,
+        setup_core_lut
+    )
+    assert answer['network_cost'] == 400135.6
+
+    answer = find_network_cost(  #active sharing
+        setup_region[0],
+        {'strategy': '4G_epc_wireless_moran_baseline_baseline_baseline'},
+        setup_costs,
+        setup_global_parameters,
+        setup_country_parameters,
+        setup_core_lut
+    )
+    assert answer['network_cost'] == 355099.6833333333
+
+    answer = find_network_cost(  #shared rural network
+        setup_region[0],
+        {'strategy': '4G_epc_wireless_srn_srn_baseline_baseline'},
+        setup_costs,
+        setup_global_parameters,
+        setup_country_parameters,
+        setup_core_lut
+    )
+    assert answer['network_cost'] == 460504.85
+
+    ####Test different sharing strategies - rural area
+    setup_region[0]['geotype'] = 'rural'
+
+    answer = find_network_cost(  #baseline
+        setup_region[0],
+        {'strategy': '4G_epc_wireless_baseline_baseline_baseline_baseline'},
+        setup_costs,
+        setup_global_parameters,
+        setup_country_parameters,
+        setup_core_lut
+    )
+    assert answer['network_cost'] == 443441.14999999997
+
+    answer = find_network_cost(  #passive sharing
+        setup_region[0],
+        {'strategy': '4G_epc_wireless_psb_baseline_baseline_baseline'},
+        setup_costs,
+        setup_global_parameters,
+        setup_country_parameters,
+        setup_core_lut
+    )
+    assert answer['network_cost'] == 394447.69999999995
+
+    answer = find_network_cost(  #active sharing
+        setup_region[0],
+        {'strategy': '4G_epc_wireless_moran_baseline_baseline_baseline'},
+        setup_costs,
+        setup_global_parameters,
+        setup_country_parameters,
+        setup_core_lut
+    )
+    assert answer['network_cost'] == 349411.78333333327
+
+    answer = find_network_cost(  #shared rural network
+        setup_region[0],
+        {'strategy': '4G_epc_wireless_srn_srn_baseline_baseline'},
+        setup_costs,
+        setup_global_parameters,
+        setup_country_parameters,
+        setup_core_lut
+    )
+    assert answer['network_cost'] == 147815.6333333333
 
 
 def test_upgrade_to_3g(setup_region, setup_option, setup_costs,
@@ -151,15 +251,6 @@ def test_upgrade_to_3g(setup_region, setup_option, setup_costs,
 
     assert cost_structure['equipment'] == 40000
     assert cost_structure['installation'] ==30000
-
-    cost_structure = upgrade_to_3g(setup_region[0],
-        '3G_epc_wireless_pss_baseline_baseline_baseline',
-        setup_costs, setup_global_parameters,
-        setup_core_lut, setup_country_parameters)
-
-    assert cost_structure['site_rental'] == (
-        setup_costs['site_rental_urban']  /
-        setup_country_parameters['networks']['baseline_urban'])
 
     cost_structure = upgrade_to_3g(setup_region[0],
         '3G_epc_wireless_psb_baseline_baseline_baseline',
@@ -188,60 +279,45 @@ def test_upgrade_to_3g(setup_region, setup_option, setup_costs,
         setup_country_parameters['networks']['baseline_urban'])
 
     cost_structure = upgrade_to_3g(setup_region[0],
-        '3G_epc_wireless_cns_baseline_baseline_baseline',
+        '3G_epc_wireless_srn_srn_baseline_baseline',
         setup_costs, setup_global_parameters,
         setup_core_lut, setup_country_parameters)
 
+    #These are urban, hence no sharing in a shared rural network
+    assert round(cost_structure['equipment']) == round(
+        (setup_costs['equipment']))
     assert round(cost_structure['core_edge']) == round(
-        (setup_costs['core_edge'] * 1000) *
-        (1 /
-        setup_country_parameters['networks']['baseline_urban']))
-
-    assert round(cost_structure['core_node']) == round(
-        (setup_costs['core_node_epc'] * 2) *
-        (setup_region[0]['total_estimated_sites'] /
-        setup_country_parameters['networks']['baseline_urban']))
+        (setup_costs['core_edge'] * 1000))
 
     setup_region[0]['geotype'] = 'rural'
 
     cost_structure = upgrade_to_3g(setup_region[0],
-        '3G_epc_wireless_cns_srn_baseline_baseline',
+        '3G_epc_wireless_srn_srn_baseline_baseline',
         setup_costs, setup_global_parameters,
         setup_core_lut, setup_country_parameters)
 
-    assert cost_structure['equipment'] == (
+    assert round(cost_structure['equipment']) == round(
         setup_costs['equipment'] * (
         1 /
         setup_country_parameters['networks']['baseline_rural']
         ))
-    assert cost_structure['core_edge'] == (
-        (setup_costs['core_edge'] * 1000) * (  # 20*1000
-        1 /
-        setup_country_parameters['networks']['baseline_rural']
-        ))
 
     setup_region[0]['geotype'] = 'rural'
 
     cost_structure = upgrade_to_3g(setup_region[0],
-        '3G_epc_wireless_baseline_srn_baseline_baseline',
+        '3G_epc_wireless_srn_srn_baseline_baseline',
         setup_costs, setup_global_parameters,
         setup_core_lut, setup_country_parameters)
 
-    assert cost_structure['equipment'] == (
-        setup_costs['equipment']) * (  # 20*1000
-        1 /
+    assert round(cost_structure['equipment']) == round(
+        setup_costs['equipment'] * (1 /
         setup_country_parameters['networks']['baseline_rural']
-        )
-    assert cost_structure['core_edge'] == (
-        (setup_costs['core_edge'] * 1000)) * (  # 20*1000
-        1 /
-        setup_country_parameters['networks']['baseline_rural']
-        )
+        ))
 
     setup_region[0]['geotype'] = 'urban'
 
     cost_structure = upgrade_to_3g(setup_region[0],
-        '3G_epc_wireless_baseline_srn_baseline_baseline',
+        '3G_epc_wireless_srn_srn_baseline_baseline',
         setup_costs, setup_global_parameters,
         setup_core_lut, setup_country_parameters)
 
@@ -273,15 +349,6 @@ def test_upgrade_to_4g(setup_region, setup_option, setup_costs,
     assert cost_structure['site_rental'] == 9600
 
     cost_structure = upgrade_to_4g(setup_region[0],
-        '4G_epc_wireless_pss_baseline_baseline_baseline',
-        setup_costs, setup_global_parameters,
-        setup_core_lut, setup_country_parameters)
-
-    assert cost_structure['site_rental'] == (
-        setup_costs['site_rental_urban'] /
-        setup_country_parameters['networks']['baseline_urban'])
-
-    cost_structure = upgrade_to_4g(setup_region[0],
         '4g_epc_wireless_psb_baseline_baseline_baseline',
         setup_costs, setup_global_parameters,
         setup_core_lut, setup_country_parameters)
@@ -303,59 +370,46 @@ def test_upgrade_to_4g(setup_region, setup_option, setup_costs,
         setup_country_parameters['networks']['baseline_urban'])
 
     cost_structure = upgrade_to_4g(setup_region[0],
-        '4G_epc_wireless_cns_baseline_baseline_baseline',
+        '4G_epc_wireless_srn_srn_baseline_baseline',
         setup_costs, setup_global_parameters,
         setup_core_lut, setup_country_parameters)
 
+    #These are urban, hence no sharing in a shared rural network
+    assert round(cost_structure['equipment']) == round(
+        (setup_costs['equipment']))
     assert round(cost_structure['core_edge']) == round(
-        (setup_costs['core_edge'] * 1000)  * (1 /
-        setup_country_parameters['networks']['baseline_rural']
-        ))
-    assert round(cost_structure['core_node']) == round(
-        (setup_costs['core_node_epc'] * 2)  * (1 /
-        setup_country_parameters['networks']['baseline_rural']
-        ))
+        (setup_costs['core_edge'] * 1000))
 
     setup_region[0]['geotype'] = 'rural'
 
     cost_structure = upgrade_to_4g(setup_region[0],
-        '4G_epc_wireless_cns_srn_baseline_baseline',
+        '4G_epc_wireless_srn_srn_baseline_baseline',
         setup_costs, setup_global_parameters,
         setup_core_lut, setup_country_parameters)
 
-    assert cost_structure['equipment'] == (
+    assert round(cost_structure['equipment']) == round(
         setup_costs['equipment'] * (
         1 /
         setup_country_parameters['networks']['baseline_rural']
         ))
-    assert cost_structure['core_edge'] == (
-        (setup_costs['core_edge'] * 1000) * (  # 20*1000
-        1 /
-        setup_country_parameters['networks']['baseline_rural']
-        ))
 
     setup_region[0]['geotype'] = 'rural'
 
     cost_structure = upgrade_to_4g(setup_region[0],
-        '4G_epc_wireless_baseline_srn_baseline_baseline',
+        '4G_epc_wireless_srn_srn_baseline_baseline',
         setup_costs, setup_global_parameters,
         setup_core_lut, setup_country_parameters)
 
-    assert cost_structure['equipment'] == (
-        setup_costs['equipment']) * (  # 20*1000
+    assert round(cost_structure['equipment']) == round(
+        setup_costs['equipment'] * (
         1 /
         setup_country_parameters['networks']['baseline_rural']
-        )
-    assert cost_structure['core_edge'] == (
-        (setup_costs['core_edge'] * 1000)) * (  # 20*1000
-        1 /
-        setup_country_parameters['networks']['baseline_rural']
-        )
+        ))
 
     setup_region[0]['geotype'] = 'urban'
 
     cost_structure = upgrade_to_4g(setup_region[0],
-        '4G_epc_wireless_baseline_srn_baseline_baseline',
+        '4G_epc_wireless_srn_srn_baseline_baseline',
         setup_costs, setup_global_parameters,
         setup_core_lut, setup_country_parameters)
 
@@ -386,15 +440,6 @@ def test_greenfield_3g(setup_region, setup_option, setup_costs,
     assert cost_structure['site_rental'] == 9600
 
     cost_structure = greenfield_3g(setup_region[0],
-        '3G_epc_wireless_pss_baseline_baseline_baseline',
-        setup_costs, setup_global_parameters,
-        setup_core_lut, setup_country_parameters)
-
-    assert cost_structure['installation'] == (
-        setup_costs['installation'] /
-        setup_country_parameters['networks']['baseline_urban'])
-
-    cost_structure = greenfield_3g(setup_region[0],
         '3G_epc_wireless_psb_baseline_baseline_baseline',
         setup_costs, setup_global_parameters,
         setup_core_lut, setup_country_parameters)
@@ -415,62 +460,48 @@ def test_greenfield_3g(setup_region, setup_option, setup_costs,
         setup_costs['equipment'] /
         setup_country_parameters['networks']['baseline_urban'])
 
+    setup_region[0]['geotype'] = 'urban'
     cost_structure = greenfield_3g(setup_region[0],
-        '3G_epc_wireless_cns_baseline_baseline_baseline',
+        '3G_epc_wireless_srn_srn_baseline_baseline',
         setup_costs, setup_global_parameters,
         setup_core_lut, setup_country_parameters)
 
+    #These are urban, hence no sharing in a shared rural network
+    assert round(cost_structure['equipment']) == round(
+        (setup_costs['equipment']))
     assert round(cost_structure['core_edge']) == round(
-        (setup_costs['core_edge'] * 1000)  * (
-        1 /
-        setup_country_parameters['networks']['baseline_rural']
-        ))
-    assert round(cost_structure['core_node']) == round(
-        (setup_costs['core_node_epc'] * 2)  * (
-        1 /
-        setup_country_parameters['networks']['baseline_rural']
-        ))
+        (setup_costs['core_edge'] * 1000))
 
     setup_region[0]['geotype'] = 'rural'
 
     cost_structure = greenfield_3g(setup_region[0],
-        '3G_epc_wireless_cns_srn_baseline_baseline',
+        '3G_epc_wireless_srn_srn_baseline_baseline',
         setup_costs, setup_global_parameters,
         setup_core_lut, setup_country_parameters)
 
-    assert cost_structure['equipment'] == (
+    assert round(cost_structure['equipment']) == round(
         setup_costs['equipment'] * (
         1 /
         setup_country_parameters['networks']['baseline_rural']
         ))
-    assert cost_structure['core_edge'] == (
-        (setup_costs['core_edge'] * 1000) * (  # 20*1000
-        1 /
-        setup_country_parameters['networks']['baseline_rural']
-        ))
 
     setup_region[0]['geotype'] = 'rural'
 
     cost_structure = greenfield_3g(setup_region[0],
-        '3G_epc_wireless_baseline_srn_baseline_baseline',
+        '3G_epc_wireless_srn_srn_baseline_baseline',
         setup_costs, setup_global_parameters,
         setup_core_lut, setup_country_parameters)
 
-    assert cost_structure['equipment'] == (
-        setup_costs['equipment']) * (  # 20*1000
+    assert round(cost_structure['equipment']) == round(
+        setup_costs['equipment'] * (
         1 /
         setup_country_parameters['networks']['baseline_rural']
-        )
-    assert cost_structure['core_edge'] == (
-        (setup_costs['core_edge'] * 1000)) * (  # 20*1000
-        1 /
-        setup_country_parameters['networks']['baseline_rural']
-        )
+        ))
 
     setup_region[0]['geotype'] = 'urban'
 
     cost_structure = greenfield_3g(setup_region[0],
-        '3G_epc_wireless_baseline_srn_baseline_baseline',
+        '3G_epc_wireless_srn_srn_baseline_baseline',
         setup_costs, setup_global_parameters,
         setup_core_lut, setup_country_parameters)
 
@@ -501,15 +532,6 @@ def test_greenfield_4g(setup_region, setup_option, setup_costs,
     assert cost_structure['site_rental'] == 9600
 
     cost_structure = greenfield_4g(setup_region[0],
-        '4G_epc_wireless_pss_baseline_baseline_baseline',
-        setup_costs, setup_global_parameters,
-        setup_core_lut, setup_country_parameters)
-
-    assert cost_structure['installation'] == (
-        setup_costs['installation'] /
-        setup_country_parameters['networks']['baseline_urban'])
-
-    cost_structure = greenfield_4g(setup_region[0],
         '4G_epc_wireless_psb_baseline_baseline_baseline',
         setup_costs, setup_global_parameters,
         setup_core_lut, setup_country_parameters)
@@ -531,61 +553,48 @@ def test_greenfield_4g(setup_region, setup_option, setup_costs,
         setup_country_parameters['networks']['baseline_urban'])
 
     cost_structure = greenfield_4g(setup_region[0],
-        '4G_epc_wireless_cns_baseline_baseline_baseline',
+        '4G_epc_wireless_srn_srn_baseline_baseline',
         setup_costs, setup_global_parameters,
         setup_core_lut, setup_country_parameters)
 
+    #These are urban, hence no sharing in a shared rural network
+    assert round(cost_structure['equipment']) == setup_costs['equipment']
+    assert round(cost_structure['backhaul']) == setup_costs['wireless_small']
     assert round(cost_structure['core_edge']) == round(
-        (setup_costs['core_edge'] * 1000)  * (
-        1 /
-        setup_country_parameters['networks']['baseline_rural']
-        ))
+        (setup_costs['core_edge'] * 1000))
     assert round(cost_structure['core_node']) == round(
-        (setup_costs['core_node_epc'] * 2)  * (
-        1 /
-        setup_country_parameters['networks']['baseline_rural']
-        ))
+        (setup_costs['core_node_epc'] * 2))
 
     setup_region[0]['geotype'] = 'rural'
 
     cost_structure = greenfield_4g(setup_region[0],
-        '4G_epc_wireless_cns_srn_baseline_baseline',
+        '4G_epc_wireless_srn_srn_baseline_baseline',
         setup_costs, setup_global_parameters,
         setup_core_lut, setup_country_parameters)
 
-    assert cost_structure['equipment'] == (
+    assert round(cost_structure['equipment']) == round(
         setup_costs['equipment'] * (
         1 /
         setup_country_parameters['networks']['baseline_rural']
         ))
-    assert cost_structure['core_edge'] == (
-        (setup_costs['core_edge'] * 1000) * (  # 20*1000
-        1 /
-        setup_country_parameters['networks']['baseline_rural']
-        ))
 
     setup_region[0]['geotype'] = 'rural'
 
     cost_structure = greenfield_4g(setup_region[0],
-        '4G_epc_wireless_baseline_srn_baseline_baseline',
+        '4G_epc_wireless_srn_srn_baseline_baseline',
         setup_costs, setup_global_parameters,
         setup_core_lut, setup_country_parameters)
 
-    assert cost_structure['equipment'] == (
-        setup_costs['equipment']) * (  # 20*1000
+    assert round(cost_structure['equipment']) == round(
+        setup_costs['equipment'] * (  # 20*1000
         1 /
         setup_country_parameters['networks']['baseline_rural']
-        )
-    assert cost_structure['core_edge'] == (
-        (setup_costs['core_edge'] * 1000)) * (  # 20*1000
-        1 /
-        setup_country_parameters['networks']['baseline_rural']
-        )
+        ))
 
     setup_region[0]['geotype'] = 'urban'
 
     cost_structure = greenfield_4g(setup_region[0],
-        '4G_epc_wireless_baseline_srn_baseline_baseline',
+        '4G_epc_wireless_srn_srn_baseline_baseline',
         setup_costs, setup_global_parameters,
         setup_core_lut, setup_country_parameters)
 
@@ -758,7 +767,7 @@ def test_calc_costs(setup_region, setup_global_parameters, setup_country_paramet
 
     answer, structure = calc_costs(
         setup_region[0],
-        '4G_epc_wireless_cns_baseline_baseline_baseline_baseline',
+        '4G_epc_wireless_srn_srn_baseline_baseline_baseline',
         {'equipment': 40000},
         1,
         setup_global_parameters,
@@ -769,7 +778,7 @@ def test_calc_costs(setup_region, setup_global_parameters, setup_country_paramet
 
     answer, structure = calc_costs(
         setup_region[0],
-        '4G_epc_wireless_cns_baseline_baseline_baseline_baseline',
+        '4G_epc_wireless_srn_srn_baseline_baseline_baseline',
         {'site_rental': 9600},
         1,
         setup_global_parameters,
@@ -779,7 +788,7 @@ def test_calc_costs(setup_region, setup_global_parameters, setup_country_paramet
     assert answer == 18743 *  (1 + (setup_country_parameters['financials']['wacc'] / 100))#two years' of rent
 
     answer, structure = calc_costs(setup_region[0],
-        '4G_epc_wireless_cns_baseline_baseline_baseline_baseline',
+        '4G_epc_wireless_srn_srn_baseline_baseline_baseline',
         {
         'equipment': 40000,
         'site_rental': 9600,
@@ -795,7 +804,7 @@ def test_calc_costs(setup_region, setup_global_parameters, setup_country_paramet
         )
 
     answer, structure = calc_costs(setup_region[0],
-        '4G_epc_wireless_cns_baseline_baseline_baseline_baseline',
+        '4G_epc_wireless_srn_srn_baseline_baseline_baseline',
         {
         'incorrect_name': 9600,
         },

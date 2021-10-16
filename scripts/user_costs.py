@@ -57,11 +57,11 @@ def process_data(data, capacity):
 
     data = data.replace([np.inf, -np.inf], np.nan).dropna(subset=["private_cost_per_network_user"], how="all")
     data = data.replace([np.inf, -np.inf], np.nan).dropna(subset=["private_cost_per_smartphone_user"], how="all")
-    data = data.replace([np.inf, -np.inf], np.nan).dropna(subset=["social_cost_per_network_user"], how="all")
-    data = data.replace([np.inf, -np.inf], np.nan).dropna(subset=["social_cost_per_smartphone_user"], how="all")
+    data = data.replace([np.inf, -np.inf], np.nan).dropna(subset=["financial_cost_per_network_user"], how="all")
+    data = data.replace([np.inf, -np.inf], np.nan).dropna(subset=["financial_cost_per_smartphone_user"], how="all")
 
     data['private_cost_per_user'] = round(data['private_cost_per_network_user'])
-    data['social_cost_per_user'] = round(data['social_cost_per_network_user'])
+    data['financial_cost_per_user'] = round(data['financial_cost_per_network_user'])
 
     bins = [-1, 20, 43, 69, 109, 171, 257, 367, 541, 1104, 111607]
     labels = ['<20','20-43','43-69','69-109','109-171','171-257','257-367','367-541','541-1104','>1104']
@@ -77,7 +77,7 @@ def process_data(data, capacity):
 
 def summarize_data(data, capacity):
     """
-    Summarize the data by taking the median costs across the
+    Summarize the data by taking the mean costs across the
     scenarios and strategies.
 
     Parameters
@@ -96,27 +96,27 @@ def summarize_data(data, capacity):
     #subset desired columns
     data = data[[
         'scenario', 'strategy', 'confidence', 'decile',
-        'private_cost_per_user', 'social_cost_per_user',
+        'private_cost_per_user', 'financial_cost_per_user',
         'government_cost_per_network_user'
     ]]
 
     data = data.groupby(['scenario', 'strategy', 'confidence', 'decile'], as_index=False).agg(
-            private_cost_per_user_median = ('private_cost_per_user','median'),
             private_cost_per_user_mean = ('private_cost_per_user','mean'),
-            government_cost_per_network_user = ('government_cost_per_network_user','median'),
             government_cost_per_network_user_mean = ('government_cost_per_network_user','mean'),
-            social_cost_per_user = ('social_cost_per_user','median'),
-            social_cost_per_user_mean = ('social_cost_per_user','mean'),
+            financial_cost_per_user_mean = ('financial_cost_per_user','mean'),
+            # private_cost_per_user_median = ('private_cost_per_user','median'),
+            # government_cost_per_network_user = ('government_cost_per_network_user','median'),
+            # financial_cost_per_user = ('financial_cost_per_user','median'),
         )
 
     data.columns = [
         'Scenario', 'Strategy', 'Confidence', 'Decile',
-        'private_median_cpu',
         'private_mean_cpu',
-        'govt_median_cpu',
         'govt_mean_cpu',
-        'social_median_cpu',
-        'social_mean_cpu'
+        'financial_mean_cpu'
+        # 'private_median_cpu',
+        # 'govt_median_cpu',
+        # 'financial_median_cpu',
     ]
 
     return data
@@ -138,14 +138,15 @@ def process_all_regional_data(data):
         All processed model results.
 
     """
+
     data = data[[
         'GID_0','GID_id','GID_level',
-        # 'population',
+        'population',
         # 'pop_under_10_pop',
-        'pop_adults',
-        # 'population_km2',
+        # 'pop_adults',
+        'population_km2',
         'area_km2',
-        'pop_adults_km2'
+        # 'pop_adults_km2'
     ]].copy()
 
     bins = [
@@ -158,7 +159,7 @@ def process_all_regional_data(data):
     ]
 
     data['decile'] = pd.cut(
-        data['pop_adults_km2'],
+        data['population_km2'],
         bins=bins,
         labels=labels
     )
@@ -202,8 +203,8 @@ def get_costs(data, costs):
         handle = '{}_{}_{}_{}'.format(scenario, strategy, ci, decile)
 
         lookup[handle] = {
-            'Private Cost Per User ($USD)': item['private_median_cpu'],
-            'Government Cost Per User ($USD)': item['govt_median_cpu'],
+            'Private Cost Per User ($USD)': item['private_mean_cpu'],
+            'Government Cost Per User ($USD)': item['govt_mean_cpu'],
         }
 
         scenarios.add(scenario)
@@ -223,7 +224,7 @@ def get_costs(data, costs):
 
                     private_cost_per_user = lookup[handle]['Private Cost Per User ($USD)']
                     govt_cost_per_user = lookup[handle]['Government Cost Per User ($USD)']
-                    # social_cost_per_user = lookup[handle]['Social Cost Per User ($USD)']
+                    # financial_cost_per_user = lookup[handle]['Financial Cost Per User ($USD)']
 
                     output.append({
                         'GID_id': item['GID_id'],
@@ -232,16 +233,16 @@ def get_costs(data, costs):
                         'scenario': scenario,
                         'strategy': strategy,
                         'confidence': ci,
-                        'pop_adults': item['pop_adults'],
-                        'pop_adults_km2': item['pop_adults_km2'],
+                        'population': item['population'],
+                        'population_km2': item['population_km2'],
                         'area_km2': item['area_km2'],
                         'decile': item['decile'],
                         'private_cost_per_user': private_cost_per_user,
                         'govt_cost_per_user': govt_cost_per_user,
-                        'social_cost_per_user': private_cost_per_user + govt_cost_per_user,
-                        'total_private_cost': item['pop_adults'] * private_cost_per_user,
-                        'total_government_cost': item['pop_adults'] * govt_cost_per_user,
-                        'total_social_cost': (item['pop_adults'] *
+                        'financial_cost_per_user': private_cost_per_user + govt_cost_per_user,
+                        'total_private_cost': item['population'] * private_cost_per_user,
+                        'total_government_cost': item['population'] * govt_cost_per_user,
+                        'total_financial_cost': (item['population'] *
                         (private_cost_per_user + govt_cost_per_user)),
                     })
 
@@ -267,8 +268,8 @@ def processing_national_costs(regional_data, capacity):
     """
     national_costs = regional_data[[
         'GID_0', 'scenario', 'strategy', 'confidence',
-        'pop_adults', 'area_km2', 'total_private_cost',
-        'total_government_cost', 'total_social_cost'
+        'population', 'area_km2', 'total_private_cost',
+        'total_government_cost', 'total_financial_cost'
     ]]
 
     national_costs = national_costs.groupby([
@@ -276,12 +277,12 @@ def processing_national_costs(regional_data, capacity):
 
     national_costs['total_private_cost'] = national_costs['total_private_cost'] / 1e9
     national_costs['total_government_cost'] = national_costs['total_government_cost'] / 1e9
-    national_costs['total_social_cost'] = national_costs['total_social_cost'] / 1e9
+    national_costs['total_financial_cost'] = national_costs['total_financial_cost'] / 1e9
 
     national_costs.columns = [
         'Country', 'Scenario', 'Strategy', 'Confidence',
         'Population (>10 Years)', 'Area (Km2)', 'Private Cost ($Bn)',
-        'Government Cost ($Bn)', 'Social Cost ($Bn)'
+        'Government Cost ($Bn)', 'Financial Cost ($Bn)'
     ]
 
     return national_costs
@@ -292,9 +293,9 @@ def processing_total_costs(regional_results):
 
     """
     total_costs = regional_results[[
-        'scenario', 'strategy', 'confidence', 'pop_adults',
+        'scenario', 'strategy', 'confidence', 'population',
         'area_km2', 'total_private_cost',
-        'total_government_cost', 'total_social_cost'
+        'total_government_cost', 'total_financial_cost'
     ]]
 
     total_costs = total_costs.groupby([
@@ -302,12 +303,12 @@ def processing_total_costs(regional_results):
 
     total_costs['total_private_cost'] = total_costs['total_private_cost'] / 1e9
     total_costs['total_government_cost'] = total_costs['total_government_cost'] / 1e9
-    total_costs['total_social_cost'] = total_costs['total_social_cost'] / 1e9
+    total_costs['total_financial_cost'] = total_costs['total_financial_cost'] / 1e9
 
     total_costs.columns = [
         'Scenario', 'Strategy', 'Confidence',
         'Population (>10 Years)', 'Area (Km2)', 'Private Cost ($Bn)',
-        'Government Cost ($Bn)', 'Social Cost ($Bn)'
+        'Government Cost ($Bn)', 'Financial Cost ($Bn)'
     ]
 
     return total_costs
@@ -331,7 +332,7 @@ def process_total_cost_data(data, capacity):
 
     """
     data = data[['Scenario', 'Strategy', 'Confidence',
-                'Social Cost ($Bn)']].copy()
+                'Financial Cost ($Bn)']].copy()
 
     baseline = data.loc[data['Strategy'] == '4G(W)']
 
@@ -341,9 +342,9 @@ def process_total_cost_data(data, capacity):
                 right_on = ['Scenario', 'Confidence']
             )
 
-    data['perc_against_4G_W'] = ((abs(data['Social Cost ($Bn)_x'] -
-                                    data['Social Cost ($Bn)_y'])) /
-                                    data['Social Cost ($Bn)_x']) * 100
+    data['perc_against_4G_W'] = ((abs(data['Financial Cost ($Bn)_x'] -
+                                    data['Financial Cost ($Bn)_y'])) /
+                                    data['Financial Cost ($Bn)_x']) * 100
 
     data['perc_against_4G_W'] = round(data['perc_against_4G_W'], 1)
 
