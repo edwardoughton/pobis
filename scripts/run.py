@@ -293,11 +293,11 @@ if __name__ == '__main__':
         'equipment': 40000,
         'site_build': 30000,
         'installation': 30000,
-        'operation_and_maintenance': 7400,
-        'power': 3000,
-        'site_rental_urban': 10000,
-        'site_rental_suburban': 5000,
-        'site_rental_rural': 3000,
+        'operation_and_maintenance': 7400, #opex
+        'power': 3000, #opex
+        'site_rental_urban': 10000, #opex
+        'site_rental_suburban': 5000, #opex
+        'site_rental_rural': 3000, #opex
         'fiber_urban_m': 25,
         'fiber_suburban_m': 15,
         'fiber_rural_m': 10,
@@ -335,12 +335,6 @@ if __name__ == '__main__':
     decision_options = [
         'technology_options',
         'business_model_options',
-    ]
-
-    scenarios = [
-        'low',
-        'baseline',
-        'high'
     ]
 
     all_results = []
@@ -391,51 +385,47 @@ if __name__ == '__main__':
                 path = os.path.join(folder, filename)
                 smartphone_lut = load_smartphones(option['scenario'], path)
 
-                for ci in confidence_intervals:
+                filename = 'regional_data.csv'
+                path = os.path.join(DATA_INTERMEDIATE, iso3, filename)
+                data = load_regions(iso3, path)
 
-                    print('CI: {}'.format(ci))
+                data_initial = data.to_dict('records')
 
-                    filename = 'regional_data.csv'
-                    path = os.path.join(DATA_INTERMEDIATE, iso3, filename)
-                    data = load_regions(iso3, path)
+                data_demand, annual_demand = estimate_demand(
+                    data_initial,
+                    option,
+                    GLOBAL_PARAMETERS,
+                    country_parameters,
+                    TIMESTEPS,
+                    penetration_lut,
+                    smartphone_lut
+                )
 
-                    data_initial = data.to_dict('records')
+                data_supply = estimate_supply(
+                    country,
+                    data_demand,
+                    lookup,
+                    option,
+                    GLOBAL_PARAMETERS,
+                    country_parameters,
+                    COSTS,
+                    core_lut,
+                    confidence_intervals[0]
+                )
 
-                    data_demand, annual_demand = estimate_demand(
-                        data_initial,
-                        option,
-                        GLOBAL_PARAMETERS,
-                        country_parameters,
-                        TIMESTEPS,
-                        penetration_lut,
-                        smartphone_lut
-                    )
+                data_assess = assess(
+                    country,
+                    data_supply,
+                    option,
+                    GLOBAL_PARAMETERS,
+                    country_parameters,
+                    TIMESTEPS
+                )
 
-                    data_supply = estimate_supply(
-                        country,
-                        data_demand,
-                        lookup,
-                        option,
-                        GLOBAL_PARAMETERS,
-                        country_parameters,
-                        COSTS,
-                        core_lut,
-                        ci
-                    )
+                final_results = allocate_deciles(data_assess)
 
-                    data_assess = assess(
-                        country,
-                        data_supply,
-                        option,
-                        GLOBAL_PARAMETERS,
-                        country_parameters,
-                        TIMESTEPS
-                    )
-
-                    final_results = allocate_deciles(data_assess)
-
-                    regional_annual_demand = regional_annual_demand + annual_demand
-                    regional_results = regional_results + final_results
+                regional_annual_demand = regional_annual_demand + annual_demand
+                regional_results = regional_results + final_results
 
             filename = 'regional_annual_demand_{}.csv'.format(decision_option)
             path = os.path.join(OUTPUT, filename)
