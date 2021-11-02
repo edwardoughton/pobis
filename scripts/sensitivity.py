@@ -1,9 +1,9 @@
 """
-Generate data for modeling.
+Generate sensitivity data for modeling.
 
 Written by Ed Oughton.
 
-Winter 2020
+October 2021
 
 """
 import os
@@ -18,6 +18,7 @@ from podis.demand import estimate_demand
 from podis.supply import estimate_supply
 from podis.assess import assess
 from write import define_deciles, write_mno_demand, write_results, write_inputs
+from sensitivity_options import generate_sensitivity_options
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__), 'script_config.ini'))
@@ -26,8 +27,8 @@ BASE_PATH = CONFIG['file_locations']['base_path']
 DATA_RAW = os.path.join(BASE_PATH, 'raw')
 DATA_INTERMEDIATE = os.path.join(BASE_PATH, 'intermediate')
 DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
-OUTPUT = os.path.join(BASE_PATH, '..', 'results', 'model_results')
-PARAMETERS = os.path.join(BASE_PATH, '..', 'results', 'model_parameters')
+OUTPUT = os.path.join(BASE_PATH, '..', 'results', 'sensitivity_analysis')
+# PARAMETERS = os.path.join(BASE_PATH, '..', 'results', 'model_parameters')
 
 
 def load_regions(iso3, path):
@@ -38,11 +39,6 @@ def load_regions(iso3, path):
     regions = pd.read_csv(path)
 
     regions['geotype'] = regions.apply(define_geotype, axis=1)
-
-    if len(iso3) <= 3:
-        regions['integration'] = 'baseline'
-    else:
-        regions['integration'] = 'integration'
 
     return regions
 
@@ -278,6 +274,24 @@ def allocate_deciles(data):
     return data
 
 
+def generate_costs(costs, cost_input_change):
+    """
+
+    """
+    if cost_input_change == 100:
+        return costs
+    else:
+
+        output = {}
+
+        for key, item in costs.items():
+            output[key] = item * (cost_input_change / 100)
+
+    return output
+
+
+
+
 if __name__ == '__main__':
 
     if not os.path.exists(OUTPUT):
@@ -293,11 +307,11 @@ if __name__ == '__main__':
         'equipment': 40000,
         'site_build': 30000,
         'installation': 30000,
-        'operation_and_maintenance': 7400, #opex
-        'power': 3000, #opex
-        'site_rental_urban': 10000, #opex
-        'site_rental_suburban': 5000, #opex
-        'site_rental_rural': 3000, #opex
+        'operation_and_maintenance': 7400,
+        'power': 3000,
+        'site_rental_urban': 10000,
+        'site_rental_suburban': 5000,
+        'site_rental_rural': 3000,
         'fiber_urban_m': 25,
         'fiber_suburban_m': 15,
         'fiber_rural_m': 10,
@@ -332,110 +346,103 @@ if __name__ == '__main__':
         {'iso3': 'UGA', 'iso2': 'UG', 'regional_level': 2, 'regional_nodes_level': 2},
         ]
 
-    decision_options = [
-        'technology_options',
-        'business_model_options',
-    ]
-
     all_results = []
 
-    for decision_option in decision_options:#[:1]:
+    decision_option = 'sensitivity_analysis'
+    options = generate_sensitivity_options()
 
-        print('Working on {}'.format(decision_option))
+    regional_annual_demand = []
+    regional_results = []
+    regional_cost_structure = []
 
-        options = OPTIONS[decision_option]
+    for country in countries:#[:1]:
 
-        regional_annual_demand = []
-        regional_results = []
-        regional_cost_structure = []
+        iso3 = country['iso3']
 
-        for country in countries:#[:1]:
+        print('Working on {}'.format(iso3))
 
-            iso3 = country['iso3']
+        country_parameters = COUNTRY_PARAMETERS[iso3]
 
-            print('Working on {}'.format(iso3))
+        folder = os.path.join(DATA_RAW, 'clustering')
+        filename = 'data_clustering_results.csv'
+        country['cluster'] = load_cluster(os.path.join(folder, filename), iso3)
 
-            country_parameters = COUNTRY_PARAMETERS[iso3]
+        folder = os.path.join(DATA_INTERMEDIATE, iso3)
+        filename = 'core_lut.csv'
+        core_lut = load_core_lut(os.path.join(folder, filename))
 
-            folder = os.path.join(DATA_RAW, 'clustering')
-            filename = 'data_clustering_results.csv'
-            country['cluster'] = load_cluster(os.path.join(folder, filename), iso3)
+        for option in options:#[:1]:
 
-            folder = os.path.join(DATA_INTERMEDIATE, iso3)
-            filename = 'core_lut.csv'
-            core_lut = load_core_lut(os.path.join(folder, filename))
+            print('Working on {} and {}'.format(option['scenario'], option['strategy']))
 
-            print('-----')
-            print('Working on {} in {}'.format(decision_option, iso3))
-            print(' ')
+            confidence_intervals = GLOBAL_PARAMETERS['confidence']
 
-            for option in options:#[:1]:
+            GLOBAL_PARAMETERS['overbooking_factor'] = int(option['strategy'].split('_')[7])
+            cost_input_change = int(option['strategy'].split('_')[8])
 
-                print('Working on {} and {}'.format(option['scenario'], option['strategy']))
+            costs = generate_costs(COSTS, cost_input_change)
 
-                confidence_intervals = GLOBAL_PARAMETERS['confidence']
+            folder = os.path.join(DATA_INTERMEDIATE, iso3, 'subscriptions')
+            filename = 'subs_forecast.csv'
+            path = os.path.join(folder, filename)
+            penetration_lut = load_penetration(option['scenario'], path)
 
-                folder = os.path.join(DATA_INTERMEDIATE, iso3, 'subscriptions')
-                filename = 'subs_forecast.csv'
-                path = os.path.join(folder, filename)
-                penetration_lut = load_penetration(option['scenario'], path)
+            folder = os.path.join(DATA_INTERMEDIATE, iso3, 'smartphones')
+            filename = 'smartphone_forecast.csv'
+            path = os.path.join(folder, filename)
+            smartphone_lut = load_smartphones(option['scenario'], path)
 
-                folder = os.path.join(DATA_INTERMEDIATE, iso3, 'smartphones')
-                filename = 'smartphone_forecast.csv'
-                path = os.path.join(folder, filename)
-                smartphone_lut = load_smartphones(option['scenario'], path)
+            filename = 'regional_data.csv'
+            path = os.path.join(DATA_INTERMEDIATE, iso3, filename)
+            data = load_regions(iso3, path)
 
-                filename = 'regional_data.csv'
-                path = os.path.join(DATA_INTERMEDIATE, iso3, filename)
-                data = load_regions(iso3, path)
+            data_initial = data.to_dict('records')
 
-                data_initial = data.to_dict('records')
+            data_demand, annual_demand = estimate_demand(
+                data_initial,
+                option,
+                GLOBAL_PARAMETERS,
+                country_parameters,
+                TIMESTEPS,
+                penetration_lut,
+                smartphone_lut
+            )
 
-                data_demand, annual_demand = estimate_demand(
-                    data_initial,
-                    option,
-                    GLOBAL_PARAMETERS,
-                    country_parameters,
-                    TIMESTEPS,
-                    penetration_lut,
-                    smartphone_lut
-                )
+            data_supply = estimate_supply(
+                country,
+                data_demand,
+                lookup,
+                option,
+                GLOBAL_PARAMETERS,
+                country_parameters,
+                costs,
+                core_lut,
+                confidence_intervals[0]
+            )
 
-                data_supply = estimate_supply(
-                    country,
-                    data_demand,
-                    lookup,
-                    option,
-                    GLOBAL_PARAMETERS,
-                    country_parameters,
-                    COSTS,
-                    core_lut,
-                    confidence_intervals[0]
-                )
+            data_assess = assess(
+                country,
+                data_supply,
+                option,
+                GLOBAL_PARAMETERS,
+                country_parameters,
+                TIMESTEPS
+            )
 
-                data_assess = assess(
-                    country,
-                    data_supply,
-                    option,
-                    GLOBAL_PARAMETERS,
-                    country_parameters,
-                    TIMESTEPS
-                )
+            final_results = allocate_deciles(data_assess)
 
-                final_results = allocate_deciles(data_assess)
+            regional_annual_demand = regional_annual_demand + annual_demand
+            regional_results = regional_results + final_results
 
-                regional_annual_demand = regional_annual_demand + annual_demand
-                regional_results = regional_results + final_results
+        filename = 'regional_annual_demand_{}.csv'.format(decision_option)
+        path = os.path.join(OUTPUT, filename)
+        write_mno_demand(regional_annual_demand, OUTPUT, decision_option, path)
 
-            filename = 'regional_annual_demand_{}.csv'.format(decision_option)
-            path = os.path.join(OUTPUT, filename)
-            write_mno_demand(regional_annual_demand, OUTPUT, decision_option, path)
+        all_results = all_results + regional_results
 
-            all_results = all_results + regional_results
+        # write_inputs(PARAMETERS, country, country_parameters,
+        #     GLOBAL_PARAMETERS, costs, decision_option)
 
-            write_inputs(PARAMETERS, country, country_parameters,
-                GLOBAL_PARAMETERS, COSTS, decision_option)
+    write_results(regional_results, OUTPUT, decision_option)
 
-        write_results(regional_results, OUTPUT, decision_option)
-
-        print('Completed model run')
+    print('Completed model run')

@@ -8,7 +8,7 @@ Written by Ed Oughton
 
 January 2020
 
-#strategy is defined based on generation_core_backhaul_sharing_networks_spectrum_tax_integration
+#strategy is defined based on generation_core_backhaul_sharing_networks_spectrum_tax
 
 generation: technology generation, so 3G or 4G
 core: type of core data transport network, eg. evolved packet core (4G)
@@ -268,7 +268,7 @@ COUNTRY_PARAMETERS = {
             'spectrum_coverage_baseline_usd_mhz_pop': 0.04,
             'spectrum_capacity_baseline_usd_mhz_pop': 0.03,
             'tax_low': 10,
-            'tax_baseline': 30,
+            'tax_baseline': 25,
             'tax_high': 40,
             'administration_percentage_of_network_cost': 10,
             },

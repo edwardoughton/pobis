@@ -18,6 +18,7 @@ def estimate_supply(country, regions, capacity_lut, option, global_parameters,
     """
     For each region, find the least-cost design and estimate
     the required investment for for the single network being modeled.
+
     Parameters
     ----------
     country : dict
