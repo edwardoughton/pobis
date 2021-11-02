@@ -2328,9 +2328,9 @@ if __name__ == '__main__':
             'subs_growth_low': 2, 'subs_growth_baseline': 3, 'subs_growth_high': 4,
             'sp_growth_low_urban': 6, 'sp_growth_baseline_urban': 8, 'sp_growth_high_urban': 10,
             'sp_growth_low_rural': 16, 'sp_growth_baseline_rural': 18, 'sp_growth_high_rural': 20,
-            'cluster': 'C1', 'regions_to_skip': [] #'MLI.4.3_1', 'MLI.9.2_1', 'MLI.9.5_1'
-            # 'MLI.2.4_1', 'MLI.2.3_1', 'MLI.2.2_1', 'MLI.2.1_1', 'MLI.4.4_1', 'MLI.4.3_1',
-            # 'MLI.4.2_1', 'MLI.4.1_1']
+            'cluster': 'C1', 'regions_to_skip': ['MLI.4.3_1', 'MLI.9.2_1', 'MLI.9.5_1',
+            'MLI.2.4_1', 'MLI.2.1_1', 'MLI.4.4_1', 'MLI.4.3_1',
+            'MLI.4.2_1', 'MLI.4.1_1']
         },
         {'iso3': 'CIV', 'iso2': 'CI', 'regional_level': 2, 'regional_nodes_level': 2,
             'region': 'SSA', 'pop_density_km2': 500, 'settlement_size': 1000,
@@ -2344,7 +2344,7 @@ if __name__ == '__main__':
             'subs_growth_low': 2, 'subs_growth_baseline': 3, 'subs_growth_high': 4,
             'sp_growth_low_urban': 4, 'sp_growth_baseline_urban': 6, 'sp_growth_high_urban': 8,
             'sp_growth_low_rural': 18, 'sp_growth_baseline_rural': 20, 'sp_growth_high_rural': 22,
-            'cluster': 'C1', 'regions_to_skip': [],
+            'cluster': 'C1', 'regions_to_skip': ['UGA.31.1_1', 'UGA.32.1_1'],
         },
         {'iso3': 'KEN', 'iso2': 'KE', 'regional_level': 2, 'regional_nodes_level': 2,
             'region': 'SSA', 'pop_density_km2': 500, 'settlement_size': 1000,
@@ -2358,7 +2358,10 @@ if __name__ == '__main__':
             'subs_growth_low': 2, 'subs_growth_baseline': 3, 'subs_growth_high': 4,
             'sp_growth_low_urban': 6, 'sp_growth_baseline_urban': 8, 'sp_growth_high_urban': 10,
             'sp_growth_low_rural': 18, 'sp_growth_baseline_rural': 20, 'sp_growth_high_rural': 22,
-            'cluster': 'C1', 'regions_to_skip': [],
+            'cluster': 'C1', 'regions_to_skip': [
+                'TZA.1.4_1','TZA.24.4_1','TZA.1.5_1','TZA.11.5_1','TZA.13.4_1','TZA.21.2_1',
+                'TZA.7.1_1','TZA.21.3_1','TZA.7.2_1','TZA.8.8_1','TZA.12.3_1','TZA.16.3_1',
+                'TZA.24.5_1','TZA.6.6_1'],
         },
     ]
 
