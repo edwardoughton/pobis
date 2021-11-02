@@ -63,7 +63,7 @@ def process_data(data, capacity):
     data['private_cost_per_user'] = round(data['private_cost_per_network_user'])
     data['financial_cost_per_user'] = round(data['financial_cost_per_network_user'])
 
-    bins = [-1, 20, 43, 69, 109, 171, 257, 367, 541, 1104, 111607]
+    bins = [-1, 20, 43, 69, 109, 171, 257, 367, 541, 1104, 111607] #-1,
     labels = ['<20','20-43','43-69','69-109','109-171','171-257','257-367','367-541','541-1104','>1104']
 
     data['decile'] = pd.cut(
@@ -95,7 +95,7 @@ def summarize_data(data, capacity):
     """
     #subset desired columns
     data = data[[
-        'scenario', 'strategy', 'confidence', 'decile',
+        'scenario', 'strategy', 'decile', 'confidence',
         'private_cost_per_user', 'financial_cost_per_user',
         'government_cost_per_network_user'
     ]]
@@ -149,14 +149,8 @@ def process_all_regional_data(data):
         # 'pop_adults_km2'
     ]].copy()
 
-    bins = [
-        -1, 20, 43, 69, 109, 171, 257, 367, 541, 1104, 111607
-    ]
-
-    labels = [
-        '<20','20-43','43-69','69-109','109-171','171-257',
-        '257-367','367-541','541-1104','>1104'
-    ]
+    bins = [-1, 20, 43, 69, 109, 171, 257, 367, 541, 1104, 111607] #-1,
+    labels = ['<20','20-43','43-69','69-109','109-171','171-257','257-367','367-541','541-1104','>1104']
 
     data['decile'] = pd.cut(
         data['population_km2'],
