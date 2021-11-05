@@ -55,7 +55,7 @@ def assess(country, regions, option, global_parameters, country_parameters, time
         region['profit_margin'] = calculate_profit(region, country_parameters)
 
         region['total_mno_cost'] = (
-            region['network_cost'] +
+            region['mno_network_cost'] +
             region['administration'] +
             region['spectrum_cost'] +
             region['tax'] +
@@ -107,7 +107,7 @@ def get_administration_cost(region, country_parameters, global_parameters, times
 
     """
     annual_cost = (
-        region['network_cost'] *
+        region['mno_network_cost'] *
         (country_parameters['financials']['administration_percentage_of_network_cost'] /
         100))
 
@@ -205,7 +205,7 @@ def calculate_tax(region, strategy, country_parameters):
 
     tax_rate = country_parameters['financials'][tax_rate]
 
-    investment = region['network_cost']
+    investment = region['mno_network_cost']
 
     tax = investment * (tax_rate / 100)
 
@@ -224,7 +224,7 @@ def calculate_profit(region, country_parameters):
 
     """
     investment = (
-        region['network_cost'] +
+        region['mno_network_cost'] +
         region['administration'] +
         region['spectrum_cost'] +
         region['tax']
@@ -312,7 +312,7 @@ def calculate_total_market_costs(regions, option, country_parameters):
     output = []
 
     # generation_core_backhaul_sharing_networks_spectrum_tax
-    network_strategy = option['strategy'].split('_')[4]
+    # network_strategy = option['strategy'].split('_')[4]
 
     for region in regions:
 
@@ -329,11 +329,16 @@ def calculate_total_market_costs(regions, option, country_parameters):
         region['total_market_revenue'] = calc(region, 'total_mno_revenue', ms)
         region['total_upgraded_sites'] = calc(region, 'upgraded_mno_sites', ms)
         region['total_new_sites'] = calc(region, 'new_mno_sites', ms)
-        region['total_ran'] = calc(region, 'ran', ms)
-        region['total_backhaul_fronthaul'] = calc(region, 'backhaul_fronthaul', ms)
-        region['total_civils'] = calc(region, 'civils', ms)
-        region['total_core_network'] = calc(region, 'core_network', ms)
-        region['total_network_cost'] = calc(region, 'network_cost', ms)
+        region['total_ran_capex'] = calc(region, 'ran_capex', ms)
+        region['total_ran_opex'] = calc(region, 'ran_opex', ms)
+        region['total_backhaul_capex'] = calc(region, 'backhaul_capex', ms)
+        region['total_backhaul_opex'] = calc(region, 'backhaul_opex', ms)
+        region['total_civils_capex'] = calc(region, 'civils_capex', ms)
+        region['total_core_capex'] = calc(region, 'core_capex', ms)
+        region['total_core_opex'] = calc(region, 'core_opex', ms)
+        region['total_network_cost'] = calc(region, 'mno_network_cost', ms)
+        region['total_network_capex'] = calc(region, 'mno_network_capex', ms)
+        region['total_network_opex'] = calc(region, 'mno_network_opex', ms)
         region['total_administration'] = calc(region, 'administration', ms)
         region['total_spectrum_cost'] = calc(region, 'spectrum_cost', ms)
         region['total_tax'] = calc(region, 'tax', ms)
@@ -343,8 +348,6 @@ def calculate_total_market_costs(regions, option, country_parameters):
         region['total_deficit'] = calc(region, 'deficit', ms)
         region['total_used_cross_subsidy'] = calc(region, 'used_cross_subsidy', ms)
         region['total_required_state_subsidy'] = calc(region, 'required_state_subsidy', ms)
-        # print(network_strategy, geotype, round(region['total_mno_cost']/1e6), round(ms,1),
-        #     round(region['total_market_cost']/1e6), round(((region['total_mno_cost']/1e6) / ms) * 100))
         output.append(region)
 
     return output
