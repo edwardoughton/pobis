@@ -282,6 +282,32 @@ def processing_national_costs(regional_data, capacity):
     return national_costs
 
 
+def processing_decile_costs(regional_data):
+    """
+
+    """
+    total_costs = regional_data[[
+        'scenario', 'strategy', 'confidence', 'decile',
+        'population', 'area_km2', 'total_private_cost',
+        'total_government_cost', 'total_financial_cost'
+    ]]
+
+    total_costs = total_costs.groupby([
+        'scenario', 'strategy', 'confidence', 'decile',], as_index=True).sum().reset_index()
+
+    total_costs['total_private_cost'] = total_costs['total_private_cost'] / 1e9
+    total_costs['total_government_cost'] = total_costs['total_government_cost'] / 1e9
+    total_costs['total_financial_cost'] = total_costs['total_financial_cost'] / 1e9
+
+    total_costs.columns = [
+        'Scenario', 'Strategy', 'Confidence', 'Decile',
+        'Population (>10 Years)', 'Area (Km2)', 'Private Cost ($Bn)',
+        'Government Cost ($Bn)', 'Financial Cost ($Bn)'
+    ]
+
+    return total_costs
+
+
 def processing_total_costs(regional_results):
     """
 
@@ -404,6 +430,14 @@ if __name__ == '__main__':
         filename = 'national_cost_estimates_{}.csv'.format(capacity)
         path = os.path.join(OUTPUT, filename)
         national_costs.to_csv(path, index=False)
+
+        #Processing total cost data
+        decile_costs = processing_decile_costs(regional_data)
+
+        #Exporting national results
+        filename = 'decile_cost_estimates_{}.csv'.format(capacity)
+        path = os.path.join(OUTPUT, filename)
+        decile_costs.to_csv(path, index=False)
 
         #Processing total cost data
         total_costs = processing_total_costs(regional_data)
