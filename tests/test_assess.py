@@ -29,18 +29,18 @@ def test_get_spectrum_costs(setup_region, setup_option, setup_global_parameters,
 
 def test_calculate_tax(setup_region, setup_option, setup_country_parameters):
 
-    setup_region[0]['network_cost'] = 1e6
+    setup_region[0]['mno_network_cost'] = 1e6
 
     assert calculate_tax(setup_region[0], setup_option['strategy'], setup_country_parameters) == 1e6 * (25/100)
 
-    setup_region[0]['network_cost'] = 1e6
+    setup_region[0]['mno_network_cost'] = 1e6
     setup_option['strategy'] = '4G_epc_microwave_baseline_baseline_baseline_high'
 
     answer = calculate_tax(setup_region[0], setup_option['strategy'], setup_country_parameters)
 
     assert answer == 1e6 * (40/100)
 
-    setup_region[0]['network_cost'] = 1e6
+    setup_region[0]['mno_network_cost'] = 1e6
     setup_option['strategy'] = '4G_epc_microwave_baseline_baseline_baseline_low'
 
     answer = calculate_tax(setup_region[0], setup_option['strategy'], setup_country_parameters)
@@ -50,7 +50,7 @@ def test_calculate_tax(setup_region, setup_option, setup_country_parameters):
 
 def test_calculate_profit(setup_region, setup_country_parameters):
 
-    setup_region[0]['network_cost'] = 1e6
+    setup_region[0]['mno_network_cost'] = 1e6
     setup_region[0]['administration'] = 1e6*0.1
     setup_region[0]['spectrum_cost'] = 6e4
     setup_region[0]['tax'] = 265e3
@@ -131,7 +131,7 @@ def test_assess(setup_option, setup_global_parameters,
             'population': 1000,
             'population_km2': 500,
             'total_mno_revenue': 20000,
-            'network_cost': 5000,
+            'mno_network_cost': 5000,
             'phones_on_network': 250,
             'smartphones_on_network': 250
         },
@@ -141,7 +141,7 @@ def test_assess(setup_option, setup_global_parameters,
             'population': 500,
             'population_km2': 250,
             'total_mno_revenue': 12000,
-            'network_cost': 8000,
+            'mno_network_cost': 8000,
             'phones_on_network': 300,
             'smartphones_on_network': 250
         },
@@ -157,7 +157,7 @@ def test_assess(setup_option, setup_global_parameters,
             answer2 = item
 
     assert answer1['total_mno_revenue'] == 20000
-    assert answer1['network_cost'] == 5000
+    assert answer1['mno_network_cost'] == 5000
     assert answer1['spectrum_cost'] == 40000
     assert answer1['tax'] == 1250
     assert answer1['profit_margin'] == 9350.0
@@ -167,7 +167,7 @@ def test_assess(setup_option, setup_global_parameters,
     assert answer1['required_state_subsidy'] == 36100.0
 
     assert answer2['total_mno_revenue'] == 12000
-    assert answer2['network_cost'] == 8000
+    assert answer2['mno_network_cost'] == 8000
     assert answer2['spectrum_cost'] == 20000
     assert answer2['tax'] == 2000
     assert answer2['profit_margin'] == 6160
@@ -183,7 +183,7 @@ def test_assess(setup_option, setup_global_parameters,
             'population': 1000,
             'population_km2': 500,
             'total_mno_revenue': 20000,
-            'network_cost': 5200,
+            'mno_network_cost': 5200,
             'phones_on_network': 250,
             'smartphones_on_network': 250,
         },
@@ -193,7 +193,7 @@ def test_assess(setup_option, setup_global_parameters,
             'population': 1000,
             'population_km2': 500,
             'total_mno_revenue': 2500,
-            'network_cost': 5200,
+            'mno_network_cost': 5200,
             'phones_on_network': 250,
             'smartphones_on_network': 250,
         },
@@ -240,15 +240,11 @@ def test_calculate_total_market_costs(setup_option, setup_country_parameters):
     regions = [
         {
             'GID_id': 'a',
-            # 'GID_0': 'MEX',
-            # 'scenario': 'test',
-            # 'strategy': 'test',
-            # 'confidence': 50,
             'geotype': 'rural 1',
             'population': 0,
             'population_km2': 0,
             'total_mno_revenue': 33.3,
-            'network_cost': 0,
+            'mno_network_cost': 0,
             'smartphones_on_network': 0,
             'phones_on_network': 0,
             'administration': 33.3,
@@ -284,29 +280,3 @@ def test_calculate_total_market_costs(setup_option, setup_country_parameters):
     assert answer[0]['total_market_cost'] == 100
     assert answer[0]['total_available_cross_subsidy'] == 100
     assert answer[0]['total_used_cross_subsidy'] == 100
-
-
-# def test_calc():
-
-#     region = {
-#             'network_cost': 50,
-#             'smartphones_on_network': 33,
-#         }
-
-#     #$50 dollars
-#     metric = 'network_cost'
-
-#     #50% market share (2 MNOs)
-#     ms = 50
-
-#     #100 dollars for the whole market
-#     assert calc(region, metric, ms) == 100
-
-#     #$33 dollars
-#     metric = 'smartphones_on_network'
-
-#     #33% market share (3 MNOs)
-#     ms = 33
-
-#     #100 dollars for the whole market
-#     assert calc(region, metric, ms) == 100
