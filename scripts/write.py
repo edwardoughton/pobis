@@ -61,6 +61,7 @@ def write_results(regional_results, folder, metric):
         'GID_0', 'scenario', 'strategy', 'confidence', 'population', 'area_km2',
         'phones_on_network', 'smartphones_on_network', 'total_estimated_sites',
         'existing_mno_sites', 'upgraded_mno_sites', 'new_mno_sites',
+        'mno_network_capex', 'mno_network_opex','mno_network_cost',
         'total_mno_revenue', 'total_mno_cost',
     ]]
     national_results = national_results.drop_duplicates()
@@ -79,10 +80,13 @@ def write_results(regional_results, folder, metric):
     national_cost_results = national_cost_results[[
         'GID_0', 'scenario', 'strategy', 'confidence', 'population',
         'phones_on_network', 'smartphones_on_network', 'total_mno_revenue',
-        'ran', 'backhaul_fronthaul', 'civils', 'core_network',
+        'ran_capex', 'ran_opex', 'backhaul_capex', 'backhaul_opex',
+        'civils_capex', 'core_capex', 'core_opex',
         'administration', 'spectrum_cost', 'tax', 'profit_margin',
-        'total_mno_cost', 'available_cross_subsidy', 'deficit',
-        'used_cross_subsidy', 'required_state_subsidy',
+        'mno_network_capex', 'mno_network_opex',
+        'mno_network_cost',
+        'available_cross_subsidy', 'deficit',
+        'used_cross_subsidy', 'required_state_subsidy', 'total_mno_cost'
     ]]
     national_cost_results = national_cost_results.drop_duplicates()
     national_cost_results = national_cost_results.groupby([
@@ -100,9 +104,9 @@ def write_results(regional_results, folder, metric):
             (national_cost_results['spectrum_cost'] + national_cost_results['tax']))
     national_cost_results['financial_cost'] = (
         national_cost_results['private_cost'] + national_cost_results['government_cost'])
-    national_cost_results['required_efficiency_saving'] = (
-        national_cost_results['government_cost'] /
-        national_cost_results['private_cost'] * 100)
+    # national_cost_results['required_efficiency_saving'] = (
+    #     national_cost_results['government_cost'] /
+    #     national_cost_results['private_cost'] * 100)
 
     path = os.path.join(folder,'national_mno_cost_results_{}.csv'.format(metric))
     national_cost_results.to_csv(path, index=True)
@@ -116,7 +120,9 @@ def write_results(regional_results, folder, metric):
         'population', 'area_km2', 'phones_on_network',
         'smartphones_on_network', 'total_estimated_sites',
         'existing_mno_sites', 'upgraded_mno_sites', 'new_mno_sites',
-        'total_mno_revenue', 'total_mno_cost',
+        'total_mno_revenue',
+        'mno_network_capex', 'mno_network_opex', 'mno_network_cost',
+        'total_mno_cost',
     ]]
     decile_results = decile_results.drop_duplicates()
     decile_results = decile_results.groupby([
@@ -146,8 +152,11 @@ def write_results(regional_results, folder, metric):
     decile_cost_results = decile_cost_results[[
         'GID_0', 'scenario', 'strategy', 'decile', 'confidence',
         'population', 'area_km2', 'phones_on_network', 'smartphones_on_network',
-        'total_mno_revenue', 'ran', 'backhaul_fronthaul', 'civils', 'core_network',
-        'administration', 'spectrum_cost', 'tax', 'profit_margin', 'total_mno_cost',
+        'total_mno_revenue', 'ran_capex', 'ran_opex', 'backhaul_capex',
+        'backhaul_opex', 'civils_capex', 'core_capex', 'core_opex',
+        'administration', 'spectrum_cost', 'tax', 'profit_margin',
+        'mno_network_capex', 'mno_network_opex', 'mno_network_cost',
+        'total_mno_cost',
         'available_cross_subsidy', 'deficit', 'used_cross_subsidy',
         'required_state_subsidy',
     ]]
@@ -178,7 +187,9 @@ def write_results(regional_results, folder, metric):
         'phones_on_network', 'smartphones_on_network',
         'total_estimated_sites', 'existing_mno_sites',
         'upgraded_mno_sites', 'new_mno_sites',
-        'total_mno_revenue', 'total_mno_cost',
+        'total_mno_revenue',
+        'mno_network_capex', 'mno_network_opex', 'mno_network_cost',
+        'total_mno_cost',
     ]]
     regional_mno_results = regional_mno_results.drop_duplicates()
     regional_mno_results['cost_per_network_user'] = (
@@ -199,7 +210,9 @@ def write_results(regional_results, folder, metric):
         'total_estimated_sites',
         'total_upgraded_sites',
         'total_new_sites',
-        'total_market_revenue', 'total_market_cost',
+        'total_market_revenue',
+        'total_network_capex', 'total_network_opex',
+        'total_market_cost',
         'total_required_state_subsidy', 'total_spectrum_cost', 'total_tax',
     ]]
     national_results = national_results.drop_duplicates()
@@ -226,11 +239,16 @@ def write_results(regional_results, folder, metric):
     national_cost_results = national_cost_results[[
         'GID_0', 'scenario', 'strategy', 'confidence', 'population',
         'total_phones', 'total_smartphones',
-        'total_market_revenue', 'total_ran', 'total_backhaul_fronthaul',
-        'total_civils', 'total_core_network',
+        'total_market_revenue',
+        'total_ran_capex', 'total_ran_opex',
+        'total_backhaul_capex', 'total_backhaul_opex',
+        'total_civils_capex',
+        'total_core_capex', 'total_core_opex',
         'total_administration', 'total_spectrum_cost',
         'total_tax', 'total_profit_margin',
-        'total_market_cost', 'total_available_cross_subsidy',
+        'total_network_capex', 'total_network_opex',
+        'total_market_cost',
+        'total_available_cross_subsidy',
         'total_deficit', 'total_used_cross_subsidy',
         'total_required_state_subsidy',
     ]]
@@ -256,14 +274,15 @@ def write_results(regional_results, folder, metric):
     path = os.path.join(folder,'national_market_cost_results_{}.csv'.format(metric))
     national_cost_results.to_csv(path, index=True)
 
-
     print('Writing general decile results')
     decile_results = pd.DataFrame(regional_results)
     decile_results = define_deciles(decile_results)
     decile_results = decile_results[[
         'GID_0', 'scenario', 'strategy', 'decile', 'confidence',
         'population', 'area_km2', 'total_phones', 'total_smartphones',
-        'total_market_revenue', 'total_market_cost',
+        'total_market_revenue',
+        # 'total_market_capex', 'total_market_opex',
+        'total_market_cost',
     ]]
     decile_results = decile_results.drop_duplicates()
     decile_results = decile_results.groupby([
@@ -285,10 +304,15 @@ def write_results(regional_results, folder, metric):
     decile_cost_results = decile_cost_results[[
         'GID_0', 'scenario', 'strategy', 'decile', 'confidence',
         'population', 'area_km2', 'total_phones', 'total_smartphones',
-        'total_market_revenue', 'total_ran', 'total_backhaul_fronthaul',
-        'total_civils', 'total_core_network',
+        'total_market_revenue',
+        'total_ran_capex', 'total_ran_opex',
+        'total_backhaul_capex', 'total_backhaul_opex',
+        'total_civils_capex',
+        'total_core_capex', 'total_core_opex',
         'total_administration', 'total_spectrum_cost', 'total_tax',
-        'total_profit_margin', 'total_market_cost',
+        'total_profit_margin',
+        'total_network_capex', 'total_network_opex',
+        'total_market_cost',
         'total_available_cross_subsidy', 'total_deficit',
         'total_used_cross_subsidy', 'total_required_state_subsidy'
     ]]
@@ -334,7 +358,8 @@ def write_results(regional_results, folder, metric):
         'GID_0', 'GID_id', 'scenario', 'strategy',
         'decile', 'confidence', 'population', 'area_km2', 'geotype',
         'phones_on_network', 'smartphones_on_network', 'total_mno_revenue',
-        'ran', 'backhaul_fronthaul', 'civils', 'core_network',
+        'ran_capex', 'ran_opex', 'backhaul_capex',
+        'backhaul_opex', 'civils_capex', 'core_capex', 'core_opex',
         'administration', 'spectrum_cost', 'tax', 'profit_margin',
         'total_mno_cost', 'available_cross_subsidy', 'deficit',
         'used_cross_subsidy', 'required_state_subsidy',
@@ -370,9 +395,9 @@ def write_results(regional_results, folder, metric):
         regional_mno_cost_results['financial_cost'] /
         regional_mno_cost_results['smartphones_on_network'])
 
-    regional_mno_cost_results['required_efficiency_saving'] = (
-        regional_mno_cost_results['government_cost'] /
-        regional_mno_cost_results['private_cost'] * 100)
+    # regional_mno_cost_results['required_efficiency_saving'] = (
+    #     regional_mno_cost_results['government_cost'] /
+    #     regional_mno_cost_results['private_cost'] * 100)
 
     path = os.path.join(folder,'regional_mno_cost_results_{}.csv'.format(metric))
     regional_mno_cost_results.to_csv(path, index=True)
