@@ -160,7 +160,7 @@ if __name__ == '__main__':
     ]
 
     cost_types = [
-        'social_cost',
+        'financial_cost',
         'government_cost'
     ]
 
