@@ -48,7 +48,7 @@ private cost, net government cost, and the total financial cost.
   <img src="/figures/validation_10_mbps.png" />
 </p>
 
-Investment by `podis` is able to be converted into disaggregated cost estimates, as
+Investment costs by `podis` are able to be converted into disaggregated estimates, as
 demonstrated below.
 
 ## Continental assessment of universal broadband costs by user location across Africa
