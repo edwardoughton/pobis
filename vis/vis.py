@@ -66,7 +66,7 @@ def get_regional_shapes():
     return output
 
 
-def plot_regions_by_geotype(data, regions, path):
+def plot_regions_by_geotype(data, regions, path, disputed_areas):
     """
     Plot regions by geotype.
 
@@ -108,8 +108,10 @@ def plot_regions_by_geotype(data, regions, path):
     ax.set_xlim(minx+7, maxx-12)
     ax.set_ylim(miny+5, maxy)
 
-    regions.plot(column='bin', ax=ax, cmap='inferno_r', linewidth=0.2,
-    legend=True, edgecolor='grey')
+    base = regions.plot(column='bin', ax=ax, cmap='inferno_r', linewidth=0.2,
+        legend=True, edgecolor='grey')
+
+    disputed_areas.plot(ax=base, color='lightgrey',edgecolor='lightgrey', linewidth=0.2)
 
     handles, labels = ax.get_legend_handles_labels()
 
@@ -126,81 +128,7 @@ def plot_regions_by_geotype(data, regions, path):
     plt.close(fig)
 
 
-def plot_sub_national_cost_per_square_km(data, regions, capacity, cost_type):
-    """
-    Plot sub national cost per square km.
-
-    """
-    n = len(regions)
-    data = data.loc[data['scenario'] == 'Baseline']
-    data = data.loc[data['strategy'] == '4G(W)']
-    data = data.loc[data['confidence'] == 50]
-
-    data['cost_per_km2'] = (data[cost_type[1]] / data['area_km2']) / 1e3
-    data = data[['GID_id', 'cost_per_km2']]
-    regions = regions[['GID_id', 'geometry']]
-
-    regions = regions.merge(data, left_on='GID_id', right_on='GID_id')
-    regions.reset_index(drop=True, inplace=True)
-
-    metric = 'cost_per_km2'
-
-    bins = [-1e9, 0, 5, 10, 20, 30, 40, 50, 60, 70, 80, 1e9]
-
-    if cost_type[1] == 'total_government_cost':
-        bottom_label = '0 (Viable)'
-    else:
-        bottom_label = '0 '
-
-    labels = [
-        bottom_label,
-        '<5k USD $\mathregular{km^2}$',
-        '<10k USD $\mathregular{km^2}$',
-        '<20k USD $\mathregular{km^2}$',
-        '<30k USD $\mathregular{km^2}$',
-        '<40k USD $\mathregular{km^2}$',
-        '<50k USD $\mathregular{km^2}$',
-        '<60k USD $\mathregular{km^2}$',
-        '<70k USD $\mathregular{km^2}$',
-        '<80k USD $\mathregular{km^2}$',
-        '>80k USD $\mathregular{km^2}$',
-    ]
-    regions['bin'] = pd.cut(
-        regions[metric],
-        bins=bins,
-        labels=labels
-    )
-
-    fig, ax = plt.subplots(1, 1, figsize=(10,10))
-
-    minx, miny, maxx, maxy = regions.total_bounds
-
-    ax.set_xlim(minx+7, maxx-12)
-    ax.set_ylim(miny+5, maxy)
-
-    plt.figure()
-
-    regions.plot(column='bin', ax=ax, cmap='inferno_r', linewidth=0.2,
-        legend=True, edgecolor='grey')
-
-    handles, labels = ax.get_legend_handles_labels()
-    fig.legend(handles[::-1], labels[::-1])
-
-    ctx.add_basemap(ax, crs=regions.crs, source=ctx.providers.CartoDB.Voyager)
-
-    fig.suptitle(
-        '{} Cost for 4G (Wireless) Universal Broadband ({} Mbps) (n={}) (10-year NPV)'.format(
-            cost_type[0].split(' ')[0], capacity, n))
-
-    fig.tight_layout()
-    filename = 'cost_per_square_km_spatially_{}_{}_mbps.png'.format(
-        cost_type[0].split(' ')[0], capacity)
-    fig.savefig(os.path.join(VIS, filename))
-
-    plt.close(fig)
-
-
-def plot_sub_national_cost_per_user(data, regions, capacity, cost_type):
+def plot_sub_national_cost_per_user(data, regions, capacity, cost_type, disputed_areas):
     """
     Plot sub national cost per user.
 
@@ -242,8 +170,10 @@ def plot_sub_national_cost_per_user(data, regions, capacity, cost_type):
 
     plt.figure()
 
-    regions.plot(column='bin', ax=ax, cmap='inferno_r', linewidth=0.1,
+    base = regions.plot(column='bin', ax=ax, cmap='inferno_r', linewidth=0.1,
         legend=True, edgecolor='grey')
+
+    disputed_areas.plot(ax=base, color='lightgrey',edgecolor='lightgrey', linewidth=0.2)
 
     handles, labels = ax.get_legend_handles_labels()
     fig.legend(handles[::-1], labels[::-1])
@@ -251,18 +181,18 @@ def plot_sub_national_cost_per_user(data, regions, capacity, cost_type):
     ctx.add_basemap(ax, crs=regions.crs, source=ctx.providers.CartoDB.Voyager)
 
     fig.suptitle(
-        '{} Per User Cost for 4G (Wireless) Universal Broadband ({} Mbps) (n={}) (10-year NPV)'.format(
+        '{} Per User Cost for 4G (Wireless) Universal Broadband (~{} Mbps) (n={}) (10-year NPV)'.format(
             cost_type[0].split(' ')[0], capacity, n))
 
     fig.tight_layout()
-    filename = 'cost_per_user_spatially_{}_{}_mbps.png'.format(
+    filename = 'z_cost_per_user_spatially_{}_{}_mbps.png'.format(
         cost_type[0].split(' ')[0], capacity)
     fig.savefig(os.path.join(VIS, filename))
 
     plt.close(fig)
 
 
-def plot_investment_as_gdp_percent(data, gdp, regions, capacity, cost_type):
+def plot_investment_as_gdp_percent(data, gdp, regions, capacity, cost_type, disputed_areas):
     """
     Plot sub national cost per user.
 
@@ -312,9 +242,11 @@ def plot_investment_as_gdp_percent(data, gdp, regions, capacity, cost_type):
 
     plt.figure()
 
-    regions.plot(column='bin', ax=ax, cmap='inferno_r', linewidth=0.1,
-        legend=True, edgecolor='grey',
-        missing_kwds = dict(color='lightgrey', label='No Data'))
+    base = regions.plot(column='bin', ax=ax, cmap='inferno_r', linewidth=0.1,
+        legend=True, edgecolor='grey')
+        # missing_kwds = dict(color='lightgrey', label='Disputed Areas')
+
+    disputed_areas.plot(ax=base, color='lightgrey',edgecolor='lightgrey', linewidth=0.2)
 
     handles, labels = ax.get_legend_handles_labels()
     fig.legend(handles[::-1], labels[::-1])
@@ -322,11 +254,11 @@ def plot_investment_as_gdp_percent(data, gdp, regions, capacity, cost_type):
     ctx.add_basemap(ax, crs=regions.crs, source=ctx.providers.CartoDB.Voyager)
 
     fig.suptitle(
-        str('{} Cost for 4G (Wireless) Universal Broadband ({} Mbps) ({}GDP) (n={}) (10-year NPV)'.format(
+        str('{} Cost for 4G (Wireless) Universal Broadband (~{} Mbps) ({}GDP) (n={}) (10-year NPV)'.format(
             cost_type[0].split(' ')[0], capacity, '%', n)))
 
     fig.tight_layout()
-    filename = 'gdp_percentage_spatially_{}_{}_mbps.png'.format(
+    filename = 'z_gdp_percentage_spatially_{}_{}_mbps.png'.format(
         cost_type[0].split(' ')[0], capacity)
     fig.savefig(os.path.join(VIS, filename))
 
@@ -343,8 +275,11 @@ if __name__ == '__main__':
     cost_types = [
         ('Private Mean Cost Per User ($USD)', 'total_private_cost', 'private_cost_per_user'),
         ('Government Mean Cost Per User ($USD)', 'total_government_cost', 'govt_cost_per_user'),
-        ('Social Mean Cost Per User ($USD)', 'total_financial_cost', 'financial_cost_per_user'),
+        ('Financial Mean Cost Per User ($USD)', 'total_financial_cost', 'financial_cost_per_user'),
     ]
+
+    da_path = os.path.join(VIS, '..', 'disputed areas', 'DisputedAreasWGS84.shp')
+    disputed_areas = gpd.read_file(da_path, crs='epsg:4326')
 
     for capacity in capacities:
         for cost_type in cost_types:
@@ -364,22 +299,18 @@ if __name__ == '__main__':
                 shapes = gpd.read_file(path, crs='epsg:4326')
 
             #Plotting regions by geotype
-            path = os.path.join(VIS, 'region_by_pop_density.png')
+            path = os.path.join(VIS, 'z_region_by_pop_density.png')
             if not os.path.exists(path):
-                plot_regions_by_geotype(data, shapes, path)
+                plot_regions_by_geotype(data, shapes, path, disputed_areas)
 
             #Loading regional results data
             filename = 'regional_cost_estimates_{}.csv'.format(capacity)
             path = os.path.join(USER_COSTS, filename)
             regional_costs = pd.read_csv(path)
 
-            # #Plotting sub-national regions by cost per km^2
-            # plot_sub_national_cost_per_square_km(regional_costs, shapes,
-            #     capacity, cost_type)
-
             #Plotting sub-national regions by cost per user
             plot_sub_national_cost_per_user(regional_costs, shapes,
-                capacity, cost_type)
+                capacity, cost_type, disputed_areas)
 
             #Loading regional results data
             path = os.path.join(VIS, '..', 'gdp.csv')
@@ -387,6 +318,6 @@ if __name__ == '__main__':
 
             #Plotting sub-national regions by cost per user
             plot_investment_as_gdp_percent(regional_costs, gdp, shapes,
-                capacity, cost_type)
+                capacity, cost_type, disputed_areas)
 
     print('Complete')
