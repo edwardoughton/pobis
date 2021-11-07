@@ -189,9 +189,9 @@ financial_cost_10mbps = ggplot(data,
   scale_fill_manual(values=c("#E1BE6A", "#40B0A6", "#5D3A9B"), name=NULL) +
   theme(legend.position = "bottom") +
   labs(
-  title="(A) Financial Cost of Universal Broadband by Technology (10 Mbps Per User)", 
+  title="(A) Financial Cost of Universal Broadband by Technology (~10 Mbps Per User)", 
        colour=NULL,
-       subtitle = "Reported for all scenarios and strategies",
+       subtitle = "Reported as the NPV for all scenarios and strategies over 2020-2030",
        x = NULL, y = "Financial Cost (Billions $USD)") +
   scale_y_continuous(expand = c(0, 0), limits = c(0, max_value+17)) +  
   theme(panel.spacing = unit(0.6, "lines")) +
@@ -253,9 +253,9 @@ financial_cost_2mbps = ggplot(data, aes(x=strategy, y=round(financial_cost/1e9),
   coord_flip() +
   scale_fill_manual(values=c("#E1BE6A", "#40B0A6", "#5D3A9B"), name=NULL) +
   theme(legend.position = "bottom") +
-  labs(title = "(B) Financial Cost of Universal Broadband by Technology (2 Mbps Per User)", 
+  labs(title = "(B) Financial Cost of Universal Broadband by Technology (~2 Mbps Per User)", 
        colour=NULL,
-       subtitle = "Reported for all scenarios and strategies",
+       subtitle = "Reported as the NPV for all scenarios and strategies over 2020-2030",
        x = NULL, y = "Financial Cost (Billions $USD)") +
   scale_y_continuous(expand = c(0, 0), limits = c(0, max_value+17)) +  
   theme(panel.spacing = unit(0.6, "lines")) +
@@ -328,9 +328,9 @@ govt_costs_10mbps = ggplot(data, aes(x=strategy,
   coord_flip() +
   scale_fill_manual(values=c("#E1BE6A", "#40B0A6", "#5D3A9B"), name=NULL) +
   theme(legend.position = "bottom") +
-  labs(title="(A) Net Government Cost for Universal Broadband by Technology (10 Mbps Per User)", 
+  labs(title="(A) Net Government Cost for Universal Broadband by Technology (~10 Mbps Per User)", 
        colour=NULL,
-       subtitle = "Reported for all scenarios and strategies",
+       subtitle = "Reported as the NPV for all scenarios and strategies over 2020-2030",
        x = NULL, y = "Total Cost (Billions $USD)") +
   scale_y_continuous(expand = c(0, 0), 
                      limits = c(min_value-.5, max_value+15)) +  
@@ -393,8 +393,8 @@ govt_costs_2mbps = ggplot(data, aes(x=strategy,
   coord_flip() +
   scale_fill_manual(values=c("#E1BE6A", "#40B0A6", "#5D3A9B"), name=NULL) +
   theme(legend.position = "bottom") +
-  labs(title="(B) Net Government Cost for Universal Broadband by Technology (2 Mbps Per User)", colour=NULL,
-       subtitle = "Reported for all scenarios and strategies",
+  labs(title="(B) Net Government Cost for Universal Broadband by Technology (~2 Mbps Per User)", colour=NULL,
+       subtitle = "Reported as the NPV for all scenarios and strategies over 2020-2030",
        x = NULL, y = "Total Cost (Billions $USD)") +
   scale_y_continuous(expand = c(0, 0), 
                      limits = c(min_value-.5, max_value+15)) +  
@@ -471,9 +471,9 @@ cost_10mbps = ggplot(data, aes(x=strategy, y=round(financial_cost/1e9),
   coord_flip() +
   scale_fill_manual(values=c("#E1BE6A", "#40B0A6", "#5D3A9B"), name=NULL) +
   theme(legend.position = "bottom") +
-  labs(title = "(A) Financial Cost of Universal Broadband with Infrastructure Sharing (10 Mbps Per User)", 
+  labs(title = "(A) Financial Cost of Universal Broadband with Infrastructure Sharing (~10 Mbps Per User)", 
        colour=NULL,
-       subtitle = "Reported for all scenarios and strategies using 4G (Wireless)",
+       subtitle = "Reported as the NPV for all scenarios and strategies (2020-2030) using 4G (Wireless)",
        x = NULL, y = "Financial Cost (Billions $USD)") +
   scale_y_continuous(expand = c(0, 0), limits = c(0, max_value+17)) +  
   theme(panel.spacing = unit(0.6, "lines")) +
@@ -540,9 +540,9 @@ cost_2mbps = ggplot(data, aes(x=strategy, y=round(financial_cost/1e9),
   coord_flip() +
   scale_fill_manual(values=c("#E1BE6A", "#40B0A6", "#5D3A9B"), name=NULL) +
   theme(legend.position = "bottom") +
-  labs(title = "(B) Financial Cost of Universal Broadband with Infrastructure Sharing (2 Mbps Per User)", 
+  labs(title = "(B) Financial Cost of Universal Broadband with Infrastructure Sharing (~2 Mbps Per User)", 
        colour=NULL,
-       subtitle = "Reported for all scenarios and strategies using 4G (Wireless)",
+       subtitle = "Reported as the NPV for all scenarios and strategies (2020-2030) using 4G (Wireless)",
        x = NULL, y = "Financial Cost (Billions $USD)") +
   scale_y_continuous(expand = c(0, 0), limits = c(0, max_value+17)) +  
   theme(panel.spacing = unit(0.6, "lines")) +
@@ -563,10 +563,10 @@ folder <- dirname(rstudioapi::getSourceEditorContext()$path)
 folder_inputs = file.path(folder, '..', 'results', 'user_costs')
 
 data1 <- read.csv(file.path(folder_inputs, 'total_cost_estimates_2.csv'))
-data1$Capacity = '2 Mbps Per User'
+data1$Capacity = '~2 Mbps Per User'
 
 data2 <- read.csv(file.path(folder_inputs, 'total_cost_estimates_10.csv'))
-data2$Capacity = '10 Mbps Per User'
+data2$Capacity = '~10 Mbps Per User'
 
 data = rbind(data1, data2)
 
@@ -583,8 +583,8 @@ data$Scenario = factor(data$Scenario, levels=c("Low",
                                                "Baseline",
                                                "High"))
 
-data$Capacity = factor(data$Capacity, levels=c("10 Mbps Per User",
-                                               "2 Mbps Per User"
+data$Capacity = factor(data$Capacity, levels=c("~10 Mbps Per User",
+                                               "~2 Mbps Per User"
 ))
 
 totals <- data %>%
@@ -614,7 +614,7 @@ ggplot(data, aes(y=value, x=Strategy, fill=Cost_Type)) +
   scale_fill_manual(values=c("#E1BE6A", "#40B0A6"), name=NULL) +
   theme(legend.position = "bottom") +
   labs(title = "Financial Cost of Universal Broadband Across Africa by Technology", colour=NULL,
-       subtitle = "Reported for all scenarios and strategies",
+       subtitle = "Reported as the NPV for all scenarios and strategies over 2020-2030",
        x = NULL, y = "Financial Cost (Trillions $USD)") +
   scale_y_continuous(expand = c(0, 0), limits = c(-min_value, max_value+0.5)) + 
   theme(panel.spacing = unit(0.6, "lines")) +
@@ -633,13 +633,11 @@ folder <- dirname(rstudioapi::getSourceEditorContext()$path)
 filename = 'national_market_results_sensitivity_analysis.csv'
 data <- read.csv(file.path(folder, '..', 'results', 
                            'sensitivity_analysis', filename))
-unique(data$strategy)
 
 data = data %>% 
   separate(scenario, into = c("scenario", "capacity", NA, NA), sep="_") %>% 
   separate(strategy, into = c("generation", "core", "backhaul", 
                               NA, NA, NA, NA, "obf", "costs"), sep="_")
-
 
 data$strategy = paste(data$generation, data$backhaul, sep='_')
 
@@ -647,22 +645,22 @@ data = data[data$strategy == "4G_wireless",]
 data = data[data$scenario == "baseline",]
 data = data[data$capacity == "10",]
 
-data$GID_0 = factor(data$GID_0, levels=c("CIV",
-                                         'MLI',
-                                         "SEN",
-                                         "KEN",
+data$GID_0 = factor(data$GID_0, levels=c("UGA",
                                          "TZA",
-                                         "UGA"),
-                    labels=c("Cote D'Ivoire",
-                             "Mali",
-                             "Senegal",
-                             "Kenya",
-                             "Tanzania",
-                             "Uganda"
-                    ))
+                                         "KEN",
+                                         "SEN",
+                                         "MLI",
+                                         "CIV"),
+                    labels=c(
+                      "Uganda",
+                      "Tanzania",
+                      "Kenya",
+                      "Senegal",
+                      "Mali",
+                      "Cote D'Ivoire"))
 
-data$obf = factor(data$obf, levels=c('10', '20', '30' ),
-                  labels=c('-50%', 'Baseline', '+50%'))
+data$obf = factor(data$obf, levels=c('15', '20', '25' ),
+                  labels=c('-25%', 'Baseline', '+25%'))
 
 data$costs = factor(data$costs, levels=c('125', '100', '75'),
                     labels=c('+25%', 'Baseline', '-25%'))
@@ -685,8 +683,8 @@ obf_figure = ggplot(data_obf,
   theme(legend.position = "bottom") +
   labs(
     title="(A) Cost Sensitivity for Active Network Users when Maintaining QoS", 
-    colour=NULL,
-    subtitle = "Reported for 4G (W) targetting ~10 Mbps Per User",
+    colour=NULL,  
+    subtitle = "Reported as the NPV for 4G (W) targetting ~10 Mbps Per User (2020-2030)",
     x = NULL, y = "Financial Cost (Billions $USD)") +
   scale_y_continuous(expand = c(0, 0), limits = c(0, max_value+17)) +  
   theme(panel.spacing = unit(0.6, "lines")) +
@@ -707,9 +705,9 @@ costs_figure = ggplot(data_costs,
   scale_fill_manual(values=c("#E1BE6A", "#40B0A6", "#5D3A9B"), name=NULL) +
   theme(legend.position = "bottom") +
   labs(
-    title="(B) Cost Sensitivity to Model Input Costs", 
+    title="(B) Cost Sensitivity to Model Input Costs (2020-2030)", 
     colour=NULL,
-    subtitle = "Reported for 4G (W) targetting ~10 Mbps Per User",
+    subtitle = "Reported as the NPV for 4G (W) targetting ~10 Mbps Per User (2020-2030)",
     x = NULL, y = "Financial Cost (Billions $USD)") +
   scale_y_continuous(expand = c(0, 0), limits = c(0, max_value+17)) +  
   theme(panel.spacing = unit(0.6, "lines")) +
