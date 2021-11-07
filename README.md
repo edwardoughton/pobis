@@ -7,8 +7,8 @@ Policy Options for Digital Infrastructure Strategies (podis)
 digital infrastructure connectivity, thus contributing to sustainable economic development.
 
 The simulation model available in this repository can be applied to local, national or regional
-telecommunication markets, to quantify the performance of different technology, business model
-or regional integration options. The evidence produced can be used to inform the design of
+telecommunication markets, to quantify the performance of different technologies or business
+models. The evidence produced can be used to inform the design of
 digital infrastructure strategies.
 
 Citation
@@ -37,40 +37,25 @@ strategies.
   <img src="/figures/approach.png" />
 </p>
 
-The composition of the private cost is visualized below for each technology tested,
-demonstrating the structure of the investment required to achieve comprehensive universal
-broadband across the six example countries assessed here (Côte D’Ivoire, Mali, Senegal, Kenya,
-Tanzania and Uganda).
+As `podis` functions in a spatially disaggregated way, it is possible to convert detailed
+local modeling into continent-wide assessment of universal broadband. In the table below,
+the necessary investment per decile is reported for the whole of Africa, based on the
+private cost, net government cost, and the total financial cost.
 
-## Composition of the private cost structure by country
-
-<p align="center">
-  <img src="/figures/private_cost.png" />
-</p>
-
-In those circumstances where the revenue able to support infrastructure deployment falls short
-of the required investment, areas are therefore unviable based on current market conditions.
-Consequently, government is required to provide a state subsidy to help deploy the required
-infrastructure in these situations. The figure below demonstrates how `podis` is able to
-estimate the required state subsidy needed to achieve universal broadband.
-
-## Quantifying state subsidies for universal broadband
+## The financial cost of universal broadband for the African continent
 
 <p align="center">
-  <img src="/figures/government_cost.png" />
+  <img src="/figures/validation_10_mbps.png" />
 </p>
 
-The strength of the codebase is that once the detailed country modeling has been undertaken, it
-is possible to use those results to develop costs based on population density. This means that
-insights can be developed for the costs of serving all countries across the African continent
-at the sub-national level, as illustrated in the graphic below.
+Investment by `podis` is able to be converted into disaggregated cost estimates, as
+demonstrated below.
 
-## Estimating the sub-national cost for universal broadband across all countries
+## Continental assessment of universal broadband costs by user location across Africa
 
 <p align="center">
-  <img src="/figures/sub_national_cost_per_square_km.png" />
+  <img src="/figures/z_cost_per_user_spatially_Financial_10_mbps.png" />
 </p>
-
 
 Using conda
 ==========
