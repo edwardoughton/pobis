@@ -14,6 +14,7 @@ import geopandas as gpd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import contextily as ctx
+from pylab import * #is this needed
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__), '..', 'scripts', 'script_config.ini'))
@@ -111,7 +112,13 @@ def plot_regions_by_geotype(data, regions, path, disputed_areas):
     base = regions.plot(column='bin', ax=ax, cmap='inferno_r', linewidth=0.2,
         legend=True, edgecolor='grey')
 
-    disputed_areas.plot(ax=base, color='lightgrey',edgecolor='lightgrey', linewidth=0.2)
+    replacement_dict = [('<', ''), ('\\mathregular{km^2}', ''), ('>', ''), ('$', ''), (' ', '')]
+    cmap = cm.get_cmap('inferno_r', len(bins)) # PiYG
+    blended_hex = get_blended_hex(regions, cmap, bins, replacement_dict)
+    abyei = disputed_areas[disputed_areas['WB_NAME'] == 'Abyei']
+    abyei.plot(ax=base, color=blended_hex[0], edgecolor='grey', linewidth=0.2)
+    western_sahara = disputed_areas[disputed_areas['WB_NAME'] == 'Western Sahara']
+    western_sahara.plot(ax=base, color='lightgrey', edgecolor='grey', linewidth=0.2)
 
     handles, labels = ax.get_legend_handles_labels()
 
@@ -173,7 +180,13 @@ def plot_sub_national_cost_per_user(data, regions, capacity, cost_type, disputed
     base = regions.plot(column='bin', ax=ax, cmap='inferno_r', linewidth=0.1,
         legend=True, edgecolor='grey')
 
-    disputed_areas.plot(ax=base, color='lightgrey',edgecolor='lightgrey', linewidth=0.2)
+    replacement_dict = [('<', ''), ('$', ''), ('#', ''), (' ', ''), ('>', '')]
+    cmap = cm.get_cmap('inferno_r', len(bins)) # PiYG
+    blended_hex = get_blended_hex(regions, cmap, bins, replacement_dict)
+    abyei = disputed_areas[disputed_areas['WB_NAME'] == 'Abyei']
+    abyei.plot(ax=base, color=blended_hex[0], edgecolor='grey', linewidth=0.2)
+    western_sahara = disputed_areas[disputed_areas['WB_NAME'] == 'Western Sahara']
+    western_sahara.plot(ax=base, color='lightgrey', edgecolor='grey', linewidth=0.2)
 
     handles, labels = ax.get_legend_handles_labels()
     fig.legend(handles[::-1], labels[::-1])
@@ -190,6 +203,72 @@ def plot_sub_national_cost_per_user(data, regions, capacity, cost_type, disputed
     fig.savefig(os.path.join(VIS, filename))
 
     plt.close(fig)
+
+
+def get_blended_hex(regions, cmap, bins, replacement_dict):
+    """
+    Get a blended hex.
+
+    """
+    sdn = regions.loc[regions['GID_id'] == 'SDN.17.1_1']
+    ssd = regions.loc[regions['GID_id'] == 'SSD.5.4_1']
+
+    sdn = sdn['bin'].values[0]
+    ssd = ssd['bin'].values[0]
+
+    values_hex = {}
+
+    for i, z in zip(range(cmap.N), bins):
+        rgba = cmap(i) # rgb2hex accepts rgb or rgba
+        values_hex[str(z)] = str(matplotlib.colors.rgb2hex(rgba))
+
+    for k, v in replacement_dict:
+        sdn = sdn.replace(k, v)
+        ssd = ssd.replace(k, v)
+
+    if '-' in sdn:
+        sdn = sdn[:2]
+    if '-' in ssd:
+        ssd = ssd[:2]
+
+    if 'Viable' in sdn:
+        sdn = -1000000000.0
+    if 'Viable' in ssd:
+        ssd = -1000000000.0
+
+    sdn_hex = values_hex[str(sdn)].replace('#', '')
+    ssd_hex = values_hex[str(ssd)].replace('#', '')
+
+    blended_hex = jcolor_split(sdn_hex, ssd_hex)
+
+    return blended_hex
+
+
+def jcolor_split(hex_color_1, hex_color_2):
+    """
+    Blend two hex colors.
+
+    """
+    r1s = hex_color_1[0:2]
+    g1s = hex_color_1[2:4]
+    b1s = hex_color_1[4:6]
+
+    r2s = hex_color_2[0:2]
+    g2s = hex_color_2[2:4]
+    b2s = hex_color_2[4:6]
+
+    r1 = int(r1s, 16); g1 = int(g1s, 16); b1 = int(b1s, 16)
+    r2 = int(r2s, 16); g2 = int(g2s, 16); b2 = int(b2s, 16)
+
+    # get the average
+    ra = int(round(float(r1+r2)/2))
+    ga = int(round(float(g1+g2)/2))
+    ba = int(round(float(b1+b2)/2))
+
+    format1 = '#' + format(ra, 'x') + format(ga, 'x') + format(ba, 'x')
+    format2 = '#' + str(ra) + str(ga) + str(ba)
+
+    return (format1, format2)
 
 
 def plot_investment_as_gdp_percent(data, gdp, regions, capacity, cost_type, disputed_areas):
@@ -220,7 +299,7 @@ def plot_investment_as_gdp_percent(data, gdp, regions, capacity, cost_type, disp
 
     bins = [-1e9,0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1, 1e9]
     if cost_type[1] == 'total_government_cost':
-        labels = ['0 (Viable)','<0.1%','<0.2%','<0.3%','<0.4%','<0.5%',
+        labels = ['Viable','<0.1%','<0.2%','<0.3%','<0.4%','<0.5%',
         '<0.6%','<0.7%','<0.8%','<0.9%','<1%','>1%']
     else:
         bins = [0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1, 1e9]
@@ -244,9 +323,17 @@ def plot_investment_as_gdp_percent(data, gdp, regions, capacity, cost_type, disp
 
     base = regions.plot(column='bin', ax=ax, cmap='inferno_r', linewidth=0.1,
         legend=True, edgecolor='grey')
-        # missing_kwds = dict(color='lightgrey', label='Disputed Areas')
 
-    disputed_areas.plot(ax=base, color='lightgrey',edgecolor='lightgrey', linewidth=0.2)
+    replacement_dict = [('<', ''), ('%', ''), ('#', ''), (' ', ''), ('>', '')]
+    cmap = cm.get_cmap('inferno_r', len(bins)) # PiYG
+    blended_hex = get_blended_hex(regions, cmap, bins, replacement_dict)
+    abyei = disputed_areas[disputed_areas['WB_NAME'] == 'Abyei']
+    try:
+        abyei.plot(ax=base, color=blended_hex[1], edgecolor='grey', linewidth=0.2)
+    except:
+        abyei.plot(ax=base, color=blended_hex[0], edgecolor='grey', linewidth=0.2)
+    western_sahara = disputed_areas[disputed_areas['WB_NAME'] == 'Western Sahara']
+    western_sahara.plot(ax=base, color='lightgrey', edgecolor='grey', linewidth=0.2)
 
     handles, labels = ax.get_legend_handles_labels()
     fig.legend(handles[::-1], labels[::-1])
