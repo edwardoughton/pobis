@@ -4,7 +4,7 @@ from podis.assess import (get_spectrum_costs, calculate_tax,
     estimate_subsidies, allocate_available_excess,
     calculate_total_market_costs, calc)
 
-def test_get_spectrum_costs(setup_region, setup_option, setup_global_parameters,
+def test_get_spectrum_costs(setup_region, setup_parameters,
     setup_country_parameters):
 
     setup_region[0]['new_sites'] = 1
@@ -12,38 +12,38 @@ def test_get_spectrum_costs(setup_region, setup_option, setup_global_parameters,
     # 10000 people
     # 200000 = 1 * 20 * 10000 (cost = cost_mhz_pop * bw * pop )
     # 200000 = 1 * 20 * 10000 (cost = cost_mhz_pop * bw * pop )
-    assert get_spectrum_costs(setup_region[0], setup_option['strategy'],
-        setup_global_parameters, setup_country_parameters) == 400000
+    assert get_spectrum_costs(setup_region[0], setup_parameters['strategy'],
+        setup_parameters, setup_country_parameters) == 400000
 
     setup_region[0]['new_sites'] = 1
 
     # test high spectrum costs which are 50% higher
     assert get_spectrum_costs(setup_region[0], '4G_epc_microwave_baseline_baseline_high_baseline',
-        setup_global_parameters, setup_country_parameters) == (
+        setup_parameters, setup_country_parameters) == (
             400000 * (setup_country_parameters['financials']['spectrum_cost_high'] / 100))
 
     # test low spectrum costs which are 50% lower
     assert get_spectrum_costs(setup_region[0], '4G_epc_microwave_baseline_baseline_low_baseline',
-        setup_global_parameters, setup_country_parameters) == (
+        setup_parameters, setup_country_parameters) == (
             400000 * (setup_country_parameters['financials']['spectrum_cost_low'] / 100))
 
-def test_calculate_tax(setup_region, setup_option, setup_country_parameters):
+def test_calculate_tax(setup_region, setup_parameters, setup_country_parameters):
 
     setup_region[0]['mno_network_cost'] = 1e6
 
-    assert calculate_tax(setup_region[0], setup_option['strategy'], setup_country_parameters) == 1e6 * (25/100)
+    assert calculate_tax(setup_region[0], setup_parameters['strategy'], setup_country_parameters) == 1e6 * (25/100)
 
     setup_region[0]['mno_network_cost'] = 1e6
-    setup_option['strategy'] = '4G_epc_microwave_baseline_baseline_baseline_high'
+    setup_parameters['strategy'] = '4G_epc_microwave_baseline_baseline_baseline_high'
 
-    answer = calculate_tax(setup_region[0], setup_option['strategy'], setup_country_parameters)
+    answer = calculate_tax(setup_region[0], setup_parameters['strategy'], setup_country_parameters)
 
     assert answer == 1e6 * (40/100)
 
     setup_region[0]['mno_network_cost'] = 1e6
-    setup_option['strategy'] = '4G_epc_microwave_baseline_baseline_baseline_low'
+    setup_parameters['strategy'] = '4G_epc_microwave_baseline_baseline_baseline_low'
 
-    answer = calculate_tax(setup_region[0], setup_option['strategy'], setup_country_parameters)
+    answer = calculate_tax(setup_region[0], setup_parameters['strategy'], setup_country_parameters)
 
     assert answer == 1e6 * (10/100)
 
@@ -121,7 +121,7 @@ def test_estimate_subsidies():
     assert available_cross_subsidy == 0
 
 
-def test_assess(setup_option, setup_global_parameters,
+def test_assess(setup_parameters,
     setup_country_parameters, setup_timesteps):
 
     regions = [
@@ -147,7 +147,7 @@ def test_assess(setup_option, setup_global_parameters,
         },
     ]
 
-    answer = assess('MWI', regions, setup_option, setup_global_parameters,
+    answer = assess('MWI', regions, setup_parameters,
         setup_country_parameters, setup_timesteps)
 
     for item in answer:
@@ -199,7 +199,7 @@ def test_assess(setup_option, setup_global_parameters,
         },
     ]
 
-    answer = assess('MWI', regions, setup_option, setup_global_parameters,
+    answer = assess('MWI', regions, setup_parameters,
         setup_country_parameters, setup_timesteps)
 
     assert answer[0]['available_cross_subsidy'] == 0
@@ -233,7 +233,7 @@ def test_allocate_available_excess():
     assert answer['deficit'] == 5000
 
 
-def test_calculate_total_market_costs(setup_option, setup_country_parameters):
+def test_calculate_total_market_costs(setup_parameters, setup_country_parameters):
     """
     Unit test.
     """
@@ -260,7 +260,7 @@ def test_calculate_total_market_costs(setup_option, setup_country_parameters):
         },
     ]
 
-    answer = calculate_total_market_costs(regions, setup_option, setup_country_parameters)
+    answer = calculate_total_market_costs(regions, setup_parameters, setup_country_parameters)
 
     assert answer[0]['total_market_revenue'] == 100
     assert answer[0]['total_administration'] == 100
@@ -269,10 +269,10 @@ def test_calculate_total_market_costs(setup_option, setup_country_parameters):
     assert answer[0]['total_available_cross_subsidy'] == 100
     assert answer[0]['total_used_cross_subsidy'] == 100
 
-    setup_option['scenario'] == '4G_epc_wireless_srn_srn_baseline_baseline'
+    setup_parameters['scenario'] == '4G_epc_wireless_srn_srn_baseline_baseline'
     regions[0]['geotype'] == 'rural'
 
-    answer = calculate_total_market_costs(regions, setup_option, setup_country_parameters)
+    answer = calculate_total_market_costs(regions, setup_parameters, setup_country_parameters)
 
     assert answer[0]['total_market_revenue'] == 100
     assert answer[0]['total_administration'] == 100

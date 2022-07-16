@@ -11,7 +11,7 @@ import math
 from itertools import tee
 import collections, functools, operator
 
-def find_network_cost(region, option, costs, global_parameters,
+def find_network_cost(region, parameters,
     country_parameters, core_lut):
     """
     Calculates the annual total cost using capex and opex.
@@ -20,14 +20,10 @@ def find_network_cost(region, option, costs, global_parameters,
     ----------
     region : dict
         The region being assessed and all associated parameters.
-    strategy : str
-        Infrastructure sharing strategy.
-    costs : dict
-        Contains the costs of each necessary equipment item.
-    global_parameters : dict
-        Contains all global_parameters.
+    parameters : dict
+        Contains all parameters.
     country_parameters :
-        ???
+        Contains all country parameters.
     backhaul_lut : dict
         Backhaul distance by region.
 
@@ -38,7 +34,7 @@ def find_network_cost(region, option, costs, global_parameters,
         opex costs.
 
     """
-    strategy = option['strategy']
+    strategy = parameters['strategy']
     generation = strategy.split('_')[0]
 
     new_sites = region['new_mno_sites']
@@ -53,51 +49,51 @@ def find_network_cost(region, option, costs, global_parameters,
 
         if i <= upgraded_sites and generation == '3G':
 
-            cost_structure = upgrade_to_3g(region,strategy, costs,
-                global_parameters, core_lut, country_parameters)
+            cost_structure = upgrade_to_3g(region, strategy,
+                parameters, core_lut, country_parameters)
 
             backhaul_quant = backhaul_quantity(i, new_backhaul)
 
             total_cost, cost_by_asset = calc_costs(region, strategy, cost_structure,
-                backhaul_quant, global_parameters, country_parameters)
+                backhaul_quant, parameters, country_parameters)
 
             regional_asset_cost.append(cost_by_asset)
 
         if i <= upgraded_sites and generation == '4G':
 
-            cost_structure = upgrade_to_4g(region,strategy, costs,
-                global_parameters, core_lut, country_parameters, )
+            cost_structure = upgrade_to_4g(region,strategy,
+                parameters, core_lut, country_parameters, )
 
             backhaul_quant = backhaul_quantity(i, new_backhaul)
 
             total_cost, cost_by_asset = calc_costs(region, strategy, cost_structure,
-                backhaul_quant, global_parameters, country_parameters)
+                backhaul_quant, parameters, country_parameters)
 
             regional_asset_cost.append(cost_by_asset)
 
 
         if i > upgraded_sites and generation == '3G':
 
-            cost_structure = greenfield_3g(region, strategy, costs,
-                global_parameters, core_lut, country_parameters)
+            cost_structure = greenfield_3g(region, strategy,
+                parameters, core_lut, country_parameters)
 
             backhaul_quant = backhaul_quantity(i, new_backhaul)
 
             total_cost, cost_by_asset = calc_costs(region, strategy, cost_structure,
-                backhaul_quant, global_parameters, country_parameters)
+                backhaul_quant, parameters, country_parameters)
 
             regional_asset_cost.append(cost_by_asset)
 
 
         if i > upgraded_sites and generation == '4G':
 
-            cost_structure = greenfield_4g(region, strategy, costs,
-                global_parameters, core_lut, country_parameters)
+            cost_structure = greenfield_4g(region, strategy,
+                parameters, core_lut, country_parameters)
 
             backhaul_quant = backhaul_quantity(i, new_backhaul)
 
             total_cost, cost_by_asset = calc_costs(region, strategy, cost_structure,
-                backhaul_quant, global_parameters, country_parameters)
+                backhaul_quant, parameters, country_parameters)
 
             regional_asset_cost.append(cost_by_asset)
 
@@ -138,7 +134,7 @@ def backhaul_quantity(i, new_backhaul):
         return 0
 
 
-def upgrade_to_3g(region, strategy, costs, global_parameters,
+def upgrade_to_3g(region, strategy, parameters,
     core_lut, country_parameters):
     """
     Reflects the baseline scenario of needing to build a single dedicated
@@ -154,28 +150,28 @@ def upgrade_to_3g(region, strategy, costs, global_parameters,
 
     shared_assets = INFRA_SHARING_ASSETS[sharing]
 
-    core_edge_capex = core_capex(region, 'core_edge', costs, core_lut, strategy, country_parameters)
-    core_node_capex = core_capex(region, 'core_node', costs, core_lut, strategy, country_parameters)
-    regional_edge_capex = regional_net_capex(region, 'regional_edge', costs, core_lut, strategy, country_parameters)
-    regional_node_capex = regional_net_capex(region, 'regional_node', costs, core_lut, strategy, country_parameters)
+    core_edge_capex = core_capex(region, 'core_edge', parameters, core_lut, strategy, country_parameters)
+    core_node_capex = core_capex(region, 'core_node', parameters, core_lut, strategy, country_parameters)
+    regional_edge_capex = regional_net_capex(region, 'regional_edge', parameters, core_lut, strategy, country_parameters)
+    regional_node_capex = regional_net_capex(region, 'regional_node', parameters, core_lut, strategy, country_parameters)
 
     ###provides a single year of costs for the first year of assessment
     assets = {
-        'equipment_capex': costs['equipment_capex'],
-        'installation_capex': costs['installation_capex'],
-        'site_rental_opex': costs['site_rental_{}_opex'.format(geotype)],
-        'operation_and_maintenance_opex': costs['operation_and_maintenance_opex'],
-        'power_opex': costs['power_opex'],
-        'backhaul_capex': get_backhaul_capex(region, backhaul, costs, core_lut),
+        'equipment_capex': parameters['equipment_capex'],
+        'installation_capex': parameters['installation_capex'],
+        'site_rental_opex': parameters['site_rental_{}_opex'.format(geotype)],
+        'operation_and_maintenance_opex': parameters['operation_and_maintenance_opex'],
+        'power_opex': parameters['power_opex'],
+        'backhaul_capex': get_backhaul_capex(region, backhaul, parameters, core_lut),
         'backhaul_opex': 0,
         'core_edge_capex': core_edge_capex,
         'core_node_capex': core_node_capex,
         'regional_edge_capex': regional_edge_capex,
         'regional_node_capex': regional_node_capex,
-        'core_edge_opex': core_edge_capex * (global_parameters['opex_percentage_of_capex'] / 100),
-        'core_node_opex': core_node_capex * (global_parameters['opex_percentage_of_capex'] / 100),
-        'regional_edge_opex': regional_edge_capex * (global_parameters['opex_percentage_of_capex'] / 100),
-        'regional_node_opex': regional_node_capex * (global_parameters['opex_percentage_of_capex'] / 100),
+        'core_edge_opex': core_edge_capex * (parameters['opex_percentage_of_capex'] / 100),
+        'core_node_opex': core_node_capex * (parameters['opex_percentage_of_capex'] / 100),
+        'regional_edge_opex': regional_edge_capex * (parameters['opex_percentage_of_capex'] / 100),
+        'regional_node_opex': regional_node_capex * (parameters['opex_percentage_of_capex'] / 100),
     }
 
     cost_structure = {}
@@ -195,7 +191,7 @@ def upgrade_to_3g(region, strategy, costs, global_parameters,
     return cost_structure
 
 
-def upgrade_to_4g(region, strategy, costs, global_parameters,
+def upgrade_to_4g(region, strategy, parameters,
     core_lut, country_parameters):
     """
     Reflects the baseline scenario of needing to build a single dedicated
@@ -211,28 +207,28 @@ def upgrade_to_4g(region, strategy, costs, global_parameters,
 
     shared_assets = INFRA_SHARING_ASSETS[sharing]
 
-    core_edge_capex = core_capex(region, 'core_edge', costs, core_lut, strategy, country_parameters)
-    core_node_capex = core_capex(region, 'core_node', costs, core_lut, strategy, country_parameters)
-    regional_edge_capex = regional_net_capex(region, 'regional_edge', costs, core_lut, strategy, country_parameters)
-    regional_node_capex = regional_net_capex(region, 'regional_node', costs, core_lut, strategy, country_parameters)
+    core_edge_capex = core_capex(region, 'core_edge', parameters, core_lut, strategy, country_parameters)
+    core_node_capex = core_capex(region, 'core_node', parameters, core_lut, strategy, country_parameters)
+    regional_edge_capex = regional_net_capex(region, 'regional_edge', parameters, core_lut, strategy, country_parameters)
+    regional_node_capex = regional_net_capex(region, 'regional_node', parameters, core_lut, strategy, country_parameters)
 
     ###provides a single year of costs for the first year of assessment
     assets = {
-        'equipment_capex': costs['equipment_capex'],
-        'installation_capex': costs['installation_capex'],
-        'site_rental_opex': costs['site_rental_{}_opex'.format(geotype)],
-        'operation_and_maintenance_opex': costs['operation_and_maintenance_opex'],
-        'power_opex': costs['power_opex'],
-        'backhaul_capex': get_backhaul_capex(region, backhaul, costs, core_lut),
+        'equipment_capex': parameters['equipment_capex'],
+        'installation_capex': parameters['installation_capex'],
+        'site_rental_opex': parameters['site_rental_{}_opex'.format(geotype)],
+        'operation_and_maintenance_opex': parameters['operation_and_maintenance_opex'],
+        'power_opex': parameters['power_opex'],
+        'backhaul_capex': get_backhaul_capex(region, backhaul, parameters, core_lut),
         'backhaul_opex': 0,
         'core_edge_capex': core_edge_capex,
         'core_node_capex': core_node_capex,
         'regional_edge_capex': regional_edge_capex,
         'regional_node_capex': regional_node_capex,
-        'core_edge_opex': core_edge_capex * (global_parameters['opex_percentage_of_capex'] / 100),
-        'core_node_opex': core_node_capex * (global_parameters['opex_percentage_of_capex'] / 100),
-        'regional_edge_opex': regional_edge_capex * (global_parameters['opex_percentage_of_capex'] / 100),
-        'regional_node_opex': regional_node_capex * (global_parameters['opex_percentage_of_capex'] / 100),
+        'core_edge_opex': core_edge_capex * (parameters['opex_percentage_of_capex'] / 100),
+        'core_node_opex': core_node_capex * (parameters['opex_percentage_of_capex'] / 100),
+        'regional_edge_opex': regional_edge_capex * (parameters['opex_percentage_of_capex'] / 100),
+        'regional_node_opex': regional_node_capex * (parameters['opex_percentage_of_capex'] / 100),
     }
 
     cost_structure = {}
@@ -252,7 +248,7 @@ def upgrade_to_4g(region, strategy, costs, global_parameters,
     return cost_structure
 
 
-def greenfield_3g(region, strategy, costs, global_parameters,
+def greenfield_3g(region, strategy, parameters,
     core_lut, country_parameters):
     """
     Build a greenfield 3G asset.
@@ -267,29 +263,29 @@ def greenfield_3g(region, strategy, costs, global_parameters,
 
     shared_assets = INFRA_SHARING_ASSETS[sharing]
 
-    core_edge_capex = core_capex(region, 'core_edge', costs, core_lut, strategy, country_parameters)
-    core_node_capex = core_capex(region, 'core_node', costs, core_lut, strategy, country_parameters)
-    regional_edge_capex = regional_net_capex(region, 'regional_edge', costs, core_lut, strategy, country_parameters)
-    regional_node_capex = regional_net_capex(region, 'regional_node', costs, core_lut, strategy, country_parameters)
+    core_edge_capex = core_capex(region, 'core_edge', parameters, core_lut, strategy, country_parameters)
+    core_node_capex = core_capex(region, 'core_node', core_lut, parameters, strategy, country_parameters)
+    regional_edge_capex = regional_net_capex(region, 'regional_edge', parameters, core_lut, strategy, country_parameters)
+    regional_node_capex = regional_net_capex(region, 'regional_node', parameters, core_lut, strategy, country_parameters)
 
     ###provides a single year of costs for the first year of assessment
     assets = {
-        'equipment_capex': costs['equipment_capex'],
-        'installation_capex': costs['installation_capex'],
-        'site_build_capex': costs['site_build_capex'],
-        'site_rental_opex': costs['site_rental_{}_opex'.format(geotype)],
-        'operation_and_maintenance_opex': costs['operation_and_maintenance_opex'],
-        'power_opex': costs['power_opex'],
-        'backhaul_capex': get_backhaul_capex(region, backhaul, costs, core_lut),
+        'equipment_capex': parameters['equipment_capex'],
+        'installation_capex': parameters['installation_capex'],
+        'site_build_capex': parameters['site_build_capex'],
+        'site_rental_opex': parameters['site_rental_{}_opex'.format(geotype)],
+        'operation_and_maintenance_opex': parameters['operation_and_maintenance_opex'],
+        'power_opex': parameters['power_opex'],
+        'backhaul_capex': get_backhaul_capex(region, backhaul, parameters, core_lut),
         'backhaul_opex': 0,
         'core_edge_capex': core_edge_capex,
         'core_node_capex': core_node_capex,
         'regional_edge_capex': regional_edge_capex,
         'regional_node_capex': regional_node_capex,
-        'core_edge_opex': core_edge_capex * (global_parameters['opex_percentage_of_capex'] / 100),
-        'core_node_opex': core_node_capex * (global_parameters['opex_percentage_of_capex'] / 100),
-        'regional_edge_opex': regional_edge_capex * (global_parameters['opex_percentage_of_capex'] / 100),
-        'regional_node_opex': regional_node_capex * (global_parameters['opex_percentage_of_capex'] / 100),
+        'core_edge_opex': core_edge_capex * (int(parameters['opex_percentage_of_capex']) / 100),
+        'core_node_opex': core_node_capex * (int(parameters['opex_percentage_of_capex']) / 100),
+        'regional_edge_opex': regional_edge_capex * (int(parameters['opex_percentage_of_capex']) / 100),
+        # 'regional_node_opex': regional_node_capex * (parameters['opex_percentage_of_capex'] / 100),
     }
 
     cost_structure = {}
@@ -309,7 +305,7 @@ def greenfield_3g(region, strategy, costs, global_parameters,
     return cost_structure
 
 
-def greenfield_4g(region, strategy, costs, global_parameters,
+def greenfield_4g(region, strategy, parameters,
     core_lut, country_parameters):
     """
     Build a greenfield 4G asset.
@@ -324,29 +320,29 @@ def greenfield_4g(region, strategy, costs, global_parameters,
 
     shared_assets = INFRA_SHARING_ASSETS[sharing]
 
-    core_edge_capex = core_capex(region, 'core_edge', costs, core_lut, strategy, country_parameters)
-    core_node_capex = core_capex(region, 'core_node', costs, core_lut, strategy, country_parameters)
-    regional_edge_capex = regional_net_capex(region, 'regional_edge', costs, core_lut, strategy, country_parameters)
-    regional_node_capex = regional_net_capex(region, 'regional_node', costs, core_lut, strategy, country_parameters)
+    core_edge_capex = core_capex(region, 'core_edge', parameters, core_lut, strategy, country_parameters)
+    core_node_capex = core_capex(region, 'core_node', parameters, core_lut, strategy, country_parameters)
+    regional_edge_capex = regional_net_capex(region, 'regional_edge', parameters, core_lut, strategy, country_parameters)
+    regional_node_capex = regional_net_capex(region, 'regional_node', parameters, core_lut, strategy, country_parameters)
 
     ###provides a single year of costs for the first year of assessment
     assets = {
-        'equipment_capex': costs['equipment_capex'],
-        'installation_capex': costs['installation_capex'],
-        'site_build_capex': costs['site_build_capex'],
-        'site_rental_opex': costs['site_rental_{}_opex'.format(geotype)],
-        'operation_and_maintenance_opex': costs['operation_and_maintenance_opex'],
-        'power_opex': costs['power_opex'],
-        'backhaul_capex': get_backhaul_capex(region, backhaul, costs, core_lut),
+        'equipment_capex': parameters['equipment_capex'],
+        'installation_capex': parameters['installation_capex'],
+        'site_build_capex': parameters['site_build_capex'],
+        'site_rental_opex': parameters['site_rental_{}_opex'.format(geotype)],
+        'operation_and_maintenance_opex': parameters['operation_and_maintenance_opex'],
+        'power_opex': parameters['power_opex'],
+        'backhaul_capex': get_backhaul_capex(region, backhaul, parameters, core_lut),
         'backhaul_opex': 0,
         'core_edge_capex': core_edge_capex,
         'core_node_capex': core_node_capex,
         'regional_edge_capex': regional_edge_capex,
         'regional_node_capex': regional_node_capex,
-        'core_edge_opex': core_edge_capex * (global_parameters['opex_percentage_of_capex'] / 100),
-        'core_node_opex': core_node_capex * (global_parameters['opex_percentage_of_capex'] / 100),
-        'regional_edge_opex': regional_edge_capex * (global_parameters['opex_percentage_of_capex'] / 100),
-        'regional_node_opex': regional_node_capex * (global_parameters['opex_percentage_of_capex'] / 100),
+        'core_edge_opex': core_edge_capex * (parameters['opex_percentage_of_capex'] / 100),
+        'core_node_opex': core_node_capex * (parameters['opex_percentage_of_capex'] / 100),
+        'regional_edge_opex': regional_edge_capex * (parameters['opex_percentage_of_capex'] / 100),
+        'regional_node_opex': regional_node_capex * (parameters['opex_percentage_of_capex'] / 100),
     }
 
     cost_structure = {}
@@ -462,7 +458,7 @@ def regional_net_capex(region, asset_type, costs, core_lut, strategy, country_pa
     return 'Asset name not in lut'
 
 
-def core_capex(region, asset_type, costs, core_lut, strategy, country_parameters):
+def core_capex(region, asset_type, parameters, core_lut, strategy, country_parameters):
     """
     Return core asset costs for only the 'new' assets that have been planned.
 
@@ -483,7 +479,7 @@ def core_capex(region, asset_type, costs, core_lut, strategy, country_parameters
             if combined_key in core_lut[asset_type].keys():
                 distance_m = core_lut[asset_type][combined_key]
 
-                cost = int(distance_m * costs['core_edge_capex'])
+                cost = int(distance_m * parameters['core_edge_capex'])
                 total_cost.append(cost)
 
                 sites = ((region['upgraded_mno_sites'] + region['new_mno_sites']) / networks)
@@ -508,7 +504,7 @@ def core_capex(region, asset_type, costs, core_lut, strategy, country_parameters
 
             nodes = core_lut[asset_type][combined_key]
 
-            cost = int(nodes * costs['core_node_{}_capex'.format(core)])
+            cost = int(nodes * parameters['core_node_{}_capex'.format(core)])
             total_cost.append(cost)
 
             sites = ((region['upgraded_mno_sites'] + region['new_mno_sites']) / networks)
@@ -530,7 +526,7 @@ def core_capex(region, asset_type, costs, core_lut, strategy, country_parameters
 
 
 def calc_costs(region, strategy, cost_structure, backhaul_quantity,
-    global_parameters, country_parameters):
+    parameters, country_parameters):
     """
 
     """
@@ -576,7 +572,7 @@ def calc_costs(region, strategy, cost_structure, backhaul_quantity,
                 ]:
                 cost = cost / all_sites
 
-            cost = discount_opex(cost, global_parameters, country_parameters)
+            cost = discount_opex(cost, parameters, country_parameters)
 
         else:
             return 'Did not recognize cost type', 'Did not recognize cost type'
@@ -637,13 +633,13 @@ def calc_costs(region, strategy, cost_structure, backhaul_quantity,
     return total_cost, cost_by_asset
 
 
-def discount_opex(opex, global_parameters, country_parameters):
+def discount_opex(opex, parameters, country_parameters):
     """
     Discount opex based on return period.
 
     """
-    return_period = global_parameters['return_period']
-    discount_rate = global_parameters['discount_rate'] / 100
+    return_period = parameters['return_period']
+    discount_rate = parameters['discount_rate'] / 100
     wacc = country_parameters['financials']['wacc']
 
     costs_over_time_period = []

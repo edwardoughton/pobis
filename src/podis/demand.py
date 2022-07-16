@@ -7,25 +7,20 @@ Winter 2020
 
 """
 
-def estimate_demand(regions, option, global_parameters,
-    country_parameters, timesteps, penetration_lut, smartphone_lut):
+def estimate_demand(regions, parameters, country_parameters, timesteps,
+    penetration_lut, smartphone_lut):
     """
     Estimate demand metrics including:
         - Total number of basic phone and smartphone users
         - Total data demand (in Mbps per square kilometer)
         - Total revenue (net present value over the assessment period in USD)
+
     Parameters
     ----------
     regions : list of dicts
         Data for all regions (one dict per region).
-    option : dict
-        Contains the scenario and strategy. The strategy string controls
-        the strategy variants being tested in the model and is defined based
-        on the type of technology generation, core and backhaul, and the
-        strategy for infrastructure sharing, the number of networks in each
-        geotype, spectrum and taxation.
-    global_parameters : dict
-        All global model parameters.
+    parameters : dict
+        All model parameters.
     country_parameters : dict
         All country specific parameters.
     timesteps : list
@@ -44,7 +39,7 @@ def estimate_demand(regions, option, global_parameters,
     annual_output = []
 
     # generation_core_backhaul_sharing_networks_spectrum_tax
-    network_strategy = option['strategy'].split('_')[4]
+    network_strategy = parameters['strategy'].split('_')[4]
 
     for region in regions:
 
@@ -65,15 +60,15 @@ def estimate_demand(regions, option, global_parameters,
         revenue = []
         demand_mbps_km2 = []
 
-        scenario_per_user_capacity = get_per_user_capacity(
-            region['geotype'], option)
+        scenario_per_user_mbps = get_per_user_capacity(
+            region['geotype'], parameters)
 
         for timestep in timesteps:
 
             region['arpu_discounted_monthly'] = estimate_arpu(
                 region,
                 timestep,
-                global_parameters,
+                parameters,
                 country_parameters
             )
 
@@ -123,8 +118,8 @@ def estimate_demand(regions, option, global_parameters,
             # Total demand in mbps / km^2.
             demand_mbps_km2.append(
                 (region['smartphones_on_network'] *
-                scenario_per_user_capacity / #User demand in Mbps
-                global_parameters['overbooking_factor'] /
+                scenario_per_user_mbps / #User demand in Mbps
+                # parameters['overbooking_factor'] /
                 region['area_km2']
                 ))
 
@@ -139,9 +134,10 @@ def estimate_demand(regions, option, global_parameters,
             annual_output.append({
                 'GID_0': region['GID_0'],
                 'GID_id': region['GID_id'],
-                'scenario': option['scenario'],
-                'strategy': option['strategy'],
-                'confidence': global_parameters['confidence'][0],
+                'scenario': parameters['scenario'],
+                'strategy': parameters['strategy'],
+                'input_cost': parameters['input_cost'],
+                'confidence': parameters['confidence'],
                 'year': timestep,
                 'population': region['population'],
                 'area_km2': region['area_km2'],
@@ -166,7 +162,7 @@ def estimate_demand(regions, option, global_parameters,
     return output, annual_output
 
 
-def get_per_user_capacity(geotype, option):
+def get_per_user_capacity(geotype, parameters):
     """
     Function to return the target per user capacity by scenario,
     from the scenario string.
@@ -174,12 +170,13 @@ def get_per_user_capacity(geotype, option):
     ----------
     geotype : string
         Settlement patterns, such as urban, suburban or rural.
-    option : dict
+    parameters : dict
         Contains the scenario and strategy. The strategy string controls
         the strategy variants being tested in the model and is defined based
         on the type of technology generation, core and backhaul, and the
         strategy for infrastructure sharing, the number of networks in each
         geotype, spectrum and taxation.
+
     Returns
     -------
     per_user_capacity : int
@@ -187,21 +184,33 @@ def get_per_user_capacity(geotype, option):
     """
     if geotype.split(' ')[0] == 'urban':
 
-        return int(option['scenario'].split('_')[1])
+        per_month_gb = int(parameters['scenario'].split('_')[1])
+        per_day_gb = per_month_gb / 30
+        busy_hour_gb = per_day_gb * (parameters['traffic_in_the_busy_hour_perc'] / 100)
+        per_user_mbps = busy_hour_gb * 1000 * 8 / 3600
+        return round(per_user_mbps, 2)
 
     elif geotype.split(' ')[0] == 'suburban':
 
-        return int(option['scenario'].split('_')[2])
+        per_month_gb = int(parameters['scenario'].split('_')[2])
+        per_day_gb = per_month_gb / 30
+        busy_hour_gb = per_day_gb * (parameters['traffic_in_the_busy_hour_perc'] / 100)
+        per_user_mbps = busy_hour_gb * 1000 * 8 / 3600
+        return round(per_user_mbps, 2)
 
     elif geotype.split(' ')[0] == 'rural':
 
-        return int(option['scenario'].split('_')[3])
+        per_month_gb = int(parameters['scenario'].split('_')[3])
+        per_day_gb = per_month_gb / 30
+        busy_hour_gb = per_day_gb * (parameters['traffic_in_the_busy_hour_perc'] / 100)
+        per_user_mbps = busy_hour_gb * 1000 * 8 / 3600
+        return round(per_user_mbps, 2)
 
     else:
         return 'Did not recognise geotype'
 
 
-def estimate_arpu(region, timestep, global_parameters, country_parameters):
+def estimate_arpu(region, timestep, parameters, country_parameters):
     """
     Allocate consumption category given a specific luminosity.
     Parameters
@@ -210,7 +219,7 @@ def estimate_arpu(region, timestep, global_parameters, country_parameters):
         Data for a single region.
     timestep : int
         Time period (year) to discount against.
-    global_parameters : dict
+    parameters : dict
         All global model parameters.
     country_parameters : dict
         All country specific parameters.
@@ -223,18 +232,18 @@ def estimate_arpu(region, timestep, global_parameters, country_parameters):
 
     if region['mean_luminosity_km2'] > country_parameters['luminosity']['high']:
         arpu = country_parameters['arpu']['high']
-        return discount_arpu(arpu, timestep, global_parameters)
+        return discount_arpu(arpu, timestep, parameters)
 
     elif region['mean_luminosity_km2'] > country_parameters['luminosity']['medium']:
         arpu = country_parameters['arpu']['medium']
-        return discount_arpu(arpu, timestep, global_parameters)
+        return discount_arpu(arpu, timestep, parameters)
 
     else:
         arpu = country_parameters['arpu']['low']
-        return discount_arpu(arpu, timestep, global_parameters)
+        return discount_arpu(arpu, timestep, parameters)
 
 
-def discount_arpu(arpu, timestep, global_parameters):
+def discount_arpu(arpu, timestep, parameters):
     """
     Discount arpu based on return period.
     192,744 = 23,773 / (1 + 0.05) ** (0:9)
@@ -244,14 +253,14 @@ def discount_arpu(arpu, timestep, global_parameters):
         Average revenue per user.
     timestep : int
         Time period (year) to discount against.
-    global_parameters : dict
+    parameters : dict
         All global model parameters.
     Returns
     -------
     discounted_arpu : float
         The discounted revenue over the desired time period.
     """
-    discount_rate = global_parameters['discount_rate'] / 100
+    discount_rate = parameters['discount_rate'] / 100
 
     discounted_arpu = arpu / (1 + discount_rate) ** timestep
 

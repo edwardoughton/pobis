@@ -34,30 +34,39 @@ def setup_region_rural():
 
 
 @fixture(scope='function')
-def setup_option():
-    return { #generation_core_backhaul_sharing_networks_spectrum_tax_integration
-        'scenario': 'S1_50_50_50',
-        'strategy': '4G_epc_wireless_baseline_baseline_baseline_baseline_baseline_baseline'
-    }
-
-
-@fixture(scope='function')
-def setup_option_high():
+def setup_parameters():
     return {
+        #options
         'scenario': 'S1_50_50_50',
-        'strategy': '4G_epc_wireless_baseline_baseline_high_high_high'
-    }
-
-
-@fixture(scope='function')
-def setup_global_parameters():
-    return {
+        'strategy': '4G_epc_wireless_baseline_baseline_baseline_baseline_baseline_baseline',
+        'input_cost': 'baseline',
+        #global params
         'opex_percentage_of_capex': 10,
-        'overbooking_factor': 100,
+        'traffic_in_the_busy_hour_perc': 20,
         'return_period': 2,
         'discount_rate': 5,
         'confidence': [1, 10, 50],
-        'regional_integration_factor': 10
+        'regional_integration_factor': 10,
+        'confidence': 50,
+        #all costs in $USD
+        'equipment_capex': 40000,
+        'site_build_capex': 30000,
+        'installation_capex': 30000,
+        'operation_and_maintenance_opex': 7400,
+        'power_opex': 2200,
+        'site_rental_urban_opex': 9600,
+        'site_rental_suburban_opex': 4000,
+        'site_rental_rural_opex': 2000,
+        'fiber_urban_m_capex': 10,
+        'fiber_suburban_m_capex': 5,
+        'fiber_rural_m_capex': 2,
+        'wireless_small_capex': 10000,
+        'wireless_medium_capex': 20000,
+        'wireless_large_capex': 40000,
+        'core_node_epc_capex': 100000,
+        'core_edge_capex': 20,
+        'regional_node_epc_capex': 100000,
+        'regional_edge_capex': 10,
     }
 
 
@@ -141,31 +150,6 @@ def setup_penetration_lut():
     return {
         2020: 50,
         # 2021: 75,
-    }
-
-
-@fixture(scope='function')
-def setup_costs():
-    return {
-        #all costs in $USD
-        'equipment_capex': 40000,
-        'site_build_capex': 30000,
-        'installation_capex': 30000,
-        'operation_and_maintenance_opex': 7400,
-        'power_opex': 2200,
-        'site_rental_urban_opex': 9600,
-        'site_rental_suburban_opex': 4000,
-        'site_rental_rural_opex': 2000,
-        'fiber_urban_m_capex': 10,
-        'fiber_suburban_m_capex': 5,
-        'fiber_rural_m_capex': 2,
-        'wireless_small_capex': 10000,
-        'wireless_medium_capex': 20000,
-        'wireless_large_capex': 40000,
-        'core_node_epc_capex': 100000,
-        'core_edge_capex': 20,
-        'regional_node_epc_capex': 100000,
-        'regional_edge_capex': 10,
     }
 
 

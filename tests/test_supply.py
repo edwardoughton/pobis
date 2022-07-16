@@ -6,12 +6,10 @@ from podis.supply import (estimate_supply, find_site_density,
 
 def test_find_site_density(
     setup_region,
-    setup_option,
-    setup_global_parameters,
+    setup_parameters,
     setup_country_parameters,
     setup_timesteps,
     setup_penetration_lut,
-    setup_costs,
     setup_lookup,
     setup_ci
     ):
@@ -20,8 +18,7 @@ def test_find_site_density(
     answer = find_site_density(
         {'demand_mbps_km2': 100000,
         'geotype': 'urban'},
-        setup_option, #4G using 800 + 1800
-        setup_global_parameters,
+        setup_parameters, #4G using 800 + 1800
         setup_country_parameters,
         setup_lookup,
         setup_ci
@@ -32,8 +29,7 @@ def test_find_site_density(
     answer = find_site_density(
         {'demand_mbps_km2': 0.005,
         'geotype': 'urban'},
-        setup_option,
-        setup_global_parameters,
+        setup_parameters,
         setup_country_parameters,
         setup_lookup,
         setup_ci
@@ -44,8 +40,7 @@ def test_find_site_density(
     answer = find_site_density(
         {'demand_mbps_km2': 250,
         'geotype': 'urban'},
-        setup_option,
-        setup_global_parameters,
+        setup_parameters,
         setup_country_parameters,
         setup_lookup,
         setup_ci
@@ -56,8 +51,7 @@ def test_find_site_density(
     answer = find_site_density(
         {'demand_mbps_km2': 120,
         'geotype': 'urban'},
-        setup_option,
-        setup_global_parameters,
+        setup_parameters,
         setup_country_parameters,
         setup_lookup,
         setup_ci
@@ -68,7 +62,6 @@ def test_find_site_density(
 
 def test_estimate_site_upgrades(
     setup_region,
-    setup_option,
     setup_country_parameters,
     ):
 
@@ -172,10 +165,8 @@ def test_estimate_site_upgrades(
 def test_estimate_supply(
     setup_region,
     setup_lookup,
-    setup_option,
-    setup_global_parameters,
+    setup_parameters,
     setup_country_parameters,
-    setup_costs,
     setup_core_lut,
     setup_ci
     ):
@@ -191,12 +182,9 @@ def test_estimate_supply(
     answer = estimate_supply('MWI',
         setup_region,
         setup_lookup,
-        setup_option,
-        setup_global_parameters,
+        setup_parameters,
         setup_country_parameters,
-        setup_costs,
         setup_core_lut,
-        setup_ci
     )
 
     assert round(answer[0]['mno_site_density'], 1) == 0.9

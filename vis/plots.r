@@ -47,7 +47,7 @@ subscriptions = ggplot(data, aes(x=year, y=penetration, group=country)) +
   scale_size_manual(values=c(0.1, 0.1, 0.1, 0.1, 0.1)) + 
   scale_color_manual(values=c("#009E73", "#F0E442","#E69F00", 
                               "#56B4E9","#D55E00", "#0072B2")) + 
-  geom_vline(xintercept=2020, linetype="dashed", color = "grey", size=.5) +
+  geom_vline(xintercept=2020, linetype="dashed", color = "grey", size=.3) +
   scale_x_continuous(expand = c(0, 0.5), limits = c(2010,2030), 
                      breaks = seq(2010,2030,2)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1), 
@@ -183,6 +183,7 @@ financial_cost_10mbps = ggplot(data,
   aes(x=strategy, y=round(financial_cost/1e9), 
       group=scenario, fill=scenario)) +
   geom_bar(stat = "identity", position=position_dodge()) +
+  geom_hline(yintercept=0, color = "black", size=.3) +
   geom_text(aes(label = round(financial_cost/1e9)), size = 2.5,
             position = position_dodge(width = 1), hjust=-.25) + 
   coord_flip() +
@@ -250,6 +251,7 @@ financial_cost_2mbps = ggplot(data, aes(x=strategy, y=round(financial_cost/1e9),
   geom_bar(stat = "identity", position=position_dodge()) +
   geom_text(aes(label = round(financial_cost/1e9)), size = 2.5,
             position = position_dodge(width = 1), hjust=-.25) + 
+  geom_hline(yintercept=0, color = "black", size=.3) +
   coord_flip() +
   scale_fill_manual(values=c("#E1BE6A", "#40B0A6", "#5D3A9B"), name=NULL) +
   theme(legend.position = "bottom") +
@@ -323,6 +325,7 @@ max_value = round(max(data$government_cost)/1e9, 2)
 govt_costs_10mbps = ggplot(data, aes(x=strategy, 
    y=round(government_cost/1e9,1), group=scenario, fill=scenario)) +
   geom_bar(stat = "identity", position=position_dodge()) +
+  geom_hline(yintercept=0, color = "black", size=.3) +
   geom_text(aes(label = round(government_cost/1e9)), size = 2.5,
             position = position_dodge(width = 1), hjust=-1) + 
   coord_flip() +
@@ -388,8 +391,9 @@ max_value = round(max(data$government_cost)/1e9, 2)
 govt_costs_2mbps = ggplot(data, aes(x=strategy, 
     y=round(government_cost/1e9,1), group=scenario, fill=scenario)) +
   geom_bar(stat = "identity", position=position_dodge()) +
+  geom_hline(yintercept=0, color = "black", size=.3) +
   geom_text(aes(label = round(government_cost/1e9)), size = 2.5,
-            position = position_dodge(width = 1), hjust=-1) + 
+            position = position_dodge(width = 1), hjust=-2) + 
   coord_flip() +
   scale_fill_manual(values=c("#E1BE6A", "#40B0A6", "#5D3A9B"), name=NULL) +
   theme(legend.position = "bottom") +
@@ -468,6 +472,7 @@ cost_10mbps = ggplot(data, aes(x=strategy, y=round(financial_cost/1e9),
   geom_bar(stat = "identity", position=position_dodge()) +
   geom_text(aes(label = round(financial_cost/1e9, 1)), size = 2.5,
             position = position_dodge(width = 1), hjust=-.5) + 
+  geom_hline(yintercept=0, color = "black", size=.3) +
   coord_flip() +
   scale_fill_manual(values=c("#E1BE6A", "#40B0A6", "#5D3A9B"), name=NULL) +
   theme(legend.position = "bottom") +
@@ -535,6 +540,7 @@ max_value = round(max(data$financial_cost)/1e9,2)
 cost_2mbps = ggplot(data, aes(x=strategy, y=round(financial_cost/1e9), 
                               group=scenario, fill=scenario)) +
   geom_bar(stat = "identity", position=position_dodge()) +
+  geom_hline(yintercept=0, color = "black", size=.3) +
   geom_text(aes(label = round(financial_cost/1e9, 1)), size = 2.5,
             position = position_dodge(width = 1), hjust=-.5) + 
   coord_flip() +
@@ -608,6 +614,7 @@ data$value = round(data$value/1e3, 2)
 
 ggplot(data, aes(y=value, x=Strategy, fill=Cost_Type)) + 
   geom_bar(position="stack", stat="identity") +
+  geom_hline(yintercept=0, color = "black", size=.3) +
   geom_text(aes(Strategy, financial_cost, label = financial_cost, fill = NULL), 
             size = 2.5, data = totals, hjust=-.5) + 
   coord_flip() +
@@ -676,6 +683,7 @@ obf_figure = ggplot(data_obf,
                     aes(x=GID_0, y=round(financial_cost/1e9),
                         group=obf, fill=obf)) +
   geom_bar(stat = "identity", position=position_dodge()) +
+  geom_hline(yintercept=0, color = "black", size=.3) +
   geom_text(aes(label = round(financial_cost/1e9)), size = 2.5,
             position = position_dodge(width = 1), hjust=-.25) + 
   coord_flip() +
@@ -699,6 +707,7 @@ costs_figure = ggplot(data_costs,
                       aes(x=GID_0, y=round(financial_cost/1e9),
                           group=costs, fill=costs)) +
   geom_bar(stat = "identity", position=position_dodge()) +
+  geom_hline(yintercept=0, color = "black", size=.3) +
   geom_text(aes(label = round(financial_cost/1e9)), size = 2.5,
             position = position_dodge(width = 1), hjust=-.25) + 
   coord_flip() +

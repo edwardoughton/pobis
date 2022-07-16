@@ -6,9 +6,7 @@ from podis.demand import (estimate_demand, get_per_user_capacity,
 def test_estimate_demand(
     setup_region,
     setup_region_rural,
-    setup_option,
-    setup_option_high,
-    setup_global_parameters,
+    setup_parameters,
     setup_country_parameters,
     setup_timesteps,
     setup_penetration_lut
@@ -18,8 +16,7 @@ def test_estimate_demand(
     """
     answer, annual_answer = estimate_demand(
         setup_region,
-        setup_option,
-        setup_global_parameters,
+        setup_parameters,
         setup_country_parameters,
         setup_timesteps,
         setup_penetration_lut,
@@ -54,20 +51,18 @@ def test_estimate_demand(
 
     # 833 smartphones
     # scenario = 30
-    # overbooking factor = 100
     # area = 2
     # demand_mbps_km2 = 125
 
     assert round(answer[0]['demand_mbps_km2']) == round(
-        smartphones_on_network * 50 / 100 / 2
+        (smartphones_on_network * 0.74) / 2
     )
 
     #Check suburban geotype uses urban in the smartphone lut
     setup_region[0]['geotype'] = 'suburban'
     answer, annual_answer = estimate_demand(
         setup_region,
-        setup_option,
-        setup_global_parameters,
+        setup_parameters,
         setup_country_parameters,
         setup_timesteps,
         setup_penetration_lut,
@@ -91,10 +86,11 @@ def test_estimate_demand(
     smartphones_on_network = round(5000 / 3 * (50 / 100))
     assert round(answer[0]['smartphones_on_network']) == smartphones_on_network
 
+    setup_parameters['strategy'] = '4G_epc_wireless_baseline_baseline_high_high_high'
+
     answer, annual_answer = estimate_demand(
         setup_region_rural,
-        setup_option_high,
-        setup_global_parameters,
+        setup_parameters,
         setup_country_parameters,
         setup_timesteps,
         setup_penetration_lut,
@@ -108,7 +104,7 @@ def test_estimate_demand(
 
     setup_region[0]['geotype'] = 'rural'
     setup_region[0]['mean_luminosity_km2'] = 2
-    setup_option['strategy'] = '4G_epc_microwave_baseline_srn_baseline_baseline'
+    setup_parameters['strategy'] = '4G_epc_microwave_baseline_srn_baseline_baseline'
     setup_country_parameters['arpu']['medium'] = 7
 
     #iterate through years to create annual lookup
@@ -124,8 +120,7 @@ def test_estimate_demand(
 
     answer, annual_answer = estimate_demand(
         setup_region,
-        setup_option,
-        setup_global_parameters,
+        setup_parameters,
         setup_country_parameters,
         setup_timesteps,
         setup_penetration_lut,
@@ -160,12 +155,11 @@ def test_estimate_demand(
 
     # 2500 smartphones
     # scenario = 50
-    # overbooking factor = 100
     # area = 2
     # demand_mbps_km2 = 125
     #sum [625.0, 625.0, 625.0, 625.0, 625.0, 625.0, 625.0, 625.0, 625.0, 625.0, 625.0] / 11
     assert round(answer[0]['demand_mbps_km2']) == round(
-        ((smartphones_on_network * 50 / 100 / 2) * 11) / 11
+        ((smartphones_on_network * 0.74 / 2) * 11) / 11
     )
 
     setup_region[0]['population'] = 0
@@ -173,8 +167,7 @@ def test_estimate_demand(
 
     answer, annual_answer = estimate_demand(
         setup_region,
-        setup_option,
-        setup_global_parameters,
+        setup_parameters,
         setup_country_parameters,
         setup_timesteps,
         setup_penetration_lut,
@@ -184,43 +177,45 @@ def test_estimate_demand(
     assert answer[0]['population_with_phones'] == 0
 
 
-def test_get_per_user_capacity():
+def test_get_per_user_capacity(setup_parameters):
     """
     Unit test.
     """
-    answer = get_per_user_capacity('urban', {'scenario': 'S1_25_5_1'})
+    setup_parameters['scenario'] = 'S1_25_5_1'
 
-    assert answer == 25
+    answer = get_per_user_capacity('urban', setup_parameters)
 
-    answer = get_per_user_capacity('suburban', {'scenario': 'S1_25_5_1'})
+    assert answer == 0.37
 
-    assert answer == 5
+    answer = get_per_user_capacity('suburban', setup_parameters)
 
-    answer = get_per_user_capacity('rural', {'scenario': 'S1_25_5_1'})
+    assert answer == 0.07
 
-    assert answer == 1
+    answer = get_per_user_capacity('rural', setup_parameters)
 
-    answer = get_per_user_capacity('made up geotype', {'scenario': 'S1_25_5_1'})
+    assert answer == 0.01
+
+    answer = get_per_user_capacity('made up geotype', setup_parameters)
 
     assert answer == 'Did not recognise geotype'
 
 
-def test_estimate_arpu(setup_region, setup_timesteps, setup_global_parameters,
+def test_estimate_arpu(setup_region, setup_timesteps, setup_parameters,
     setup_country_parameters):
     """
     Unit test.
     """
-    answer = estimate_arpu({'mean_luminosity_km2': 10}, 2020, setup_global_parameters,
+    answer = estimate_arpu({'mean_luminosity_km2': 10}, 2020, setup_parameters,
         setup_country_parameters)
 
     assert answer == 15
 
-    answer = estimate_arpu({'mean_luminosity_km2': 2}, 2020, setup_global_parameters,
+    answer = estimate_arpu({'mean_luminosity_km2': 2}, 2020, setup_parameters,
         setup_country_parameters)
 
     assert answer == 5
 
-    answer = estimate_arpu({'mean_luminosity_km2': 0}, 2020, setup_global_parameters,
+    answer = estimate_arpu({'mean_luminosity_km2': 0}, 2020, setup_parameters,
         setup_country_parameters)
 
     assert answer == 2
