@@ -20,7 +20,7 @@ from podis.assess import assess
 from write import (define_deciles, #write_mno_demand,
     write_regional_results,
     write_decile_results, write_national_results) #, write_inputs
-from podis.user_costs import process_costs
+from user_costs import process_costs
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__), 'script_config.ini'))
@@ -312,8 +312,8 @@ if __name__ == '__main__':
 
     for idx, parameters in parameter_set.iterrows():
 
-        if idx == 1:
-            break
+        # if idx == 1:
+        #     break
 
         regional_annual_demand = []
         regional_results = []
@@ -335,10 +335,11 @@ if __name__ == '__main__':
             filename = 'core_lut.csv'
             core_lut = load_core_lut(os.path.join(folder, filename))
 
-            print('Working on {}, {}, {} in {}'.format(
+            print('Working on {}, {}, {}, {}, in {}'.format(
                 parameters['decision_option'],
                 parameters['strategy'],
                 parameters['scenario'],
+                parameters['input_cost'],
                 iso3))
 
             folder = os.path.join(DATA_INTERMEDIATE, iso3, 'subscriptions')
@@ -400,18 +401,18 @@ if __name__ == '__main__':
             parameters['iteration']
         )
 
-        path = os.path.join(OUTPUT, 'regional_results')
-        write_regional_results(regional_results, path, handle)
+        # path = os.path.join(OUTPUT, 'regional_results')
+        # write_regional_results(regional_results, path, handle)
 
-        path = os.path.join(OUTPUT, 'decile_results')
-        write_decile_results(regional_results, path, handle)
+        # path = os.path.join(OUTPUT, 'decile_results')
+        # write_decile_results(regional_results, path, handle)
 
         path = os.path.join(OUTPUT, 'national_results')
         write_national_results(regional_results, path, handle)
 
-    write_inputs(PARAMETERS_DIR, country, country_parameters,
-        parameters, parameters['decision_option'])
+    # write_inputs(PARAMETERS_DIR, country, country_parameters,
+    #     parameters, parameters['decision_option'])
 
-    process_costs()
+    # process_costs()
 
     print('Completed model run')
