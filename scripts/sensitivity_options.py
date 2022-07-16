@@ -14,57 +14,48 @@ def generate_sensitivity_options():
 
     """
     scenarios = [
-        # 'high',
+        'high',
         'baseline',
-        # 'low'
+        'low'
     ]
 
     strategies = [
-        # '3G_epc_wireless_baseline_baseline_baseline_baseline',
-        # '3G_epc_fiber_baseline_baseline_baseline_baseline',
+        '3G_epc_wireless_baseline_baseline_baseline_baseline',
+        '3G_epc_fiber_baseline_baseline_baseline_baseline',
         '4G_epc_wireless_baseline_baseline_baseline_baseline',
-        # '4G_epc_fiber_baseline_baseline_baseline_baseline',
+        '4G_epc_fiber_baseline_baseline_baseline_baseline',
     ]
 
     capacities = [
-        '20',
         '10',
-        '2'
-    ]
-
-    overbooking_factors = [
-        15,
-        20,
-        25
+        '20',
+        '30'
     ]
 
     input_costs = [
-        75,
+        60,
+        80,
         100,
-        125,
+        120,
+        140,
     ]
 
     output = []
 
     for strategy in strategies:
-        for overbooking_factor in overbooking_factors:
+        for scenario in scenarios:
             for input_cost in input_costs:
-                for scenario in scenarios:
-                    for capacity in capacities:
+                for capacity in capacities:
 
-                        option = {}
-
-                        option['strategy'] = '{}_{}_{}'.format(
-                            strategy, overbooking_factor, input_cost
-                            )
-
-                        option['scenario'] = '{}_{}_{}_{}'.format(
-                            scenario, capacity, capacity, capacity
-                            )
-
-                        output.append(option)
+                    output.append({
+                        'strategy': strategy,
+                        'scenario': scenario,
+                        'cost_perc': input_cost,
+                        'capacity': capacity
+                    })
 
     return output
+
 
 if __name__ == '__main__':
 
