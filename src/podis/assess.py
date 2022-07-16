@@ -7,7 +7,7 @@ Winter 2020
 
 """
 
-def assess(country, regions, option, global_parameters, country_parameters, timesteps):
+def assess(country, regions, parameters, country_parameters, timesteps):
     """
     For each region, assess the viability level.
 
@@ -17,12 +17,7 @@ def assess(country, regions, option, global_parameters, country_parameters, time
         Country information.
     regions : dataframe
         Geopandas dataframe of all regions.
-    option : dict
-        Contains the scenario and strategy. The strategy string controls
-        the strategy variants being testes in the model and is defined based
-        on the type of technology generation, core and backhaul, and the level
-        of sharing, subsidy, spectrum and tax.
-    global_parameters : dict
+    parameters : dict
         All global model parameters.
     country_parameters : dict
         All country specific parameters.
@@ -35,18 +30,18 @@ def assess(country, regions, option, global_parameters, country_parameters, time
     """
     interim = []
 
-    strategy = option['strategy']
+    strategy = parameters['strategy']
     available_for_cross_subsidy = 0
 
     for region in regions:
 
         # add administration cost
         region = get_administration_cost(region, country_parameters,
-            global_parameters, timesteps)
+            parameters, timesteps)
 
         # npv spectrum cost
-        region['spectrum_cost'] = get_spectrum_costs(region, option['strategy'],
-            global_parameters, country_parameters)
+        region['spectrum_cost'] = get_spectrum_costs(region, parameters['strategy'],
+            parameters, country_parameters)
 
         #tax on investment
         region['tax'] = calculate_tax(region, strategy, country_parameters)
@@ -86,12 +81,12 @@ def assess(country, regions, option, global_parameters, country_parameters, time
         intermediate_regions.append(region)
 
     output = calculate_total_market_costs(
-        intermediate_regions, option, country_parameters)
+        intermediate_regions, parameters, country_parameters)
 
     return output
 
 
-def get_administration_cost(region, country_parameters, global_parameters, timesteps):
+def get_administration_cost(region, country_parameters, parameters, timesteps):
     """
     There is an annual administration cost to deploying and operating all assets.
     Parameters
@@ -117,7 +112,7 @@ def get_administration_cost(region, country_parameters, global_parameters, times
 
         timestep = timestep - 2020
 
-        discounted_cost = discount_admin_cost(annual_cost, timestep, global_parameters)
+        discounted_cost = discount_admin_cost(annual_cost, timestep, parameters)
 
         costs.append(discounted_cost)
 
@@ -143,7 +138,7 @@ def allocate_available_excess(region):
     return region
 
 
-def get_spectrum_costs(region, strategy, global_parameters, country_parameters):
+def get_spectrum_costs(region, strategy, parameters, country_parameters):
     """
     Calculate spectrum costs.
 
@@ -280,7 +275,7 @@ def estimate_subsidies(region, available_for_cross_subsidy):
     return region, available_for_cross_subsidy
 
 
-def discount_admin_cost(cost, timestep, global_parameters):
+def discount_admin_cost(cost, timestep, parameters):
     """
     Discount admin cost based on return period.
     192,744 = 23,773 / (1 + 0.05) ** (0:9)
@@ -291,28 +286,28 @@ def discount_admin_cost(cost, timestep, global_parameters):
         Annual admin network running cost.
     timestep : int
         Time period (year) to discount against.
-    global_parameters : dict
+    parameters : dict
         All global model parameters.
     Returns
     -------
     discounted_cost : float
         The discounted admin cost over the desired time period.
     """
-    discount_rate = global_parameters['discount_rate'] / 100
+    discount_rate = parameters['discount_rate'] / 100
 
     discounted_cost = cost / (1 + discount_rate) ** timestep
 
     return discounted_cost
 
 
-def calculate_total_market_costs(regions, option, country_parameters):
+def calculate_total_market_costs(regions, parameters, country_parameters):
     """
     Calculate the costs for all Mobile Network Operators (MNOs).
     """
     output = []
 
     # generation_core_backhaul_sharing_networks_spectrum_tax
-    # network_strategy = option['strategy'].split('_')[4]
+    # network_strategy = parameters['strategy'].split('_')[4]
 
     for region in regions:
 
@@ -348,6 +343,7 @@ def calculate_total_market_costs(regions, option, country_parameters):
         region['total_deficit'] = calc(region, 'deficit', ms)
         region['total_used_cross_subsidy'] = calc(region, 'used_cross_subsidy', ms)
         region['total_required_state_subsidy'] = calc(region, 'required_state_subsidy', ms)
+
         output.append(region)
 
     return output

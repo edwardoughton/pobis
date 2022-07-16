@@ -20,7 +20,7 @@ RESULTS = os.path.join(BASE_PATH, '..', 'results', 'model_results')
 OUTPUT = os.path.join(BASE_PATH, '..', 'results', 'user_costs')
 
 
-def process_data(data, capacity):
+def process_costs():
     """
     Add any necessary variables and rename scenarios and strategies.
 
@@ -50,6 +50,7 @@ def process_data(data, capacity):
     data['scenario'] = data['scenario'].replace([scenario], 'Baseline')
     scenario = 'high_{}_{}_{}'.format(capacity, capacity, capacity)
     data['scenario'] = data['scenario'].replace([scenario], 'High')
+
     data['strategy'] = data['strategy'].replace(['3G_epc_wireless_baseline_baseline_baseline_baseline_baseline'], '3G (W)')
     data['strategy'] = data['strategy'].replace(['3G_epc_fiber_baseline_baseline_baseline_baseline_baseline'], '3G (FB)')
     data['strategy'] = data['strategy'].replace(['4G_epc_wireless_baseline_baseline_baseline_baseline_baseline'], '4G (W)')
@@ -376,83 +377,83 @@ if __name__ == '__main__':
     if not os.path.exists(OUTPUT):
         os.makedirs(OUTPUT)
 
-    capacities = [
-        10,
-        2
-    ]
+    # capacities = [
+    #     10,
+    #     2
+    # ]
 
-    for capacity in capacities:
+    # for capacity in capacities:
 
-        print('Working on {} Mbps per user'.format(capacity))
+    # print('Working on {} Mbps per user'.format(capacity))
 
-        #Loading PODIS cost estimate data
-        filename = 'regional_mno_cost_results_technology_options.csv'
-        path = os.path.join(RESULTS, filename)
-        data = pd.read_csv(path)
+    #Loading PODIS cost estimate data
+    filename = 'regional_mno_cost_results_technology_options.csv'
+    path = os.path.join(RESULTS, filename)
+    data = pd.read_csv(path)
 
-        #Processing PODIS data
-        data = process_data(data, capacity)
+    #Processing PODIS data
+    data = process_costs()
 
-        #Writing regional per user cost data to .csv
-        filename = 'regional_per_user_cost_{}.csv'.format(capacity)
-        path = os.path.join(OUTPUT, filename)
-        data.to_csv(path, index=False)
+    #     #Writing regional per user cost data to .csv
+    #     filename = 'regional_per_user_cost_{}.csv'.format(capacity)
+    #     path = os.path.join(OUTPUT, filename)
+    #     data.to_csv(path, index=False)
 
-        #Summarizing data
-        costs = summarize_data(data, capacity)
+    #     #Summarizing data
+    #     costs = summarize_data(data, capacity)
 
-        #Writing summarized data to .csv
-        filename = 'per_user_cost_by_pop_density_{}.csv'.format(capacity)
-        path = os.path.join(OUTPUT, filename)
-        costs.to_csv(path, index=False)
+    #     #Writing summarized data to .csv
+    #     filename = 'per_user_cost_by_pop_density_{}.csv'.format(capacity)
+    #     path = os.path.join(OUTPUT, filename)
+    #     costs.to_csv(path, index=False)
 
-        #Loading regional data by pop density geotype
-        filename = 'all_regional_data.csv'
-        path = os.path.join(DATA_INTERMEDIATE, filename)
-        regional_data = pd.read_csv(path)
+    #     #Loading regional data by pop density geotype
+    #     filename = 'all_regional_data.csv'
+    #     path = os.path.join(DATA_INTERMEDIATE, filename)
+    #     regional_data = pd.read_csv(path)
 
-        #Processing all regional data
-        regional_data = process_all_regional_data(regional_data)
+    #     #Processing all regional data
+    #     regional_data = process_all_regional_data(regional_data)
 
-        #Combining regional data with costs
-        regional_data = get_costs(regional_data, costs)
+    #     #Combining regional data with costs
+    #     regional_data = get_costs(regional_data, costs)
 
-        #Exporting results
-        regional_data = pd.DataFrame(regional_data)
-        filename = 'regional_cost_estimates_{}.csv'.format(capacity)
-        path = os.path.join(OUTPUT, filename)
-        regional_data.to_csv(path, index=False)
+    #     #Exporting results
+    #     regional_data = pd.DataFrame(regional_data)
+    #     filename = 'regional_cost_estimates_{}.csv'.format(capacity)
+    #     path = os.path.join(OUTPUT, filename)
+    #     regional_data.to_csv(path, index=False)
 
-        #Processing results data
-        national_costs = processing_national_costs(regional_data, capacity)
+    #     #Processing results data
+    #     national_costs = processing_national_costs(regional_data, capacity)
 
-        #Exporting national results
-        filename = 'national_cost_estimates_{}.csv'.format(capacity)
-        path = os.path.join(OUTPUT, filename)
-        national_costs.to_csv(path, index=False)
+    #     #Exporting national results
+    #     filename = 'national_cost_estimates_{}.csv'.format(capacity)
+    #     path = os.path.join(OUTPUT, filename)
+    #     national_costs.to_csv(path, index=False)
 
-        #Processing total cost data
-        decile_costs = processing_decile_costs(regional_data)
+    #     #Processing total cost data
+    #     decile_costs = processing_decile_costs(regional_data)
 
-        #Exporting national results
-        filename = 'decile_cost_estimates_{}.csv'.format(capacity)
-        path = os.path.join(OUTPUT, filename)
-        decile_costs.to_csv(path, index=False)
+    #     #Exporting national results
+    #     filename = 'decile_cost_estimates_{}.csv'.format(capacity)
+    #     path = os.path.join(OUTPUT, filename)
+    #     decile_costs.to_csv(path, index=False)
 
-        #Processing total cost data
-        total_costs = processing_total_costs(regional_data)
+    #     #Processing total cost data
+    #     total_costs = processing_total_costs(regional_data)
 
-        #Exporting national results
-        filename = 'total_cost_estimates_{}.csv'.format(capacity)
-        path = os.path.join(OUTPUT, filename)
-        total_costs.to_csv(path, index=False)
+    #     #Exporting national results
+    #     filename = 'total_cost_estimates_{}.csv'.format(capacity)
+    #     path = os.path.join(OUTPUT, filename)
+    #     total_costs.to_csv(path, index=False)
 
-        #Estimate the percentage savings by technology
-        percentages = process_total_cost_data(total_costs, capacity)
+    #     #Estimate the percentage savings by technology
+    #     percentages = process_total_cost_data(total_costs, capacity)
 
-        #Writing regional per user cost data to .csv
-        filename = 'percentages_total_cost_{}.csv'.format(capacity)
-        path = os.path.join(OUTPUT, '..', 'percentages', filename)
-        percentages.to_csv(path, index=False)
+    #     #Writing regional per user cost data to .csv
+    #     filename = 'percentages_total_cost_{}.csv'.format(capacity)
+    #     path = os.path.join(OUTPUT, '..', 'percentages', filename)
+    #     percentages.to_csv(path, index=False)
 
-    print('-- Processing completed')
+    # print('-- Processing completed')

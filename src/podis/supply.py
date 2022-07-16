@@ -13,8 +13,8 @@ from operator import itemgetter
 from podis.costs import find_network_cost
 
 
-def estimate_supply(country, regions, capacity_lut, option, global_parameters,
-    country_parameters, costs, core_lut, ci):
+def estimate_supply(country, regions, capacity_lut, parameters,
+    country_parameters, core_lut):
     """
     For each region, find the least-cost design and estimate
     the required investment for for the single network being modeled.
@@ -27,22 +27,13 @@ def estimate_supply(country, regions, capacity_lut, option, global_parameters,
         Data for all regions (one dict per region).
     capacity_lut : dict
         A dictionary containing the lookup capacities.
-    option : dict
-        Contains the scenario and strategy. The strategy string controls
-        the strategy variants being tested in the model and is defined based
-        on the type of technology generation, core and backhaul, and the
-        strategy for infrastructure sharing, the number of networks in each
-        geotype, spectrum and taxation.
-    global_parameters : dict
+    parameters : dict
         All global model parameters.
     country_parameters : dict
         All country specific parameters.
-    costs : dict
-        All equipment costs.
     core_lut : dict
         Contains the number of existing and required, core and regional assets.
-    ci : int
-        Confidence interval.
+
     Returns
     -------
     regions : list of dicts
@@ -52,40 +43,39 @@ def estimate_supply(country, regions, capacity_lut, option, global_parameters,
 
     for region in regions:
 
-        region['mno_site_density'] = find_site_density(region, option,
-            global_parameters, country_parameters, capacity_lut, ci)
+        region['mno_site_density'] = find_site_density(region,
+            parameters, country_parameters, capacity_lut, parameters['confidence'])
 
         total_sites_required = math.ceil(region['mno_site_density'] *
             region['area_km2'])
 
         region = estimate_site_upgrades(
             region,
-            option['strategy'],
+            parameters['strategy'],
             total_sites_required,
             country_parameters
         )
 
-        region = estimate_backhaul_upgrades(region, option['strategy'], country_parameters)
+        region = estimate_backhaul_upgrades(region, parameters['strategy'], country_parameters)
 
         region = find_network_cost(
             region,
-            option,
-            costs,
-            global_parameters,
+            parameters,
             country_parameters,
             core_lut,
         )
 
-        region['scenario'] = option['scenario']
-        region['strategy'] = option['strategy']
-        region['confidence'] = ci
+        region['scenario'] = parameters['scenario']
+        region['strategy'] = parameters['strategy']
+        region['confidence'] = parameters['confidence']
+        region['input_cost'] = parameters['input_cost']
 
         output_regions.append(region)
 
     return output_regions
 
 
-def find_site_density(region, option, global_parameters, country_parameters,
+def find_site_density(region, parameters, country_parameters,
     capacity_lut, ci):
     """
     For a given region, estimate the number of needed sites.
@@ -93,13 +83,7 @@ def find_site_density(region, option, global_parameters, country_parameters,
     ----------
     region : dicts
         Data for a single region.
-    option : dict
-        Contains the scenario and strategy. The strategy string controls
-        the strategy variants being tested in the model and is defined based
-        on the type of technology generation, core and backhaul, and the
-        strategy for infrastructure sharing, the number of networks in each
-        geotype, spectrum and taxation.
-    global_parameters : dict
+    parameters : dict
         All global model parameters.
     country_parameters : dict
         All country specific parameters.
@@ -115,7 +99,7 @@ def find_site_density(region, option, global_parameters, country_parameters,
     demand = region['demand_mbps_km2']
     geotype = region['geotype'].split(' ')[0]
     ant_type = 'macro'
-    generation = option['strategy'].split('_')[0]
+    generation = parameters['strategy'].split('_')[0]
     frequencies = country_parameters['frequencies']
     frequencies = frequencies[generation]
     ci = str(ci)
@@ -154,7 +138,7 @@ def find_site_density(region, option, global_parameters, country_parameters,
             channels, bandwidth = float(channels), float(bandwidth)
 
             if channels == 1: #allocate downlink channel width when using TDD
-                downlink = float(global_parameters['tdd_dl_to_ul'].split(':')[0])
+                downlink = float(parameters['tdd_dl_to_ul'].split(':')[0])
                 bandwidth = bandwidth * (downlink / 100)
 
             density_capacities = lookup_capacity(
