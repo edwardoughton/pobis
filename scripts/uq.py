@@ -24,22 +24,22 @@ def generate_uq(global_parameters, costs):
         ('technology_options', '3G_epc_fiber_baseline_baseline_baseline_baseline'),
         ('technology_options', '4G_epc_wireless_baseline_baseline_baseline_baseline'),
         ('technology_options', '4G_epc_fiber_baseline_baseline_baseline_baseline'),
-        #3g wireless sharing
-        ('business_model_options', '3G_epc_wireless_psb_baseline_baseline_baseline_baseline'),
-        ('business_model_options', '3G_epc_wireless_moran_baseline_baseline_baseline_baseline'),
-        ('business_model_options', '3G_epc_wireless_srn_srn_baseline_baseline_baseline'),
-        #3g fiber sharing
-        ('business_model_options', '3G_epc_fiber_psb_baseline_baseline_baseline_baseline'),
-        ('business_model_options', '3G_epc_fiber_moran_baseline_baseline_baseline_baseline'),
-        ('business_model_options', '3G_epc_fiber_srn_srn_baseline_baseline_baseline'),
-        #4g wireless sharing
-        ('business_model_options', '4G_epc_wireless_psb_baseline_baseline_baseline_baseline'),
-        ('business_model_options', '4G_epc_wireless_moran_baseline_baseline_baseline_baseline'),
-        ('business_model_options', '4G_epc_wireless_srn_srn_baseline_baseline_baseline'),
-        #4g fiber sharing
-        ('business_model_options', '4G_epc_fiber_psb_baseline_baseline_baseline_baseline'),
-        ('business_model_options', '4G_epc_fiber_moran_baseline_baseline_baseline_baseline'),
-        ('business_model_options', '4G_epc_fiber_srn_srn_baseline_baseline_baseline'),
+        # #3g wireless sharing
+        # ('business_model_options', '3G_epc_wireless_psb_baseline_baseline_baseline_baseline'),
+        # ('business_model_options', '3G_epc_wireless_moran_baseline_baseline_baseline_baseline'),
+        # ('business_model_options', '3G_epc_wireless_srn_srn_baseline_baseline_baseline'),
+        # #3g fiber sharing
+        # ('business_model_options', '3G_epc_fiber_psb_baseline_baseline_baseline_baseline'),
+        # ('business_model_options', '3G_epc_fiber_moran_baseline_baseline_baseline_baseline'),
+        # ('business_model_options', '3G_epc_fiber_srn_srn_baseline_baseline_baseline'),
+        # #4g wireless sharing
+        # ('business_model_options', '4G_epc_wireless_psb_baseline_baseline_baseline_baseline'),
+        # ('business_model_options', '4G_epc_wireless_moran_baseline_baseline_baseline_baseline'),
+        # ('business_model_options', '4G_epc_wireless_srn_srn_baseline_baseline_baseline'),
+        # #4g fiber sharing
+        # ('business_model_options', '4G_epc_fiber_psb_baseline_baseline_baseline_baseline'),
+        # ('business_model_options', '4G_epc_fiber_moran_baseline_baseline_baseline_baseline'),
+        # ('business_model_options', '4G_epc_fiber_srn_srn_baseline_baseline_baseline'),
     ]
 
     scenarios = [
@@ -55,11 +55,11 @@ def generate_uq(global_parameters, costs):
     ]
 
     input_costs = [
-        60,
-        80,
-        100,
-        120,
-        140,
+        ('low', 60),
+        # 80,
+        ('baseline', 100),
+        # 120,
+        ('high', 140),
     ]
 
     output = []
@@ -82,7 +82,7 @@ def generate_uq(global_parameters, costs):
                         'decision_option': strategy[0],
                         'strategy': strategy[1],
                         'scenario': scenario_handle,
-                        'cost_perc': input_cost,
+                        'input_cost': input_cost[0],
                         'capacity': capacity,
                         #global params
                         'return_period': global_parameters['return_period'],
@@ -91,24 +91,24 @@ def generate_uq(global_parameters, costs):
                         'confidence': global_parameters['confidence'],
                         'traffic_in_the_busy_hour_perc': global_parameters['traffic_in_the_busy_hour_perc'],
                         #costs
-                        'equipment_capex': 40000 * (input_cost/100),
-                        'site_build_capex': 30000 * (input_cost/100),
-                        'installation_capex': 30000 * (input_cost/100),
-                        'operation_and_maintenance_opex': 7400 * (input_cost/100),
-                        'power_opex': 3000 * (input_cost/100),
-                        'site_rental_urban_opex': 10000 * (input_cost/100),
-                        'site_rental_suburban_opex': 5000 * (input_cost/100),
-                        'site_rental_rural_opex': 3000 * (input_cost/100),
-                        'fiber_urban_m_capex': 25 * (input_cost/100),
-                        'fiber_suburban_m_capex': 15 * (input_cost/100),
-                        'fiber_rural_m_capex': 10 * (input_cost/100),
-                        'wireless_small_capex': 15000 * (input_cost/100),
-                        'wireless_medium_capex': 20000 * (input_cost/100),
-                        'wireless_large_capex': 45000 * (input_cost/100),
-                        'core_node_epc_capex': 500000 * (input_cost/100),
-                        'core_edge_capex': 25 * (input_cost/100),
-                        'regional_node_epc_capex': 200000 * (input_cost/100),
-                        'regional_edge_capex': 25 * (input_cost/100),
+                        'equipment_capex': 40000 * (input_cost[1]/100),
+                        'site_build_capex': 30000 * (input_cost[1]/100),
+                        'installation_capex': 30000 * (input_cost[1]/100),
+                        'operation_and_maintenance_opex': 7400 * (input_cost[1]/100),
+                        'power_opex': 3000 * (input_cost[1]/100),
+                        'site_rental_urban_opex': 10000 * (input_cost[1]/100),
+                        'site_rental_suburban_opex': 5000 * (input_cost[1]/100),
+                        'site_rental_rural_opex': 3000 * (input_cost[1]/100),
+                        'fiber_urban_m_capex': 25 * (input_cost[1]/100),
+                        'fiber_suburban_m_capex': 15 * (input_cost[1]/100),
+                        'fiber_rural_m_capex': 10 * (input_cost[1]/100),
+                        'wireless_small_capex': 15000 * (input_cost[1]/100),
+                        'wireless_medium_capex': 20000 * (input_cost[1]/100),
+                        'wireless_large_capex': 45000 * (input_cost[1]/100),
+                        'core_node_epc_capex': 500000 * (input_cost[1]/100),
+                        'core_edge_capex': 25 * (input_cost[1]/100),
+                        'regional_node_epc_capex': 200000 * (input_cost[1]/100),
+                        'regional_edge_capex': 25 * (input_cost[1]/100),
                     })
 
                     iteration += 1
