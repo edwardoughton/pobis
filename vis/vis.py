@@ -141,9 +141,11 @@ def plot_sub_national_cost_per_user(data, regions, capacity, cost_type, disputed
 
     """
     n = len(regions)
-    data = data.loc[data['scenario'] == 'Baseline']
-    data = data.loc[data['strategy'] == '4G(W)']
+    handle = 'baseline_{}_{}_{}'.format(capacity, capacity, capacity)
+    data = data.loc[data['scenario'] == handle]
+    data = data.loc[data['strategy'] == '4G_epc_wireless_baseline_baseline_baseline_baseline']
     data = data.loc[data['confidence'] == 50]
+    data = data.loc[data['input_cost'] == 'baseline']
 
     data = data[['GID_id', cost_type[2]]]
     regions = regions[['GID_id', 'geometry']]
@@ -194,7 +196,7 @@ def plot_sub_national_cost_per_user(data, regions, capacity, cost_type, disputed
     ctx.add_basemap(ax, crs=regions.crs, source=ctx.providers.CartoDB.Voyager)
 
     fig.suptitle(
-        '{} Per User Cost for 4G (Wireless) Universal Broadband (~{} Mbps) (n={}) (10-year NPV)'.format(
+        '{} Per User Cost for 4G (Wireless) Universal Broadband ({} GB/Month) (n={}) (10-year NPV)'.format(
             cost_type[0].split(' ')[0], capacity, n))
 
     fig.tight_layout()
@@ -282,9 +284,11 @@ def plot_investment_as_gdp_percent(data, gdp, regions, capacity, cost_type, disp
     gdp = gdp[['iso3', 'gdp']]
 
     n = len(regions)
-    data = data.loc[data['scenario'] == 'Baseline']
-    data = data.loc[data['strategy'] == '4G(W)']
+    handle = 'baseline_{}_{}_{}'.format(capacity, capacity, capacity)
+    data = data.loc[data['scenario'] == handle]
+    data = data.loc[data['strategy'] == '4G_epc_wireless_baseline_baseline_baseline_baseline']
     data = data.loc[data['confidence'] == 50]
+    data = data.loc[data['input_cost'] == 'baseline']
 
     data = data[['GID_0', 'GID_id', cost_type[1]]]
     data = pd.merge(left=data, right=gdp, how='left',  left_on='GID_0', right_on='iso3')
@@ -341,7 +345,7 @@ def plot_investment_as_gdp_percent(data, gdp, regions, capacity, cost_type, disp
     ctx.add_basemap(ax, crs=regions.crs, source=ctx.providers.CartoDB.Voyager)
 
     fig.suptitle(
-        str('{} Cost for 4G (Wireless) Universal Broadband (~{} Mbps) ({}GDP) (n={}) (10-year NPV)'.format(
+        str('{} Cost for 4G (Wireless) Universal Broadband ({} GB/Month) ({}GDP) (n={}) (10-year NPV)'.format(
             cost_type[0].split(' ')[0], capacity, '%', n)))
 
     fig.tight_layout()
@@ -356,7 +360,8 @@ if __name__ == '__main__':
 
     capacities = [
         10,
-        2
+        20,
+        30
     ]
 
     cost_types = [
@@ -365,13 +370,13 @@ if __name__ == '__main__':
         ('Financial Mean Cost Per User ($USD)', 'total_financial_cost', 'financial_cost_per_user'),
     ]
 
-    da_path = os.path.join(VIS, '..', 'disputed areas', 'DisputedAreasWGS84.shp')
+    da_path = os.path.join(VIS, '..', 'disputed_areas', 'DisputedAreasWGS84.shp')
     disputed_areas = gpd.read_file(da_path, crs='epsg:4326')
 
     for capacity in capacities:
         for cost_type in cost_types:
 
-            print('Working on {} ({} Mbps)'.format(cost_type[0], capacity))
+            print('Working on {} ({} GB/Month)'.format(cost_type[0], capacity))
 
             #Loading regional data by pop density geotype
             path = os.path.join(DATA_INTERMEDIATE, 'all_regional_data.csv')
@@ -391,7 +396,7 @@ if __name__ == '__main__':
                 plot_regions_by_geotype(data, shapes, path, disputed_areas)
 
             #Loading regional results data
-            filename = 'regional_cost_estimates_{}.csv'.format(capacity)
+            filename = 'user_cost_estimates.csv'
             path = os.path.join(USER_COSTS, filename)
             regional_costs = pd.read_csv(path)
 
