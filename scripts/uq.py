@@ -24,22 +24,11 @@ def generate_uq(global_parameters, costs):
         ('technology_options', '3G_epc_fiber_baseline_baseline_baseline_baseline'),
         ('technology_options', '4G_epc_wireless_baseline_baseline_baseline_baseline'),
         ('technology_options', '4G_epc_fiber_baseline_baseline_baseline_baseline'),
-        # #3g wireless sharing
-        # ('business_model_options', '3G_epc_wireless_psb_baseline_baseline_baseline_baseline'),
-        # ('business_model_options', '3G_epc_wireless_moran_baseline_baseline_baseline_baseline'),
-        # ('business_model_options', '3G_epc_wireless_srn_srn_baseline_baseline_baseline'),
-        # #3g fiber sharing
-        # ('business_model_options', '3G_epc_fiber_psb_baseline_baseline_baseline_baseline'),
-        # ('business_model_options', '3G_epc_fiber_moran_baseline_baseline_baseline_baseline'),
-        # ('business_model_options', '3G_epc_fiber_srn_srn_baseline_baseline_baseline'),
         # #4g wireless sharing
-        # ('business_model_options', '4G_epc_wireless_psb_baseline_baseline_baseline_baseline'),
-        # ('business_model_options', '4G_epc_wireless_moran_baseline_baseline_baseline_baseline'),
-        # ('business_model_options', '4G_epc_wireless_srn_srn_baseline_baseline_baseline'),
-        # #4g fiber sharing
-        # ('business_model_options', '4G_epc_fiber_psb_baseline_baseline_baseline_baseline'),
-        # ('business_model_options', '4G_epc_fiber_moran_baseline_baseline_baseline_baseline'),
-        # ('business_model_options', '4G_epc_fiber_srn_srn_baseline_baseline_baseline'),
+        ('business_model_options', '4G_epc_wireless_baseline_baseline_baseline_baseline_baseline'),
+        ('business_model_options', '4G_epc_wireless_psb_baseline_baseline_baseline_baseline'),
+        ('business_model_options', '4G_epc_wireless_moran_baseline_baseline_baseline_baseline'),
+        ('business_model_options', '4G_epc_wireless_srn_srn_baseline_baseline_baseline'),
     ]
 
     scenarios = [
