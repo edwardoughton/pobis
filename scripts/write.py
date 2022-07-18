@@ -41,7 +41,7 @@ def write_mno_demand(regional_annual_demand, folder, metric, path):
     regional_annual_demand = pd.DataFrame(regional_annual_demand)
     regional_annual_demand = regional_annual_demand[[
         'GID_0', 'GID_id', 'scenario', 'strategy',
-        'confidence', 'year', 'population', 'area_km2', 'population_km2',
+        'confidence', 'input_cost', 'year', 'population', 'area_km2', 'population_km2',
         'geotype', 'arpu_discounted_monthly', 'penetration', 'population_with_phones',
         'phones_on_network', 'smartphone_penetration', 'population_with_smartphones',
         'smartphones_on_network', 'revenue'
@@ -60,7 +60,7 @@ def write_regional_results(regional_results, folder, metric):
     regional_mno_results = define_deciles(regional_mno_results)
     regional_mno_results = regional_mno_results[[
         'GID_0', 'GID_id', 'scenario', 'strategy', 'decile',
-        'confidence', 'population', 'area_km2',
+        'confidence', 'input_cost', 'population', 'area_km2',
         'phones_on_network', 'smartphones_on_network',
         'total_estimated_sites', 'existing_mno_sites',
         'upgraded_mno_sites', 'new_mno_sites',
@@ -109,7 +109,7 @@ def write_regional_results(regional_results, folder, metric):
     regional_mno_cost_results = define_deciles(regional_mno_cost_results)
     regional_mno_cost_results = regional_mno_cost_results[[
         'GID_0', 'GID_id', 'scenario', 'strategy',
-        'decile', 'confidence', 'population', 'area_km2', 'geotype',
+        'decile', 'confidence', 'input_cost', 'population', 'area_km2', 'geotype',
         'phones_on_network', 'smartphones_on_network', 'total_mno_revenue',
         'ran_capex', 'ran_opex', 'backhaul_capex',
         'backhaul_opex', 'civils_capex', 'core_capex', 'core_opex',
@@ -165,7 +165,7 @@ def write_decile_results(regional_results, folder, metric):
     decile_results = pd.DataFrame(regional_results)
     decile_results = define_deciles(decile_results)
     decile_results = decile_results[[
-        'GID_0', 'scenario', 'strategy', 'decile', 'confidence',
+        'GID_0', 'scenario', 'strategy', 'decile', 'confidence', 'input_cost',
         'population', 'area_km2', 'phones_on_network',
         'smartphones_on_network', 'total_estimated_sites',
         'existing_mno_sites', 'upgraded_mno_sites', 'new_mno_sites',
@@ -202,7 +202,7 @@ def write_decile_results(regional_results, folder, metric):
     decile_cost_results = pd.DataFrame(regional_results)
     decile_cost_results = define_deciles(decile_cost_results)
     decile_cost_results = decile_cost_results[[
-        'GID_0', 'scenario', 'strategy', 'decile', 'confidence',
+        'GID_0', 'scenario', 'strategy', 'decile', 'confidence', 'input_cost',
         'population', 'area_km2', 'phones_on_network', 'smartphones_on_network',
         'total_mno_revenue', 'ran_capex', 'ran_opex', 'backhaul_capex',
         'backhaul_opex', 'civils_capex', 'core_capex', 'core_opex',
