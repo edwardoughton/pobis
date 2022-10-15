@@ -196,7 +196,7 @@ def plot_sub_national_cost_per_user(data, regions, capacity, cost_type, disputed
     ctx.add_basemap(ax, crs=regions.crs, source=ctx.providers.CartoDB.Voyager)
 
     fig.suptitle(
-        '{} Per User Cost for 4G (Wireless) Universal Broadband ({} GB/Month) (n={}) (10-year NPV)'.format(
+        '{} Per User Cost for 4G (Wireless) Universal Broadband ({} GB/Month) (n={}) (10-year PV)'.format(
             cost_type[0].split(' ')[0], capacity, n))
 
     fig.tight_layout()
@@ -345,7 +345,7 @@ def plot_investment_as_gdp_percent(data, gdp, regions, capacity, cost_type, disp
     ctx.add_basemap(ax, crs=regions.crs, source=ctx.providers.CartoDB.Voyager)
 
     fig.suptitle(
-        str('{} Cost for 4G (Wireless) Universal Broadband ({} GB/Month) ({}GDP) (n={}) (10-year NPV)'.format(
+        str('{} Cost for 4G (Wireless) Universal Broadband ({} GB/Month) ({}GDP) (n={}) (10-year PV)'.format(
             cost_type[0].split(' ')[0], capacity, '%', n)))
 
     fig.tight_layout()
