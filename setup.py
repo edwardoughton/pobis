@@ -17,16 +17,16 @@ def readme():
 
 
 setup(
-    name='podis',
+    name='pobis',
     # use_scm_version=True,
     version=0.1,
     license='MIT License',
-    description='Policy Options for Digital Infrastructure Strategies',
+    description='Policy Options for Broadband Infrastructure Strategies',
     long_description=readme(),
     long_description_content_type="text/markdown",
     author='Ed Oughton',
     author_email='edward.oughton@gmail.com',
-    url='https://github.com/edwardoughton/podis',
+    url='https://github.com/edwardoughton/pobis',
     packages=find_packages('src'),
     package_dir={'': 'src'},
     py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],
