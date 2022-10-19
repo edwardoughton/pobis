@@ -12,7 +12,7 @@ before_script:
   - git config --global user.name "Edward Oughton"
 
 script:
-  - python -m pytest --cov=podis tests
+  - python -m pytest --cov=pobis tests
 
 after_success:
   - coveralls

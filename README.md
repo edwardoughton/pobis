@@ -3,7 +3,7 @@ Policy Options for Broadband Infrastructure Strategies (podis)
 [![Build Status](https://travis-ci.org/edwardoughton/podis.svg?branch=master)](https://travis-ci.org/edwardoughton/podis)
 [![Coverage Status](https://coveralls.io/repos/github/edwardoughton/podis/badge.svg?branch=master)](https://coveralls.io/github/edwardoughton/podis?branch=master)
 
-**podis** allows transparent and reproducible analysis of policy options for improving
+**pobis** allows transparent and reproducible analysis of policy options for improving
 broadband infrastructure connectivity, thus contributing to sustainable economic development.
 
 The simulation model available in this repository can be applied to local, national or regional
@@ -37,7 +37,7 @@ strategies.
   <img src="/figures/approach.png" />
 </p>
 
-As `podis` functions in a spatially disaggregated way, it is possible to convert detailed
+As `pobis` functions in a spatially disaggregated way, it is possible to convert detailed
 local modeling into continent-wide assessment of universal broadband. In the table below,
 the necessary investment per decile is reported for the whole of Africa, based on the
 private cost, net government cost, and the total financial cost.
@@ -45,16 +45,16 @@ private cost, net government cost, and the total financial cost.
 ## The financial cost of universal broadband for the African continent
 
 <p align="center">
-  <img src="/figures/validation_10_mbps.png" />
+  <img src="/figures/validation_30gb.png" />
 </p>
 
-Investment costs by `podis` are able to be converted into disaggregated estimates, as
+Investment costs by `pobis` are able to be converted into disaggregated estimates, as
 demonstrated below.
 
 ## Continental assessment of universal broadband costs by user location across Africa
 
 <p align="center">
-  <img src="/figures/z_cost_per_user_spatially_Financial_10_mbps.png" />
+  <img src="/figures/z_cost_per_user_spatially_Financial_30_mbps.png" />
 </p>
 
 Using conda
@@ -63,19 +63,19 @@ Using conda
 The recommended installation method is to use conda, which handles packages and virtual
 environments, along with the conda-forge channel which has a host of pre-built libraries and packages.
 
-Create a conda environment called podis:
+Create a conda environment called pobis:
 
-    conda create --name podis python=3.7 gdal
+    conda create --name pobis python=3.7 gdal
 
 Activate it (run this each time you switch projects):
 
-    conda activate podis
+    conda activate pobis
 
 First, install required packages:
 
     conda install geopandas rasterio rasterstats networkx seaborn descartes
 
-Then install podis:
+Then install pobis:
 
     python setup.py install
 
@@ -159,7 +159,7 @@ To plot the maps for the African continent the following script can be executed:
 Acknowledgements
 ================
 
-**podis** was developed at George Mason University, Fairfax, VA, USA.
+**pobis** was developed at George Mason University, Fairfax, VA, USA.
 
 Guidance and support has been very much appreciated from collaborators at the World Bank's
 Digital Economy for Africa program.
