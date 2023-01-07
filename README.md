@@ -3,8 +3,8 @@ Policy Options for Broadband Infrastructure Strategies (podis)
 [![Build Status](https://travis-ci.org/edwardoughton/podis.svg?branch=master)](https://travis-ci.org/edwardoughton/podis)
 [![Coverage Status](https://coveralls.io/repos/github/edwardoughton/podis/badge.svg?branch=master)](https://coveralls.io/github/edwardoughton/podis?branch=master)
 
-**pobis** allows transparent and reproducible analysis of policy options for improving
-broadband infrastructure connectivity, thus contributing to sustainable economic development.
+**pobis** allows transparent and reproducible analysis of policy options for improving mobile
+broadband infrastructure connectivity.
 
 The simulation model available in this repository can be applied to local, national or regional
 telecommunication markets, to quantify the performance of different technologies or business
@@ -14,22 +14,8 @@ broadband infrastructure strategies.
 Citation
 ---------
 
-- Oughton, E., 2021. Policy options for digital infrastructure strategies: A simulation model
-  for broadband universal service in Africa. arXiv:2102.03561 [cs, econ, q-fin].
+- Oughton, E.J. (2023) ‘Policy Options for Broadband Infrastructure Strategies: A Simulation Model for Affordable Universal Broadband in Africa’. Telematics and Informatics 76 (January): 101908. https://doi.org/10.1016/j.tele.2022.101908.
 
-
-Data analytics for broadband strategies
-=======================================
-Myriad high-level policy reports have attempted to quantify the costs of infrastructure
-delivery for connecting unconnected communities. The majority use spreadsheet methods to
-estimate the required investment, leaving substantial uncertainty embedded within the results
-which is rarely portrayed to policy makers.
-
-The method developed here takes a new approach by drawing on a range of analytical tools rarely
-utilized in telecom policy research, including remote sensing and least-cost network designs
-derived from infrastructure simulation. The figure below illustrates how these approaches are
-combined to produce demand and supply estimates to quantify broadband universal service
-strategies.
 
 ## Example analytical approach
 
@@ -42,19 +28,10 @@ local modeling into continent-wide assessment of universal broadband. In the tab
 the necessary investment per decile is reported for the whole of Africa, based on the
 private cost, net government cost, and the total financial cost.
 
-## The financial cost of universal broadband for the African continent
+## Assessment of universal mobile broadband across Africa
 
 <p align="center">
-  <img src="/figures/validation_30gb.png" />
-</p>
-
-Investment costs by `pobis` are able to be converted into disaggregated estimates, as
-demonstrated below.
-
-## Continental assessment of universal broadband costs by user location across Africa
-
-<p align="center">
-  <img src="/figures/z_cost_per_user_spatially_Financial_30_mbps.png" />
+  <img src="/figures/a.png" />
 </p>
 
 Using conda
@@ -87,36 +64,7 @@ Alternatively, for development purposes, clone this repo and run:
 Download necessary data
 =======================
 
-You will need numerous input data sets.
-
-First, download the Global Administrative Database (GADM), following the link below and making
-sure you download the "six separate layers.":
-
-- https://gadm.org/download_world.html
-
-Place the data into the following path `data/raw/gadm36_levels_shp`.
-
-Then download the WorldPop global settlement data from:
-
-- https://www.worldpop.org/geodata/summary?id=24777.
-
-Place the data in `data/raw/settlement_layer`.
-
-Next, download the nightlight data here:
-
-https://ngdc.noaa.gov/eog/data/web_data/v4composites/F182013.v4.tar
-
-Place the unzipped data in `data/raw/nightlights/2013`.
-
-Obtain the Mobile Coverage Explorer data from Collins Bartholomew:
-
-https://www.collinsbartholomew.com/mobile-coverage-maps/mobile-coverage-explorer/
-
-Place the data into `data/raw/Mobile Coverage Explorer`.
-
-Once complete, run the following to preprocess all data:
-
-    python scripts/preprocess.py
+You will need numerous input data sets. See the published paper for a full summary.
 
 
 Using the model
