@@ -200,7 +200,7 @@ def plot_sub_national_cost_per_user(data, regions, capacity, cost_type, disputed
             cost_type[0].split(' ')[0], capacity, n))
 
     fig.tight_layout()
-    filename = 'z_cost_per_user_spatially_{}_{}_mbps.png'.format(
+    filename = 'z_cost_per_user_spatially_{}_{}_gb_month.png'.format(
         cost_type[0].split(' ')[0], capacity)
     fig.savefig(os.path.join(VIS, filename))
 
@@ -349,7 +349,7 @@ def plot_investment_as_gdp_percent(data, gdp, regions, capacity, cost_type, disp
             cost_type[0].split(' ')[0], capacity, '%', n)))
 
     fig.tight_layout()
-    filename = 'z_gdp_percentage_spatially_{}_{}_mbps.png'.format(
+    filename = 'z_gdp_percentage_spatially_{}_{}_gb_month.png'.format(
         cost_type[0].split(' ')[0], capacity)
     fig.savefig(os.path.join(VIS, filename))
 
@@ -360,7 +360,7 @@ if __name__ == '__main__':
 
     capacities = [
         10,
-        20,
+        # 20,
         30
     ]
 
@@ -391,7 +391,7 @@ if __name__ == '__main__':
                 shapes = gpd.read_file(path, crs='epsg:4326')
 
             #Plotting regions by geotype
-            path = os.path.join(VIS, 'z_region_by_pop_density.png')
+            path = os.path.join(VIS, 'region_by_pop_density.png')
             if not os.path.exists(path):
                 plot_regions_by_geotype(data, shapes, path, disputed_areas)
 
