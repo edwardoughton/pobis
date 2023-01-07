@@ -19,14 +19,13 @@ Citation
 
 ## Example analytical approach
 
+As `pobis` functions in a spatially disaggregated way, it is possible to convert detailed
+local modeling into continent-wide assessment of universal broadband. 
+
 <p align="center">
   <img src="/figures/approach.png" />
 </p>
 
-As `pobis` functions in a spatially disaggregated way, it is possible to convert detailed
-local modeling into continent-wide assessment of universal broadband. In the table below,
-the necessary investment per decile is reported for the whole of Africa, based on the
-private cost, net government cost, and the total financial cost.
 
 ## Assessment of universal mobile broadband across Africa
 
