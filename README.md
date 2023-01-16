@@ -1,4 +1,4 @@
-Policy Options for Broadband Infrastructure Strategies (podis)
+Policy Options for Broadband Infrastructure Strategies (pobis)
 ============================================================
 [![Build Status](https://travis-ci.org/edwardoughton/podis.svg?branch=master)](https://travis-ci.org/edwardoughton/podis)
 [![Coverage Status](https://coveralls.io/repos/github/edwardoughton/podis/badge.svg?branch=master)](https://coveralls.io/github/edwardoughton/podis?branch=master)
